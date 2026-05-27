@@ -304,7 +304,7 @@
         "id": "dry-ciel",
         "nombre": "Panel Drywall cielo raso (1 cara)",
         "und": "M2",
-        "precio": 89777,
+        "precio": 90633,
         "desc": "Incluye estructura, tornillería, masillado, lijado y cuadrilla",
         "componentes": [
           {
@@ -322,13 +322,13 @@
           {
             "nombre": "Omega para techo",
             "und": "UND",
-            "cant": 202.6,
+            "cant": 227.44,
             "vr_unit": 4700
           },
           {
             "nombre": "Vigueta para techo",
             "und": "UND",
-            "cant": 104.3,
+            "cant": 131.63,
             "vr_unit": 4700
           },
           {

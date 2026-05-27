@@ -72,8 +72,8 @@ const APU = [
   { id: 'dry-ciel', ref_qty: 358, componentes: [
     { nombre: 'Mano de Obra',                    und: 'M2',  cant: 393.8,   vr_unit: 35000 },
     { nombre: 'Espátula',                        und: 'UND', cant: 1,       vr_unit: 16500 },
-    { nombre: 'Omega para techo',                und: 'UND', cant: 202.60,  vr_unit: 4700  },
-    { nombre: 'Vigueta para techo',              und: 'UND', cant: 104.30,  vr_unit: 4700  },
+    { nombre: 'Omega para techo',                und: 'UND', cant: 227.44,  vr_unit: 4700  },
+    { nombre: 'Vigueta para techo',              und: 'UND', cant: 131.63,  vr_unit: 4700  },
     { nombre: 'Lámina yeso estándar 2.44×1.22m', und: 'UND', cant: 120.539, vr_unit: 46900 },
     { nombre: 'Tornillo tapado drywall',         und: 'UND', cant: 25060,   vr_unit: 50    },
     { nombre: 'Tornillo de estructura',          und: 'UND', cant: 10740,   vr_unit: 50    },
