@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotizador — Akanto Estudio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --negro:       #0C0F11;
+      --negro-2:     #1A1D1F;
+      --crema:       #E2E2BD;
+      --crema-suave: #F0EFEA;
+      --crema-medio: #D8D7C4;
+      --terracota:   #A06851;
+      --terracota-cl:#CEB0A0;
+      --gris:        #86928A;
+      --gris-cl:     #C5CFC8;
+      --blanco:      #FFFFFF;
+      --borde:       #D4D3C0;
+      --error:       #B03A2E;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--crema-suave); color: var(--negro); font-size: 13px; line-height: 1.5; min-height: 100vh; }
+    input, select, textarea, button { font-family: inherit; }
+
+    /* ── LAYOUT ── */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: 360px; min-width: 320px; background: var(--negro); color: var(--crema); display: flex; flex-direction: column; gap: 0; overflow-y: auto; height: 100vh; position: sticky; top: 0; }
+    .sb-head { padding: 24px 20px 14px; border-bottom: none; }
+    .sb-nav  { display:flex; align-items:center; justify-content:flex-end; padding: 6px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sb-nav a { font-size:10px; color:var(--terracota-cl); text-decoration:none; letter-spacing:0.05em; opacity:0.8; }
+    .sb-nav a:hover { opacity:1; color:var(--blanco); }
+    .sb-logo { display: flex; flex-direction: column; gap: 3px; }
+    .sb-logo-img { height: 30px; filter: brightness(0) invert(1); }
+    .sb-logo span { font-weight: 300; font-size: 10px; letter-spacing: 0.2em; color: var(--gris); display: block; margin-top: 2px; }
+    .sb-body { padding: 16px 20px; flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+    .tabs { display: flex; gap: 2px; background: rgba(255,255,255,0.05); border-radius: 5px; padding: 3px; }
+    .tab-btn { flex: 1; padding: 6px 6px; border: none; border-radius: 3px; background: transparent; color: var(--gris); font-size: 11px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .tab-btn.active { background: var(--terracota); color: var(--blanco); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: flex; flex-direction: column; gap: 10px; }
+
+    .sec-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--terracota-cl); margin-bottom: 2px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 10px; color: var(--gris); }
+    .field input, .field select, .field textarea { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 7px 9px; color: var(--crema); font-size: 12px; outline: none; transition: border-color 0.15s; width: 100%; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--terracota); }
+    .field select option { background: #1a1d1f; }
+    .field textarea { resize: vertical; min-height: 60px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* Catalog search */
+    .cat-search { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 7px 9px; color: var(--crema); font-size: 12px; outline: none; width: 100%; }
+    .cat-search:focus { border-color: var(--terracota); }
+    .cat-search::placeholder { color: var(--gris); }
+    .cat-group { margin-bottom: 4px; }
+    .cat-group-title { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gris); padding: 6px 0 3px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 3px; }
+    .cat-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 7px; border-radius: 3px; cursor: pointer; transition: background 0.12s; gap: 6px; border: none; background: transparent; width: 100%; text-align: left; color: var(--crema); }
+    .cat-item:hover { background: rgba(160,104,81,0.15); }
+    .cat-item-name { font-size: 11px; flex: 1; }
+    .cat-item-price { font-size: 10px; color: var(--gris); white-space: nowrap; }
+    .cat-item-und { font-size: 9px; color: var(--terracota-cl); background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 2px; white-space: nowrap; }
+    .hidden { display: none !important; }
+
+    /* Active services */
+    .srv-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 10px; }
+    .srv-item-top { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 7px; }
+    .srv-item-top input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 2px 0; color: var(--blanco); font-size: 12px; font-weight: 500; flex: 1; outline: none; }
+    .srv-item-top input:focus { border-bottom-color: var(--terracota); }
+    .srv-desc-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2px 0; color: var(--gris); font-size: 10px; font-style: italic; outline: none; margin-bottom: 7px; }
+    .srv-desc-input:focus { border-bottom-color: var(--terracota); }
+    .srv-fields { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 5px; }
+    .srv-field-lbl { font-size: 9px; color: var(--gris); margin-bottom: 2px; }
+    .srv-fields input, .srv-fields select { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; padding: 4px 6px; color: var(--crema); font-size: 11px; outline: none; width: 100%; }
+    .srv-fields input:focus, .srv-fields select:focus { border-color: var(--terracota); }
+    .srv-fields select option { background: #1a1d1f; }
+    .srv-subtotal { text-align: right; font-size: 10px; color: var(--terracota-cl); margin-top: 5px; }
+    .btn-del { background: transparent; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 2px; flex-shrink: 0; }
+    .btn-del:hover { color: var(--error); background: rgba(176,58,46,0.15); }
+
+    /* Buttons */
+    .btn { padding: 9px 14px; border-radius: 3px; border: none; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s; font-family: inherit; }
+    .btn-primary { background: var(--terracota); color: var(--blanco); width: 100%; }
+    .btn-primary:hover { background: #8a5843; }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--crema); width: 100%; }
+    .btn-outline:hover { border-color: var(--terracota); color: var(--terracota-cl); }
+    .btn-add-blank { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.15); color: var(--gris); width: 100%; padding: 7px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: inherit; }
+    .btn-add-blank:hover { border-color: var(--terracota); color: var(--terracota-cl); }
+
+    /* Componentes en ítem del sidebar */
+    .srv-comps { margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .srv-comps-toggle { background: transparent; border: none; color: var(--gris); font-size: 10px; cursor: pointer; padding: 0; letter-spacing: 0.04em; display: flex; align-items: center; gap: 5px; font-family: inherit; }
+    .srv-comps-toggle:hover { color: var(--crema); }
+    .srv-comps-body { margin-top: 7px; }
+    .srv-comps-table { width: 100%; border-collapse: collapse; }
+    .srv-comps-table th { font-size: 8px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--gris); padding: 2px 4px; text-align: left; }
+    .srv-comps-table th.th-r, .srv-comps-table td.td-r { text-align: right; }
+    .srv-comps-table td { font-size: 10px; padding: 3px 4px; color: rgba(255,255,255,0.7); border-top: 1px solid rgba(255,255,255,0.04); }
+    .inp-comp-cot { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; padding: 2px 5px; color: var(--crema); font-size: 10px; width: 74px; text-align: right; font-family: inherit; outline: none; }
+    .inp-comp-cot:focus { border-color: var(--terracota); }
+    .srv-comps-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 10px; color: var(--gris); }
+    .srv-comps-precio { color: var(--terracota-cl); font-weight: 600; }
+    /* Sub-filas de componentes en el documento PDF */
+    .comp-sub-row td { background: #f8f8f3 !important; font-size: 9px !important; padding: 3px 10px !important; color: #999 !important; border-bottom: none !important; }
+    .comp-sub-row .comp-ind { padding-left: 24px !important; font-style: italic; }
+
+    /* AIU config */
+    .aiu-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .aiu-info { background: rgba(160,104,81,0.1); border: 1px solid rgba(160,104,81,0.2); border-radius: 3px; padding: 6px 9px; font-size: 11px; color: var(--terracota-cl); }
+    .aiu-info span { font-weight: 600; color: var(--blanco); }
+
+    /* Total block */
+    .sb-total { background: rgba(160,104,81,0.12); border: 1px solid rgba(160,104,81,0.25); border-radius: 4px; padding: 12px; }
+    .total-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--crema); padding: 3px 0; }
+    .total-row label { color: var(--gris); }
+    .total-row.grande { font-size: 15px; font-weight: 700; color: var(--blanco); margin-top: 6px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .total-row.grande label { color: var(--crema-cl); font-weight: 400; }
+    .total-row.indent { padding-left: 8px; }
+
+    /* ── PREVIEW ── */
+    .preview-area { flex: 1; padding: 40px; display: flex; justify-content: center; overflow-y: auto; }
+    .cotizacion { width: 100%; max-width: 800px; background: var(--blanco); box-shadow: 0 4px 40px rgba(0,0,0,0.14); }
+
+    /* Doc header */
+    .doc-header { background: var(--negro); padding: 36px 44px 28px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .doc-logo-img { height: 38px; filter: brightness(0) invert(1); }
+    .doc-meta { text-align: right; }
+    .doc-tipo { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--terracota); margin-bottom: 4px; }
+    .doc-num { font-size: 12px; color: var(--crema); }
+    .doc-fecha { font-size: 11px; color: var(--gris); margin-top: 2px; }
+
+    /* Banda */
+    .doc-banda { height: 3px; background: linear-gradient(90deg, var(--terracota) 0%, var(--terracota-cl) 55%, var(--crema) 100%); }
+
+    /* Info */
+    .doc-info { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--borde); }
+    .doc-info-col { padding: 24px 44px; }
+    .doc-info-col + .doc-info-col { border-left: 1px solid var(--borde); }
+    .doc-info-title { font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--terracota); margin-bottom: 8px; }
+    .doc-info-line { font-size: 11px; color: var(--negro); margin-bottom: 2px; }
+    .doc-info-line.bold { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .doc-info-line.muted { color: var(--gris); }
+
+    /* Proyecto */
+    .doc-proyecto { padding: 16px 44px; background: var(--crema-suave); border-bottom: 1px solid var(--borde); }
+    .doc-proy-label { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); margin-bottom: 4px; }
+    .doc-proy-nombre { font-size: 16px; font-weight: 600; color: var(--negro); }
+    .doc-proy-desc { font-size: 11px; color: var(--gris); margin-top: 3px; }
+
+    /* Tabla */
+    .doc-tabla-wrap { padding: 28px 44px 0; }
+    .doc-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .doc-tabla thead tr { background: var(--negro); }
+    .doc-tabla thead th { padding: 8px 10px; text-align: left; font-size: 8px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--crema); }
+    .doc-tabla thead th:nth-child(3),
+    .doc-tabla thead th:nth-child(4),
+    .doc-tabla thead th:nth-child(5) { text-align: right; }
+    /* Category row */
+    .doc-tabla .cat-row td { background: var(--crema); padding: 6px 10px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--terracota); border-bottom: 1px solid var(--borde); }
+    /* Data rows */
+    .doc-tabla tbody tr.data-row { border-bottom: 1px solid #EBEBDF; }
+    .doc-tabla tbody tr.data-row:nth-child(even) { background: #FAFAF5; }
+    .doc-tabla tbody td { padding: 9px 10px; color: var(--negro); vertical-align: top; }
+    .doc-tabla td.right { text-align: right; }
+    .doc-tabla .srv-name { font-weight: 500; }
+    .doc-tabla .srv-desc { font-size: 10px; color: var(--gris); font-style: italic; margin-top: 2px; }
+    .doc-tabla .und-cell { color: var(--gris); font-size: 10px; }
+    /* Subtotal por super-grupo */
+    .doc-tabla .subtotal-row td { background: var(--crema); padding: 8px 10px; font-size: 11px; font-weight: 700; color: var(--negro); border-top: 2px solid var(--terracota-cl); border-bottom: 2px solid var(--borde); }
+    .doc-tabla .subtotal-row td.right { text-align: right; color: var(--terracota); }
+
+    /* Totales */
+    .doc-totales-wrap { padding: 0 44px 28px; }
+    .doc-totales-inner { max-width: 300px; margin-left: auto; margin-top: 0; }
+    .doc-total-sep { border-top: 2px solid var(--negro); margin-bottom: 0; }
+    .doc-total-fila { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #EBEBDF; }
+    .doc-total-fila label { color: var(--gris); }
+    .doc-total-fila.sub-item { padding-left: 20px; background: #FAFAF5; }
+    .doc-total-fila.sub-item label { color: #A0A090; }
+    .doc-total-fila.grand { background: var(--negro); color: var(--blanco); font-size: 14px; font-weight: 700; border-bottom: none; padding: 11px 10px; margin-top: 2px; }
+    .doc-total-fila.grand label { color: var(--crema); font-weight: 400; }
+
+    /* Notas */
+    .doc-notas { padding: 20px 44px; background: var(--crema-suave); border-top: 1px solid var(--borde); }
+    .doc-notas-title { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); margin-bottom: 8px; }
+    .doc-nota-item { display: flex; gap: 8px; font-size: 10px; color: #5a5850; margin-bottom: 4px; line-height: 1.4; }
+    .doc-nota-item::before { content: '—'; color: var(--terracota); flex-shrink: 0; }
+
+    /* Footer */
+    .doc-footer { background: var(--negro); padding: 16px 44px; display: flex; justify-content: space-between; align-items: center; }
+    .doc-footer-left { font-size: 10px; color: var(--gris); }
+    .doc-footer-left strong { color: var(--crema); display: block; margin-bottom: 1px; }
+    .doc-footer-right { text-align: right; font-size: 10px; color: var(--gris); }
+    .doc-footer-right strong { color: var(--terracota-cl); display: block; }
+
+    /* Empty state */
+    .empty-cot { text-align: center; padding: 40px 0; color: var(--gris); font-size: 12px; }
+    .empty-cot-icon { font-size: 28px; opacity: 0.3; margin-bottom: 8px; }
+
+    /* ── PRINT ── */
+    @media print {
+      @page { size: A4; margin: 0; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white; margin: 0; padding: 0; }
+      .sidebar { display: none !important; }
+      .preview-area > *:not(.cotizacion) { display: none !important; }
+      .app-shell { display: block !important; width: 100% !important; }
+      .preview-area { padding: 0 !important; display: block !important; width: 100% !important; }
+      .cotizacion { box-shadow: none !important; max-width: 100% !important; width: 100% !important; }
+      .doc-logo-img { filter: brightness(0) invert(1) !important; height: 38px; }
+      .doc-tabla tbody tr { page-break-inside: avoid; }
+      .doc-totales-wrap, .doc-notas, .doc-footer { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo"><img src="/logo.png" alt="Akanto Estudio" class="sb-logo-img"><span>Cotizador</span></div>
+  </div>
+  <div class="sb-nav">
+    <a href="/apus.html">Editor de precios →</a>
+  </div>
+  <div class="sb-body">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('cliente',this)">Cliente</button>
+      <button class="tab-btn" onclick="switchTab('catalogo',this)">Catálogo</button>
+      <button class="tab-btn" onclick="switchTab('config',this)">AIU / Config</button>
+    </div>
+
+    <!-- TAB CLIENTE -->
+    <div class="tab-panel active" id="tab-cliente">
+      <div class="sec-label">Datos del cliente</div>
+      <div class="field"><label>Nombre / Empresa</label><input id="cli-nombre" type="text" placeholder="Empresa o persona" oninput="render()" /></div>
+      <div class="field"><label>NIT / Cédula</label><input id="cli-nit" type="text" placeholder="NIT o cédula" oninput="render()" /></div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input id="cli-email" type="email" placeholder="correo@email.com" oninput="render()" /></div>
+        <div class="field"><label>Teléfono</label><input id="cli-tel" type="text" placeholder="Cel." oninput="render()" /></div>
+      </div>
+      <div class="field"><label>Ciudad</label><input id="cli-ciudad" type="text" placeholder="Bogotá" oninput="render()" /></div>
+
+      <div class="sec-label" style="margin-top:6px">Proyecto</div>
+      <div class="field"><label>Nombre del proyecto</label><input id="proy-nombre" type="text" placeholder="Ej. Remodelación Oficina 511" oninput="render()" /></div>
+      <div class="field"><label>Descripción</label><textarea id="proy-desc" placeholder="Alcance general del proyecto..." oninput="render()"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>N° Cotización</label><input id="cot-num" type="text" oninput="render()" /></div>
+        <div class="field"><label>Fecha</label><input id="cot-fecha" type="date" oninput="render()" /></div>
+      </div>
+    </div>
+
+    <!-- TAB CATÁLOGO -->
+    <div class="tab-panel" id="tab-catalogo">
+      <input class="cat-search" type="text" placeholder="Buscar servicio..." oninput="filtrarCatalogo(this.value)" id="cat-buscar" />
+      <div id="catalogo-container" style="overflow-y:auto; max-height: 420px; padding-right: 2px;"></div>
+      <button class="btn-add-blank" onclick="agregarBlanco()">+ Agregar ítem en blanco</button>
+    </div>
+
+    <!-- TAB CONFIG / AIU -->
+    <div class="tab-panel" id="tab-config">
+      <div class="sec-label">Cargos AIU (% sobre subtotal)</div>
+      <div class="aiu-row">
+        <div class="field"><label>Administración (%)</label><input id="cfg-admin" type="number" value="9" min="0" max="100" step="0.5" oninput="render()" /></div>
+        <div class="field"><label>Imprevistos (%)</label><input id="cfg-imprev" type="number" value="0" min="0" max="100" step="0.5" oninput="render()" /></div>
+      </div>
+      <div class="aiu-row">
+        <div class="field"><label>Utilidad (%)</label><input id="cfg-util" type="number" value="3" min="0" max="100" step="0.5" oninput="render()" /></div>
+        <div class="aiu-info">IVA: <span>19%</span> solo sobre Utilidad</div>
+      </div>
+      <div class="field" style="margin-top:4px"><label>Descuento global (%)</label><input id="cfg-desc" type="number" value="0" min="0" max="100" step="0.5" oninput="render()" /></div>
+      <div class="field" style="margin-top:6px"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="cfg-desglose" onchange="render()"> Incluir desglose de componentes en la cotización</label></div>
+
+      <div class="sec-label" style="margin-top:8px">General</div>
+      <div class="field"><label>Moneda</label>
+        <select id="cfg-moneda" onchange="render()">
+          <option value="COP">COP — Peso colombiano</option>
+          <option value="USD">USD — Dólar</option>
+          <option value="EUR">EUR — Euro</option>
+        </select>
+      </div>
+      <div class="field"><label>Validez (días)</label><input id="cfg-validez" type="number" value="30" min="1" oninput="render()" /></div>
+
+      <div class="sec-label" style="margin-top:8px">Términos y condiciones</div>
+      <div id="cond-lista"></div>
+      <button class="btn-add-blank" onclick="agregarCondicion()" style="margin-top:2px">+ Agregar condición</button>
+    </div>
+
+    <!-- SERVICIOS ACTIVOS -->
+    <div>
+      <div class="sec-label">Ítems en cotización (<span id="srv-count">0</span>)</div>
+      <div id="srv-activos"></div>
+    </div>
+
+    <!-- TOTALES RÁPIDOS -->
+    <div class="sb-total">
+      <div class="total-row"><label>Subtotal</label><span id="sb-sub">$0</span></div>
+      <div class="total-row indent" id="sb-r-admin"><label>Administración</label><span id="sb-admin">$0</span></div>
+      <div class="total-row indent" id="sb-r-imprev" style="display:none"><label>Imprevistos</label><span id="sb-imprev">$0</span></div>
+      <div class="total-row indent"><label>Utilidad</label><span id="sb-util">$0</span></div>
+      <div class="total-row indent"><label>IVA s/Utilidad</label><span id="sb-iva">$0</span></div>
+      <div class="total-row indent" id="sb-r-desc" style="display:none"><label>Descuento</label><span id="sb-desc" style="color:var(--terracota)">-$0</span></div>
+      <div class="total-row grande"><label>Total</label><span id="sb-total">$0</span></div>
+    </div>
+
+    <!-- ACCIONES -->
+    <div style="display:flex;flex-direction:column;gap:7px;padding-bottom:8px">
+      <button class="btn btn-primary" onclick="window.print()">↓ Exportar PDF</button>
+      <button class="btn btn-outline" onclick="limpiar()">Limpiar cotización</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ PREVIEW ═══ -->
+<main class="preview-area">
+  <div class="cotizacion" id="doc">
+
+    <div class="doc-header">
+      <div>
+        <img src="/logo.png" alt="Akanto Estudio" class="doc-logo-img">
+      </div>
+      <div class="doc-meta">
+        <div class="doc-tipo">Cotización</div>
+        <div class="doc-num">N° <span id="d-num">—</span></div>
+        <div class="doc-fecha" id="d-fecha">—</div>
+      </div>
+    </div>
+    <div class="doc-banda"></div>
+
+    <div class="doc-info">
+      <div class="doc-info-col">
+        <div class="doc-info-title">Ofrecido por</div>
+        <div class="doc-info-line bold">Akanto Estudio</div>
+        <div class="doc-info-line">Av. Carrera 19 # 118-30 Oficina 506</div>
+        <div class="doc-info-line">Bogotá, Colombia</div>
+        <div class="doc-info-line muted">contacto@akantoestudio.co</div>
+        <div class="doc-info-line muted">311 634 9520</div>
+      </div>
+      <div class="doc-info-col">
+        <div class="doc-info-title">Preparado para</div>
+        <div class="doc-info-line bold" id="d-cli-nombre">—</div>
+        <div class="doc-info-line" id="d-cli-nit"></div>
+        <div class="doc-info-line" id="d-cli-ciudad"></div>
+        <div class="doc-info-line muted" id="d-cli-email"></div>
+        <div class="doc-info-line muted" id="d-cli-tel"></div>
+      </div>
+    </div>
+
+    <div class="doc-proyecto">
+      <div class="doc-proy-label">Proyecto</div>
+      <div class="doc-proy-nombre" id="d-proy-nombre">— Sin nombre —</div>
+      <div class="doc-proy-desc" id="d-proy-desc"></div>
+    </div>
+
+    <div class="doc-tabla-wrap">
+      <table class="doc-tabla">
+        <thead>
+          <tr>
+            <th style="width:42%">Descripción</th>
+            <th style="width:9%">Und</th>
+            <th style="width:9%" class="right">Cant.</th>
+            <th style="width:18%" class="right">Precio unit.</th>
+            <th style="width:22%" class="right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="d-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="doc-totales-wrap">
+      <div class="doc-totales-inner">
+        <div class="doc-total-sep"></div>
+        <div class="doc-total-fila"><label>Subtotal directo</label><span id="d-sub">$0</span></div>
+        <div class="doc-total-fila sub-item"><label>Administración (<span id="d-pct-admin">9</span>%)</label><span id="d-admin">$0</span></div>
+        <div class="doc-total-fila sub-item" id="d-row-imprev"><label>Imprevistos (<span id="d-pct-imprev">0</span>%)</label><span id="d-imprev">$0</span></div>
+        <div class="doc-total-fila sub-item"><label>Utilidad (<span id="d-pct-util">3</span>%)</label><span id="d-util">$0</span></div>
+        <div class="doc-total-fila sub-item"><label>IVA sobre Utilidad (19%)</label><span id="d-iva">$0</span></div>
+        <div class="doc-total-fila sub-item" id="d-row-desc" style="display:none"><label>Descuento</label><span id="d-desc" style="color:var(--terracota)">-$0</span></div>
+        <div class="doc-total-fila grand"><label>Total</label><span id="d-total">$0</span></div>
+      </div>
+    </div>
+
+    <div class="doc-notas">
+      <div class="doc-notas-title">Términos y condiciones</div>
+      <div id="d-notas"></div>
+    </div>
+
+    <div class="doc-footer">
+      <div class="doc-footer-left"><strong>Akanto Estudio</strong>Diseño · Arquitectura · Interiorismo</div>
+      <div class="doc-footer-right"><strong>Válida por <span id="d-validez">30</span> días</strong>a partir de la fecha de emisión</div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CATÁLOGO — EDITA PRECIOS AQUÍ
+   Campos: id, nombre, und, precio (COP), descripcion (opcional)
+   ═══════════════════════════════════════════════════════════════ */
+let CATALOGO = [];
+
+/* Agrupación para subtotales en el PDF */
+const GRUPOS_SUBTOTAL = {
+  'Obra civil':            new Set(['Demolición','Regatas y Perforaciones','Drywall','Pintura y Acabados','Hidráulico','Eléctrico y Datos','Iluminación','Logística','Grifería y Pocetas','Mesones']),
+  'Mobiliario y acabados': new Set(['Carpintería — Área Común','Carpintería — Consultorios','Carpintería — Oficinas','Mobiliario y Sillas','Vidriería','Persianas, Plantas y Otros']),
+};
+
+const CONDICIONES_DEFAULT = [
+  "Los precios no incluyen IVA, excepto el IVA sobre la utilidad indicado en el resumen.",
+  "El inicio de los trabajos se realizará una vez confirmada la aceptación y cancelado el anticipo acordado.",
+  "Los plazos de entrega se cuentan a partir del pago del anticipo y entrega completa de información por parte del cliente.",
+  "Cualquier modificación fuera del alcance definido será cotizada como adicional.",
+  "Esta cotización tiene validez según los días indicados a partir de su fecha de emisión.",
+];
+
+/* ════════════════════════════════════════════════
+   FIN SECCIÓN EDITABLE
+   ════════════════════════════════════════════════ */
+
+let items = [];
+let condiciones = [...CONDICIONES_DEFAULT];
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('cot-num').value   = numAuto();
+  document.getElementById('cot-fecha').value = hoy();
+  document.getElementById('catalogo-container').innerHTML =
+    '<div style="color:var(--gris);font-size:11px;text-align:center;padding:20px 0">Cargando catálogo...</div>';
+  try {
+    const res = await fetch('/api/catalogo');
+    CATALOGO = await res.json();
+  } catch (e) {
+    document.getElementById('catalogo-container').innerHTML =
+      '<div style="color:var(--error);font-size:11px;padding:10px">Error al cargar el catálogo. ¿Está corriendo el servidor?</div>';
+  }
+  buildCatalogo();
+  renderCondiciones();
+  render();
+});
+
+/* ── UTILS ── */
+const hoy = () => new Date().toISOString().slice(0, 10);
+const numAuto = () => { const d = new Date(); return `COT-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+function fmt(v, m) {
+  const sym = m === 'USD' ? 'USD ' : m === 'EUR' ? 'EUR ' : '$';
+  if (m === 'COP') return sym + Math.round(v).toLocaleString('es-CO');
+  return sym + v.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtFecha(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${parseInt(d)} de ${M[parseInt(m)-1]} de ${y}`;
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getCatDeItem(it) {
+  if (it.cat !== undefined) return it.cat || '';
+  for (const g of CATALOGO) { if (g.items.some(s => s.nombre === it.nombre)) return g.cat; }
+  return '';
+}
+function getSuperGrupo(cat) {
+  for (const [sg, cats] of Object.entries(GRUPOS_SUBTOTAL)) { if (cats.has(cat)) return sg; }
+  return cat || 'Otros';
+}
+
+/* ── TABS ── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── CATÁLOGO ── */
+function buildCatalogo() {
+  const cont = document.getElementById('catalogo-container');
+  cont.innerHTML = '';
+  CATALOGO.forEach(grp => {
+    const g = document.createElement('div');
+    g.className = 'cat-group';
+    g.dataset.grupo = grp.cat.toLowerCase();
+    g.innerHTML = `<div class="cat-group-title">${esc(grp.cat)}</div>`;
+    grp.items.forEach(srv => {
+      const b = document.createElement('button');
+      b.className = 'cat-item';
+      b.dataset.texto = (srv.nombre + ' ' + grp.cat).toLowerCase();
+      b.innerHTML = `<span class="cat-item-name">${esc(srv.nombre)}</span><span class="cat-item-und">${esc(srv.und)}</span><span class="cat-item-price">${fmt(srv.precio,'COP').replace('$','')}</span>`;
+      b.onclick = () => agregarItem(srv);
+      g.appendChild(b);
+    });
+    cont.appendChild(g);
+  });
+}
+
+function filtrarCatalogo(q) {
+  const term = q.toLowerCase().trim();
+  document.querySelectorAll('.cat-item').forEach(b => {
+    b.classList.toggle('hidden', term.length > 0 && !b.dataset.texto.includes(term));
+  });
+  document.querySelectorAll('.cat-group').forEach(g => {
+    const vis = [...g.querySelectorAll('.cat-item')].some(b => !b.classList.contains('hidden'));
+    g.style.display = (!term || vis) ? '' : 'none';
+  });
+}
+
+/* ── HELPERS COMPONENTES ── */
+function calcPrecioItem(it) {
+  const comps = it.componentes || [];
+  if (!comps.length) return it.precio;
+  const ref = it.ref_qty || 1;
+  const hasOv = comps.some(c => c.cant_ov != null);
+  if (hasOv) {
+    // Hay overrides: calcular costo total del proyecto y dividir por cant
+    const projTotal = comps.reduce((s, c) => {
+      const dc = c.cant_ov != null ? c.cant_ov : c.cant * it.cant / ref;
+      return s + dc * (c.vr_unit || 0);
+    }, 0);
+    return Math.round(projTotal * 1.25 / (it.cant || 1));
+  }
+  // Todo automático: fórmula estándar (no depende de it.cant)
+  return Math.round(comps.reduce((s, c) => s + (c.cant||0)*(c.vr_unit||0), 0) * 1.25 / ref);
+}
+function fmtCant(v) { return v % 1 === 0 ? v : parseFloat(v.toFixed(3)); }
+
+/* ── ITEMS ── */
+function agregarItem(srv) {
+  const grp = CATALOGO.find(g => g.items.some(s => s.id === srv.id));
+  const it = {
+    _id: Date.now(), nombre: srv.nombre, desc: srv.desc || '',
+    und: srv.und, cant: 1, precio: srv.precio,
+    cat: grp ? grp.cat : '',
+    componentes: (srv.componentes || []).map(c => ({...c})),
+    ref_qty: srv.ref_qty || 1
+  };
+  items.push(it);
+  render();
+  switchTab('cliente', document.querySelectorAll('.tab-btn')[0]);
+}
+function agregarBlanco() {
+  items.push({ _id: Date.now(), nombre: '', desc: '', und: 'UND', cant: 1, precio: 0, cat: '', componentes: [], ref_qty: 1 });
+  render();
+  switchTab('cliente', document.querySelectorAll('.tab-btn')[0]);
+}
+function delItem(id) { items = items.filter(i => i._id !== id); render(); }
+function updItem(id, campo, val) {
+  const it = items.find(i => i._id === id);
+  if (!it) return;
+  if (campo === 'cant') {
+    it.cant = parseFloat(val) || 0;
+    // Recalcular desde componentes solo si el precio no fue editado manualmente
+    if ((it.componentes||[]).length && !it.precio_manual) it.precio = calcPrecioItem(it);
+  } else if (campo === 'precio') {
+    it.precio = parseFloat(val) || 0;
+    it.precio_manual = (it.componentes||[]).length ? true : false;
+  } else {
+    it[campo] = val;
+  }
+  render();
+}
+function resetPrecio(id) {
+  const it = items.find(i => i._id === id);
+  if (!it) return;
+  it.precio_manual = false;
+  it.precio = calcPrecioItem(it);
+  render();
+}
+function updItemComp(id, idx, field, val) {
+  const it = items.find(i => i._id === id);
+  if (!it || !(it.componentes||[])[idx]) return;
+  if (field === 'cant_ov') {
+    // '' → null (vuelve al valor auto escalado)
+    it.componentes[idx].cant_ov = (val === '' || val == null) ? null : (parseFloat(val) ?? null);
+  } else {
+    it.componentes[idx][field] = parseFloat(val) || 0;
+  }
+  it.precio = calcPrecioItem(it);
+  render();
+}
+function toggleCompsUI(btn) {
+  const body = btn.nextElementSibling;
+  const open = body.classList.toggle('hidden');
+  btn.textContent = (open ? '▶' : '▼') + btn.textContent.slice(1);
+}
+
+/* ── CONDICIONES ── */
+function renderCondiciones() {
+  const c = document.getElementById('cond-lista');
+  c.innerHTML = '';
+  condiciones.forEach((cond, i) => {
+    const d = document.createElement('div');
+    d.style.cssText = 'display:flex;gap:5px;margin-bottom:5px;align-items:flex-start';
+    d.innerHTML = `<textarea style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:5px 7px;color:var(--crema);font-size:10px;resize:vertical;min-height:44px;font-family:inherit;outline:none;" oninput="condiciones[${i}]=this.value;render()">${esc(cond)}</textarea><button class="btn-del" onclick="condiciones.splice(${i},1);renderCondiciones();render()">×</button>`;
+    c.appendChild(d);
+  });
+}
+function agregarCondicion() { condiciones.push('Nueva condición...'); renderCondiciones(); render(); }
+
+/* ── RENDER SIDEBAR ITEMS ── */
+function renderSrvActivos() {
+  const mon = document.getElementById('cfg-moneda').value;
+  const c = document.getElementById('srv-activos');
+  document.getElementById('srv-count').textContent = items.length;
+  if (!items.length) { c.innerHTML = `<div style="color:var(--gris);font-size:11px;text-align:center;padding:12px 0">Sin ítems aún</div>`; return; }
+  c.innerHTML = '';
+  items.forEach(it => {
+    const sub = it.cant * it.precio;
+    const d = document.createElement('div');
+    d.className = 'srv-item';
+    d.innerHTML = `
+      <div class="srv-item-top">
+        <input type="text" value="${esc(it.nombre)}" placeholder="Nombre del ítem" onchange="updItem(${it._id},'nombre',this.value)" />
+        <button class="btn-del" onclick="delItem(${it._id})">×</button>
+      </div>
+      <input class="srv-desc-input" type="text" value="${esc(it.desc)}" placeholder="Descripción opcional" onchange="updItem(${it._id},'desc',this.value)" />
+      <div style="margin-bottom:6px">
+        <div class="srv-field-lbl">Categoría</div>
+        <select style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:2px;padding:4px 6px;color:var(--crema);font-size:11px;outline:none;width:100%;" onchange="updItem(${it._id},'cat',this.value)">
+          <option value="">— Sin categoría —</option>
+          ${CATALOGO.map(g=>`<option value="${esc(g.cat)}"${getCatDeItem(it)===g.cat?' selected':''}>${esc(g.cat)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="srv-fields">
+        <div><div class="srv-field-lbl">Unidad</div>
+          <select onchange="updItem(${it._id},'und',this.value)">
+            ${['UND','M2','ML','M3','HR','DIA','MES','GL','CANT'].map(u=>`<option${it.und===u?' selected':''}>${u}</option>`).join('')}
+          </select>
+        </div>
+        <div><div class="srv-field-lbl">Cantidad</div><input type="number" min="0" step="0.5" value="${it.cant}" onchange="updItem(${it._id},'cant',this.value)" /></div>
+        <div><div class="srv-field-lbl">Precio unit. ${it.precio_manual ? `<button title="Volver al precio calculado desde componentes" onclick="resetPrecio(${it._id})" style="background:none;border:none;color:var(--terracota-cl);cursor:pointer;font-size:10px;padding:0 2px">↺ auto</button>` : (it.componentes||[]).length ? '<span style="font-size:8px;color:var(--gris)">(auto)</span>' : ''}</div><input type="number" min="0" step="1000" value="${it.precio}" style="${it.precio_manual ? 'border-color:var(--terracota-cl)' : ''}" onchange="updItem(${it._id},'precio',this.value)" /></div>
+      </div>
+      <div class="srv-subtotal">= ${fmt(sub, mon)}</div>
+      ${(() => {
+        const comps = it.componentes || [];
+        if (!comps.length) return '';
+        const ref = it.ref_qty || 1;
+        const rows = comps.map((c, idx) => {
+          const autoDc = c.cant * it.cant / ref;
+          const dc     = c.cant_ov != null ? c.cant_ov : autoDc;
+          const tot    = dc * (c.vr_unit||0);
+          const isOv   = c.cant_ov != null;
+          const resetBtn = isOv
+            ? `<button title="Volver al valor auto (${fmtCant(autoDc)})" onclick="updItemComp(${it._id},${idx},'cant_ov','')"
+                 style="background:none;border:none;color:var(--terracota-cl);cursor:pointer;font-size:11px;padding:0 1px;line-height:1">↺</button>`
+            : '';
+          return `<tr>
+            <td>${esc(c.nombre||'')}</td>
+            <td style="color:var(--gris)">${esc(c.und||'')}</td>
+            <td class="td-r" style="white-space:nowrap">
+              <input class="inp-comp-cot" type="number" value="${fmtCant(dc)}" step="0.01"
+                  style="${isOv ? 'border-color:var(--terracota-cl)' : ''}"
+                  onchange="updItemComp(${it._id},${idx},'cant_ov',this.value)" />${resetBtn}
+            </td>
+            <td class="td-r"><input class="inp-comp-cot" type="number" value="${c.vr_unit||0}" step="100"
+                onchange="updItemComp(${it._id},${idx},'vr_unit',this.value)" /></td>
+            <td class="td-r">${fmt(Math.round(tot), mon)}</td>
+          </tr>`;
+        }).join('');
+        const unitP = calcPrecioItem(it);
+        return `<div class="srv-comps">
+          <button class="srv-comps-toggle" onclick="toggleCompsUI(this)">▶ Componentes (${comps.length})</button>
+          <div class="srv-comps-body hidden">
+            <table class="srv-comps-table">
+              <thead><tr>
+                <th style="width:38%">Artículo</th><th>Und</th>
+                <th class="th-r">Cant.</th>
+                <th class="th-r">Vr. Unit.</th>
+                <th class="th-r">Total</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+            <div class="srv-comps-footer">
+              <span>${comps.some(c=>c.cant_ov!=null) ? '⚠ cantidades personalizadas' : `auto ÷ ${ref}`}</span>
+              <span class="srv-comps-precio">${fmt(unitP, mon)} / ${esc(it.und)}</span>
+            </div>
+          </div>
+        </div>`;
+      })()}`;
+    c.appendChild(d);
+  });
+}
+
+/* ── RENDER PRINCIPAL ── */
+function render() {
+  const mon = document.getElementById('cfg-moneda').value;
+  const pAdmin = parseFloat(document.getElementById('cfg-admin').value) || 0;
+  const pImprev = parseFloat(document.getElementById('cfg-imprev').value) || 0;
+  const pUtil  = parseFloat(document.getElementById('cfg-util').value) || 0;
+  const pDesc  = parseFloat(document.getElementById('cfg-desc').value) || 0;
+  const validez = document.getElementById('cfg-validez').value || '30';
+
+  const sub    = items.reduce((a, it) => a + it.cant * it.precio, 0);
+  const admin  = sub * pAdmin / 100;
+  const imprev = sub * pImprev / 100;
+  const util   = sub * pUtil / 100;
+  const iva    = util * 0.19;
+  const desc   = (sub + admin + imprev + util + iva) * pDesc / 100;
+  const total  = sub + admin + imprev + util + iva - desc;
+
+  /* sidebar totales */
+  document.getElementById('sb-sub').textContent    = fmt(sub, mon);
+  document.getElementById('sb-admin').textContent  = fmt(admin, mon);
+  document.getElementById('sb-imprev').textContent = fmt(imprev, mon);
+  document.getElementById('sb-util').textContent   = fmt(util, mon);
+  document.getElementById('sb-iva').textContent    = fmt(iva, mon);
+  document.getElementById('sb-desc').textContent   = '-' + fmt(desc, mon);
+  document.getElementById('sb-total').textContent  = fmt(total, mon);
+  document.getElementById('sb-r-imprev').style.display = pImprev > 0 ? '' : 'none';
+  document.getElementById('sb-r-desc').style.display   = pDesc  > 0 ? '' : 'none';
+
+  /* doc header */
+  const num = document.getElementById('cot-num').value || '—';
+  document.getElementById('d-num').textContent   = num;
+  document.getElementById('d-fecha').textContent = fmtFecha(document.getElementById('cot-fecha').value);
+
+  /* doc cliente */
+  document.getElementById('d-cli-nombre').textContent = document.getElementById('cli-nombre').value || '—';
+  document.getElementById('d-cli-nit').textContent    = document.getElementById('cli-nit').value;
+  document.getElementById('d-cli-ciudad').textContent = document.getElementById('cli-ciudad').value;
+  document.getElementById('d-cli-email').textContent  = document.getElementById('cli-email').value;
+  document.getElementById('d-cli-tel').textContent    = document.getElementById('cli-tel').value;
+
+  /* doc proyecto */
+  document.getElementById('d-proy-nombre').textContent = document.getElementById('proy-nombre').value || '— Sin nombre —';
+  document.getElementById('d-proy-desc').textContent   = document.getElementById('proy-desc').value;
+
+  /* doc tabla */
+  const tbody = document.getElementById('d-tbody');
+  const showDesglose = document.getElementById('cfg-desglose')?.checked;
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-cot"><div class="empty-cot-icon">⬡</div>Agrega ítems desde el panel "Catálogo"</div></td></tr>`;
+  } else {
+    // Agrupar por super-grupo (Obra civil / Mobiliario y acabados) con subtotales
+    const sgMap = {};
+    items.forEach(it => {
+      const cat = getCatDeItem(it);
+      const sg  = getSuperGrupo(cat);
+      if (!sgMap[sg]) sgMap[sg] = [];
+      sgMap[sg].push({ ...it, _cat: cat });
+    });
+    const sgOrder = [...Object.keys(GRUPOS_SUBTOTAL)];
+    Object.keys(sgMap).forEach(sg => { if (!sgOrder.includes(sg)) sgOrder.push(sg); });
+    const activeSGs = sgOrder.filter(sg => sgMap[sg]);
+    let html = '';
+    activeSGs.forEach(sg => {
+      let lastCat = null;
+      let sgSub = 0;
+      sgMap[sg].forEach(it => {
+        if (it._cat && it._cat !== lastCat) {
+          html += `<tr class="cat-row"><td colspan="5">${esc(it._cat)}</td></tr>`;
+          lastCat = it._cat;
+        }
+        const rowSub = it.cant * it.precio;
+        sgSub += rowSub;
+        html += `<tr class="data-row">
+          <td><div class="srv-name">${esc(it.nombre)||'<em style="color:var(--gris)">Sin nombre</em>'}</div>${it.desc ? `<div class="srv-desc">${esc(it.desc)}</div>` : ''}</td>
+          <td class="und-cell">${esc(it.und)}</td>
+          <td class="right">${it.cant}</td>
+          <td class="right">${fmt(it.precio, mon)}</td>
+          <td class="right"><strong>${fmt(rowSub, mon)}</strong></td>
+        </tr>`;
+        // Sub-filas de componentes (solo si toggle activo y hay componentes)
+        if (showDesglose && (it.componentes||[]).length) {
+          const ref = it.ref_qty || 1;
+          it.componentes.forEach(c => {
+            const dc = c.cant_ov != null ? c.cant_ov : c.cant * it.cant / ref;
+            const tot = dc * (c.vr_unit||0);
+            html += `<tr class="comp-sub-row">
+              <td class="comp-ind">${esc(c.nombre||'')}</td>
+              <td class="und-cell">${esc(c.und||'')}</td>
+              <td class="right">${fmtCant(dc)}</td>
+              <td class="right">${fmt(c.vr_unit||0, mon)}</td>
+              <td class="right">${fmt(Math.round(tot), mon)}</td>
+            </tr>`;
+          });
+        }
+      });
+      html += `<tr class="subtotal-row">
+        <td colspan="4">Subtotal ${esc(sg)}</td>
+        <td class="right">${fmt(sgSub, mon)}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+  }
+
+  /* doc totales */
+  document.getElementById('d-sub').textContent    = fmt(sub, mon);
+  document.getElementById('d-pct-admin').textContent = pAdmin;
+  document.getElementById('d-pct-imprev').textContent = pImprev;
+  document.getElementById('d-pct-util').textContent = pUtil;
+  document.getElementById('d-admin').textContent  = fmt(admin, mon);
+  document.getElementById('d-imprev').textContent = fmt(imprev, mon);
+  document.getElementById('d-util').textContent   = fmt(util, mon);
+  document.getElementById('d-iva').textContent    = fmt(iva, mon);
+  document.getElementById('d-desc').textContent   = '-' + fmt(desc, mon);
+  document.getElementById('d-total').textContent  = fmt(total, mon);
+  document.getElementById('d-row-imprev').style.display = pImprev > 0 ? '' : 'none';
+  document.getElementById('d-row-desc').style.display   = pDesc  > 0 ? '' : 'none';
+  document.getElementById('d-validez').textContent = validez;
+
+  /* doc notas */
+  document.getElementById('d-notas').innerHTML = condiciones.filter(c=>c.trim()).map(c=>`<div class="doc-nota-item">${esc(c)}</div>`).join('');
+
+  /* sidebar items */
+  renderSrvActivos();
+}
+
+function limpiar() {
+  if (!confirm('¿Limpiar todos los ítems de esta cotización?')) return;
+  items = [];
+  ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cot-num').value   = numAuto();
+  document.getElementById('cot-fecha').value = hoy();
+  render();
+}
+</script>
+</body>
+</html>

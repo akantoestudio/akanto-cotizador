@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor de Precios — Akanto Estudio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --negro:       #0C0F11;
+      --negro-2:     #1A1D1F;
+      --crema:       #E2E2BD;
+      --crema-suave: #F0EFEA;
+      --crema-medio: #D8D7C4;
+      --terracota:   #A06851;
+      --terracota-cl:#CEB0A0;
+      --gris:        #86928A;
+      --gris-cl:     #C5CFC8;
+      --borde:       #D4D3C0;
+      --error:       #B03A2E;
+      --ok:          #4A7C59;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--crema-suave); color: var(--negro); font-size: 13px; }
+
+    /* NAV */
+    .top-nav { background: var(--negro); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 54px; position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; gap: 12px; }
+    .nav-logo-img { height: 26px; filter: brightness(0) invert(1); }
+    .nav-logo span { font-weight: 300; font-size: 10px; color: var(--gris); letter-spacing: 0.18em; }
+    .nav-back { color: var(--terracota-cl); font-size: 12px; text-decoration: none; }
+    .nav-back:hover { color: #fff; }
+
+    /* INTRO */
+    .page-intro { padding: 28px 40px 18px; border-bottom: 1px solid var(--borde); }
+    .page-intro h1 { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+    .page-intro p  { font-size: 12px; color: var(--gris); max-width: 580px; line-height: 1.6; }
+    .intro-chips { display: flex; gap: 12px; margin-top: 10px; }
+    .chip { background: rgba(160,104,81,0.1); border: 1px solid rgba(160,104,81,0.2); border-radius: 4px; padding: 3px 10px; font-size: 11px; color: var(--terracota); }
+    .chip span { font-weight: 700; }
+
+    /* CONTENT */
+    .page-content { padding: 24px 40px 130px; }
+
+    /* CATEGORY SECTION */
+    .cat-section { margin-bottom: 20px; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
+    .cat-title { background: var(--negro); color: var(--crema); padding: 9px 14px; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; display: flex; justify-content: space-between; }
+    .cat-title span { font-weight: 400; font-size: 9px; color: var(--gris); }
+
+    /* MAIN TABLE */
+    .precio-tabla { width: 100%; border-collapse: collapse; background: #fff; }
+    .precio-tabla thead tr { background: var(--crema); }
+    .precio-tabla thead th { padding: 7px 10px; text-align: left; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gris); border-bottom: 1px solid var(--borde); }
+    .th-toggle { width: 38px; }
+    .th-precio  { text-align: right !important; }
+
+    .item-row { border-bottom: 1px solid #F0EFEA; transition: background 0.1s; }
+    .item-row:hover { background: #FAFAF7; }
+    .item-row.modified td:first-child { border-left: 3px solid var(--terracota); }
+    .item-row.modified { background: rgba(160,104,81,0.04); }
+    .precio-tabla td { padding: 6px 10px; vertical-align: middle; }
+
+    /* TOGGLE BUTTON */
+    .td-toggle { text-align: center; width: 38px; padding: 0 4px !important; }
+    .btn-toggle { background: transparent; border: 1px solid var(--borde); border-radius: 3px; width: 22px; height: 22px; cursor: pointer; font-size: 9px; color: var(--gris); display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; }
+    .btn-toggle:hover { background: var(--crema); color: var(--terracota); border-color: var(--terracota); }
+    .btn-toggle.open { background: var(--negro); color: var(--crema); border-color: var(--negro); }
+
+    /* MAIN ROW INPUTS */
+    .inp-nombre { width: 100%; border: none; background: transparent; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--negro); outline: none; padding: 2px 0; }
+    .inp-nombre:focus { border-bottom: 1px solid var(--terracota); }
+    .inp-desc   { width: 100%; border: none; background: transparent; font-family: inherit; font-size: 11px; color: var(--gris); outline: none; padding: 2px 0; font-style: italic; }
+    .inp-desc:focus { border-bottom: 1px solid var(--gris-cl); }
+    .inp-und    { border: none; background: transparent; font-family: inherit; font-size: 11px; color: var(--gris); outline: none; cursor: pointer; border-radius: 2px; padding: 2px 3px; }
+    .inp-und:focus { background: rgba(160,104,81,0.08); }
+    .td-precio  { text-align: right; width: 155px; }
+    .precio-wrap { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+    .precio-sym { font-size: 11px; color: var(--gris); }
+    .inp-precio { width: 105px; border: 1px solid transparent; border-radius: 3px; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--negro); text-align: right; padding: 4px 6px; outline: none; transition: all 0.12s; }
+    .inp-precio:hover:not([readonly]) { border-color: var(--borde); background: var(--crema-suave); }
+    .inp-precio:focus { border-color: var(--terracota); background: #fff; box-shadow: 0 0 0 3px rgba(160,104,81,0.1); }
+    .inp-precio[readonly] { color: var(--gris); cursor: default; }
+    .badge-auto { font-size: 9px; background: rgba(160,104,81,0.12); color: var(--terracota); padding: 2px 6px; border-radius: 10px; white-space: nowrap; font-weight: 600; }
+
+    /* COMPONENT SECTION */
+    .comp-section { display: none; }
+    .comp-section.open { display: table-row; }
+    .comp-section > td { padding: 0 !important; background: #F5F4EE; border-bottom: 2px solid var(--crema-medio); }
+    .comp-inner { padding: 10px 14px 14px 52px; }
+    .comp-inner-title { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gris); margin-bottom: 7px; }
+
+    /* COMPONENT TABLE */
+    .comp-tabla { width: 100%; border-collapse: collapse; background: #fff; border-radius: 4px; overflow: hidden; border: 1px solid var(--borde); margin-bottom: 8px; }
+    .comp-tabla thead th { padding: 6px 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gris); background: var(--crema-medio); border-bottom: 1px solid var(--borde); }
+    .comp-tabla thead th.th-r { text-align: right; }
+    .comp-row { border-bottom: 1px solid #ECEAE0; }
+    .comp-row:last-of-type { border-bottom: none; }
+    .comp-row td { padding: 5px 8px; vertical-align: middle; }
+    .comp-total-row td { padding: 7px 8px; background: var(--crema); font-weight: 600; font-size: 11px; border-top: 2px solid var(--borde); }
+    .comp-total-row td.td-r { text-align: right; color: var(--terracota); }
+    /* Filas de fórmula */
+    .comp-formula-row td { font-size: 11px; padding: 4px 8px; background: var(--crema); color: var(--gris); border-top: 1px solid var(--borde); }
+    .comp-formula-row.sep td { border-top: 2px solid var(--borde); }
+    .comp-formula-row.dim td { color: #aaa; font-style: italic; }
+    .comp-formula-row.result td { background: #f0ede3; border-top: 1px solid #c9c5b5; }
+    .comp-formula-row.result .td-formula-val { color: var(--negro); font-weight: 700; font-size: 12px; }
+    .td-formula-val { text-align: right; }
+    /* Campo ref_qty en cabecera de componentes */
+    .comp-inner-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+    .comp-inner-header .comp-inner-title { margin-bottom: 0; }
+    .ref-qty-wrap { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--gris); }
+    .ref-qty-wrap label { letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+    .inp-ref-qty { width: 54px; border: 1px solid var(--borde); border-radius: 3px; padding: 3px 6px; font-size: 11px; font-family: inherit; text-align: right; background: #fff; color: var(--negro); }
+
+    .inp-comp-n   { width: 100%; border: none; background: transparent; font-size: 11px; color: var(--negro); outline: none; padding: 2px 0; font-family: inherit; }
+    .inp-comp-n:focus { border-bottom: 1px solid var(--terracota); }
+    .inp-comp-und { border: none; background: transparent; font-size: 10px; color: var(--gris); outline: none; cursor: pointer; font-family: inherit; }
+    .inp-comp-num { width: 80px; border: 1px solid transparent; border-radius: 2px; background: transparent; font-size: 11px; text-align: right; padding: 3px 5px; outline: none; font-family: inherit; transition: all 0.12s; }
+    .inp-comp-num:hover { border-color: var(--borde); background: var(--crema-suave); }
+    .inp-comp-num:focus { border-color: var(--terracota); background: #fff; }
+    .td-r { text-align: right; }
+    .td-del { width: 30px; text-align: center; }
+    .btn-del-comp { background: transparent; border: none; color: var(--gris-cl); cursor: pointer; font-size: 15px; padding: 1px 5px; border-radius: 2px; line-height: 1; }
+    .btn-del-comp:hover { color: var(--error); background: rgba(176,58,46,0.1); }
+    .btn-add-comp { padding: 5px 12px; background: transparent; border: 1px dashed var(--borde); border-radius: 3px; font-family: inherit; font-size: 11px; color: var(--gris); cursor: pointer; transition: all 0.12s; }
+    .btn-add-comp:hover { border-color: var(--terracota); color: var(--terracota); }
+
+    /* ADD / DELETE ITEM */
+    .cat-footer { background: #fff; border-top: 1px dashed var(--borde); padding: 8px 14px; }
+    .btn-add-item { padding: 6px 14px; background: transparent; border: 1px dashed var(--borde); border-radius: 3px; font-family: inherit; font-size: 11px; color: var(--gris); cursor: pointer; transition: all 0.12s; }
+    .btn-add-item:hover { border-color: var(--ok); color: var(--ok); }
+    .td-del-item { width: 30px; text-align: center; padding: 0 4px !important; }
+    .btn-del-item { background: transparent; border: none; color: var(--gris-cl); cursor: pointer; font-size: 15px; padding: 2px 6px; border-radius: 2px; line-height: 1; }
+    .btn-del-item:hover { color: var(--error); background: rgba(176,58,46,0.08); }
+
+    /* SAVE BAR */
+    .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--negro-2); border-top: 1px solid rgba(255,255,255,0.08); padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; transform: translateY(100%); transition: transform 0.2s ease; z-index: 200; }
+    .save-bar.open { transform: translateY(0); }
+    .save-info { font-size: 12px; color: var(--gris); }
+    .save-info strong { color: var(--crema); }
+    .save-btns { display: flex; gap: 8px; }
+    .btn-guardar { background: var(--terracota); color: #fff; border: none; border-radius: 4px; padding: 9px 20px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-guardar:hover { background: #8a5843; }
+    .btn-guardar:disabled { background: var(--gris); cursor: not-allowed; }
+    .btn-descartar { background: transparent; color: var(--gris); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; padding: 9px 14px; font-family: inherit; font-size: 12px; cursor: pointer; }
+    .btn-descartar:hover { color: var(--crema); }
+
+    /* TOAST */
+    .toast { position: fixed; top: 66px; right: 28px; padding: 10px 18px; border-radius: 6px; font-size: 12px; font-weight: 500; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transform: translateY(-8px); transition: all 0.25s; z-index: 300; }
+    .toast.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    .loading { text-align: center; padding: 60px; color: var(--gris); }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-logo"><img src="/logo.png" alt="Akanto Estudio" class="nav-logo-img"><span>Editor de Precios</span></div>
+  <a href="/" class="nav-back">← Volver al Cotizador</a>
+</nav>
+
+<div class="page-intro">
+  <h1>Catálogo de precios</h1>
+  <p>Despliega cada ítem para ver y editar sus componentes (artículos, mano de obra, materiales). El precio se calcula automáticamente desde la suma de componentes. Si no tiene componentes, edita el precio directamente.</p>
+  <div class="intro-chips">
+    <div class="chip" id="chip-cat">—</div>
+    <div class="chip" id="chip-items">—</div>
+    <div class="chip" id="chip-comp">—</div>
+  </div>
+</div>
+
+<div class="page-content">
+  <div id="contenido"><div class="loading">Cargando catálogo...</div></div>
+</div>
+
+<div class="save-bar" id="save-bar">
+  <div class="save-info"><strong id="save-count">0 cambios</strong> sin guardar</div>
+  <div class="save-btns">
+    <button class="btn-descartar" onclick="descartar()">Descartar</button>
+    <button class="btn-guardar" id="btn-guardar" onclick="guardar()">Guardar cambios</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let catalogo = [];
+let dirty    = {};   // id → true
+
+/* ── INIT ── */
+async function init() {
+  try {
+    catalogo = await fetch('/api/catalogo').then(r => r.json());
+  } catch(e) {
+    document.getElementById('contenido').innerHTML =
+      '<div class="loading" style="color:var(--error)">Error al conectar con el servidor.</div>';
+    return;
+  }
+  renderStats();
+  renderCatalogo();
+}
+
+function findItem(id) {
+  for (const g of catalogo) {
+    const it = g.items.find(i => i.id === id);
+    if (it) return it;
+  }
+  return null;
+}
+
+function fmtCOP(v) {
+  return '$' + Math.round(v || 0).toLocaleString('es-CO');
+}
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── STATS ── */
+function renderStats() {
+  const totalItems = catalogo.reduce((n, g) => n + g.items.length, 0);
+  const withComps  = catalogo.reduce((n, g) => n + g.items.filter(i => (i.componentes||[]).length > 0).length, 0);
+  document.getElementById('chip-cat').innerHTML   = `<span>${catalogo.length}</span> categorías`;
+  document.getElementById('chip-items').innerHTML = `<span>${totalItems}</span> ítems`;
+  document.getElementById('chip-comp').innerHTML  = `<span>${withComps}</span> con componentes cargados`;
+}
+
+/* ── RENDER MAIN TABLE ── */
+function renderCatalogo() {
+  document.getElementById('contenido').innerHTML = catalogo.map((grp, gi) => {
+    const rows = grp.items.map(item => renderItemRows(item)).join('');
+    return `<section class="cat-section" id="cat-${gi}">
+      <div class="cat-title">${esc(grp.cat)} <span id="cat-count-${gi}">${grp.items.length} ítems</span></div>
+      <table class="precio-tabla">
+        <thead><tr>
+          <th class="th-toggle"></th>
+          <th style="width:33%">Nombre del servicio</th>
+          <th style="width:6%">Und</th>
+          <th class="th-precio" style="width:15%">Precio unit.</th>
+          <th>Descripción / Alcance</th>
+          <th style="width:30px"></th>
+        </tr></thead>
+        <tbody id="tbody-${gi}">${rows}</tbody>
+      </table>
+      <div class="cat-footer">
+        <button class="btn-add-item" onclick="addItem(${gi})">+ Agregar ítem</button>
+      </div>
+    </section>`;
+  }).join('');
+}
+
+function renderItemRows(item) {
+  const comps    = item.componentes || [];
+  const hasComps = comps.length > 0;
+  const calcPrecio = hasComps
+    ? Math.round(comps.reduce((s, c) => s + (c.cant || 0) * (c.vr_unit || 0), 0) * 1.25 / (item.ref_qty || 1))
+    : item.precio;
+
+  const mainRow = `<tr class="item-row" id="row-${item.id}">
+    <td class="td-toggle">
+      <button class="btn-toggle${hasComps ? '' : ''}" id="toggle-${item.id}"
+              onclick="toggleComp('${item.id}')" title="${hasComps ? comps.length+' componentes' : 'Sin componentes — clic para agregar'}">
+        ▶
+      </button>
+    </td>
+    <td><input class="inp-nombre" type="text" value="${esc(item.nombre)}"
+               data-id="${item.id}" data-field="nombre" onblur="fieldChange(this)" /></td>
+    <td><select class="inp-und" data-id="${item.id}" data-field="und" onchange="fieldChange(this)">
+      ${['UND','M2','ML','M3','HR','DIA','MES','GL','CANT'].map(u =>
+        `<option${item.und===u?' selected':''}>${u}</option>`).join('')}
+    </select></td>
+    <td class="td-precio"><div class="precio-wrap">
+      <span class="precio-sym">$</span>
+      <input class="inp-precio" id="precio-${item.id}" type="number"
+             value="${calcPrecio}"
+             data-id="${item.id}" data-field="precio"
+             ${hasComps ? 'readonly tabindex="-1"' : 'onblur="fieldChange(this)"'} />
+      ${hasComps ? `<span class="badge-auto">auto</span>` : ''}
+    </div></td>
+    <td><input class="inp-desc" type="text" value="${esc(item.desc||'')}"
+               data-id="${item.id}" data-field="desc" onblur="fieldChange(this)" /></td>
+    <td class="td-del-item">
+      <button class="btn-del-item" onclick="deleteItem('${item.id}')" title="Eliminar ítem">×</button>
+    </td>
+  </tr>`;
+
+  const compSection = `<tr class="comp-section" id="comp-${item.id}">
+    <td colspan="6">
+      <div class="comp-inner">
+        <div class="comp-inner-header">
+          <div class="comp-inner-title">Componentes del ítem — artículos, insumos y mano de obra</div>
+          <div class="ref-qty-wrap">
+            <label>Cant. referencia</label>
+            <input class="inp-ref-qty" type="number" min="1" step="1"
+                   value="${item.ref_qty || 1}"
+                   title="Cantidad de unidades que cubren los componentes listados"
+                   onblur="refQtyChange('${item.id}', this.value)" />
+          </div>
+        </div>
+        <table class="comp-tabla">
+          <thead><tr>
+            <th style="width:35%">Artículo / Insumo</th>
+            <th style="width:8%">Und</th>
+            <th class="th-r" style="width:12%">Cantidad</th>
+            <th class="th-r" style="width:15%">Vr. Unitario</th>
+            <th class="th-r" style="width:14%">Total</th>
+            <th style="width:30px"></th>
+          </tr></thead>
+          <tbody id="comp-tbody-${item.id}">
+            ${comps.map((c, i) => compRowHTML(item.id, i, c)).join('')}
+            ${compTotalRowHTML(item.id, comps, item.ref_qty)}
+          </tbody>
+        </table>
+        <button class="btn-add-comp" onclick="addComp('${item.id}')">+ Agregar componente</button>
+      </div>
+    </td>
+  </tr>`;
+
+  return mainRow + compSection;
+}
+
+/* ── COMP ROW HTML ── */
+function compRowHTML(itemId, idx, c) {
+  const total = (c.cant || 0) * (c.vr_unit || 0);
+  return `<tr class="comp-row" id="comp-row-${itemId}-${idx}">
+    <td><input class="inp-comp-n" type="text" value="${esc(c.nombre||'')}"
+               onblur="compChange('${itemId}', ${idx}, 'nombre', this.value)" /></td>
+    <td><select class="inp-comp-und" onchange="compChange('${itemId}', ${idx}, 'und', this.value)">
+      ${['UND','M2','ML','M3','HR','DIA','MES','GL','KG','L','BOLT'].map(u =>
+        `<option${(c.und||'UND')===u?' selected':''}>${u}</option>`).join('')}
+    </select></td>
+    <td class="td-r"><input class="inp-comp-num" type="number" value="${c.cant||0}" min="0" step="0.01"
+             oninput="liveTotal('${itemId}',${idx},this,'cant')"
+             onblur="compChange('${itemId}', ${idx}, 'cant', this.value)" /></td>
+    <td class="td-r"><input class="inp-comp-num" type="number" value="${c.vr_unit||0}" min="0" step="100"
+             oninput="liveTotal('${itemId}',${idx},this,'vr_unit')"
+             onblur="compChange('${itemId}', ${idx}, 'vr_unit', this.value)" /></td>
+    <td class="td-r" id="comp-total-${itemId}-${idx}">${fmtCOP(total)}</td>
+    <td class="td-del"><button class="btn-del-comp" onclick="delComp('${itemId}',${idx})" title="Eliminar">×</button></td>
+  </tr>`;
+}
+
+function compTotalRowHTML(itemId, comps, refQty) {
+  const rawSum    = comps.reduce((s, c) => s + (c.cant||0)*(c.vr_unit||0), 0);
+  const ref       = refQty || 1;
+  const unitCost  = rawSum / ref;
+  const unitPrice = Math.round(unitCost * 1.25);
+
+  const refRow = ref > 1
+    ? `<tr class="comp-formula-row dim" id="comp-refqty-row-${itemId}">
+        <td colspan="4">÷ ${ref} (cantidad de referencia) → costo por unidad</td>
+        <td class="td-formula-val" id="comp-unitcost-${itemId}">${fmtCOP(Math.round(unitCost))}</td>
+        <td></td>
+       </tr>`
+    : `<tr id="comp-refqty-row-${itemId}" style="display:none"><td colspan="6"></td></tr>`;
+
+  return `
+    <tr class="comp-formula-row sep" id="comp-total-row-${itemId}">
+      <td colspan="4">Suma de componentes</td>
+      <td class="td-formula-val" id="comp-subtotal-${itemId}">${fmtCOP(rawSum)}</td>
+      <td></td>
+    </tr>
+    ${refRow}
+    <tr class="comp-formula-row result" id="comp-price-row-${itemId}">
+      <td colspan="4">× 1.25 AIU → <strong>Precio por unidad</strong></td>
+      <td class="td-formula-val" id="comp-pricecalc-${itemId}">${fmtCOP(unitPrice)}</td>
+      <td></td>
+    </tr>`;
+}
+
+/* ── TOGGLE ── */
+function toggleComp(itemId) {
+  const section = document.getElementById(`comp-${itemId}`);
+  const btn     = document.getElementById(`toggle-${itemId}`);
+  const isOpen  = section.classList.toggle('open');
+  btn.textContent = isOpen ? '▼' : '▶';
+  btn.classList.toggle('open', isOpen);
+}
+
+/* ── LIVE TOTAL PREVIEW (while typing) ── */
+function liveTotal(itemId, idx, changedEl, changedField) {
+  const row  = document.getElementById(`comp-row-${itemId}-${idx}`);
+  const cant = parseFloat(row.querySelector('[step="0.01"]').value) || 0;
+  const vr   = parseFloat(row.querySelector('[step="100"]').value)  || 0;
+  document.getElementById(`comp-total-${itemId}-${idx}`).textContent = fmtCOP(cant * vr);
+  // Live update item subtotal in total row
+  const item   = findItem(itemId);
+  const comps  = item ? (item.componentes || []) : [];
+  const rowIdx = comps[idx];
+  if (rowIdx) rowIdx[changedField] = changedField === 'cant' ? cant : parseFloat(changedEl.value) || 0;
+  refreshSubtotals(itemId);
+}
+
+/* ── COMP CHANGE (on blur) ── */
+function compChange(itemId, idx, field, val) {
+  const item = findItem(itemId);
+  if (!item || !item.componentes) return;
+  const c = item.componentes[idx];
+  if (!c) return;
+  c[field] = (field === 'cant' || field === 'vr_unit') ? (parseFloat(val) || 0) : val;
+  refreshSubtotals(itemId);
+  markDirty(itemId);
+}
+
+function refreshSubtotals(itemId) {
+  const item  = findItem(itemId);
+  if (!item) return;
+  const comps      = item.componentes || [];
+  const rawSum     = comps.reduce((s, c) => s + (c.cant||0)*(c.vr_unit||0), 0);
+  const refQty     = item.ref_qty || 1;
+  const unitCost   = rawSum / refQty;
+  const unitPrecio = Math.round(unitCost * 1.25);
+
+  // Suma bruta
+  const subEl = document.getElementById(`comp-subtotal-${itemId}`);
+  if (subEl) subEl.textContent = fmtCOP(rawSum);
+
+  // Costo por unidad (÷ ref_qty) — fila visible solo si ref_qty > 1
+  const refRow = document.getElementById(`comp-refqty-row-${itemId}`);
+  if (refRow) {
+    if (refQty > 1) {
+      refRow.style.display = '';
+      const unitCostEl = document.getElementById(`comp-unitcost-${itemId}`);
+      if (unitCostEl) unitCostEl.textContent = fmtCOP(Math.round(unitCost));
+      // Actualizar texto de la fila con el ref_qty actual
+      const labelEl = refRow.querySelector('td:first-child');
+      if (labelEl) labelEl.innerHTML = `÷ ${refQty} (cantidad de referencia) → costo por unidad`;
+    } else {
+      refRow.style.display = 'none';
+    }
+  }
+
+  // Precio final (× 1.25)
+  const calcEl = document.getElementById(`comp-pricecalc-${itemId}`);
+  if (calcEl) calcEl.textContent = fmtCOP(unitPrecio);
+
+  // Campo precio del ítem (readonly cuando tiene componentes)
+  const priceEl = document.getElementById(`precio-${itemId}`);
+  if (priceEl && priceEl.readOnly) {
+    priceEl.value = unitPrecio;
+    item.precio   = unitPrecio;
+  }
+}
+
+/* ── CAMBIO CANT. REFERENCIA ── */
+function refQtyChange(itemId, val) {
+  const item = findItem(itemId);
+  if (!item) return;
+  const qty = Math.max(1, parseFloat(val) || 1);
+  item.ref_qty = qty;
+  refreshSubtotals(itemId);
+  markDirty(itemId);
+}
+
+/* ── ADD / DELETE COMP ── */
+function addComp(itemId) {
+  const item = findItem(itemId);
+  if (!item) return;
+  if (!item.componentes) item.componentes = [];
+  const idx  = item.componentes.length;
+  const newC = { nombre: '', und: 'UND', cant: 1, vr_unit: 0 };
+  item.componentes.push(newC);
+
+  const tbody   = document.getElementById(`comp-tbody-${itemId}`);
+  const totRow  = document.getElementById(`comp-total-row-${itemId}`);
+  const newRow  = document.createElement('tr');
+  newRow.className = 'comp-row';
+  newRow.id = `comp-row-${itemId}-${idx}`;
+  newRow.innerHTML = compRowHTML(itemId, idx, newC)
+    .replace(/^<tr[^>]*>/, '').replace(/<\/tr>$/, '');
+  tbody.insertBefore(newRow, totRow);
+
+  // Ensure section is open
+  document.getElementById(`comp-${itemId}`).classList.add('open');
+  document.getElementById(`toggle-${itemId}`).textContent = '▼';
+  document.getElementById(`toggle-${itemId}`).classList.add('open');
+  // Make precio readonly now that there are components
+  const priceEl = document.getElementById(`precio-${itemId}`);
+  if (priceEl) { priceEl.readOnly = true; priceEl.removeAttribute('onblur'); }
+  // Show auto badge
+  const wrap = priceEl?.parentElement;
+  if (wrap && !wrap.querySelector('.badge-auto')) {
+    wrap.insertAdjacentHTML('beforeend', '<span class="badge-auto">auto</span>');
+  }
+
+  refreshSubtotals(itemId);
+  markDirty(itemId);
+  // Focus the new name input
+  setTimeout(() => newRow.querySelector('.inp-comp-n')?.focus(), 50);
+}
+
+function delComp(itemId, idx) {
+  const item = findItem(itemId);
+  if (!item || !item.componentes) return;
+  item.componentes.splice(idx, 1);
+  rebuildCompTable(itemId);
+  refreshSubtotals(itemId);
+  // If no more components, make price editable again
+  if (item.componentes.length === 0) {
+    const priceEl = document.getElementById(`precio-${itemId}`);
+    if (priceEl) { priceEl.readOnly = false; priceEl.setAttribute('onblur', `fieldChange(this)`); }
+    document.getElementById(`precio-${itemId}`)?.parentElement
+      ?.querySelector('.badge-auto')?.remove();
+  }
+  markDirty(itemId);
+}
+
+function rebuildCompTable(itemId) {
+  const item  = findItem(itemId);
+  if (!item)  return;
+  const tbody = document.getElementById(`comp-tbody-${itemId}`);
+  const comps = item.componentes || [];
+  tbody.innerHTML = comps.map((c, i) => compRowHTML(itemId, i, c)).join('') +
+                    compTotalRowHTML(itemId, comps, item.ref_qty);
+  // Update toggle label
+  const btn = document.getElementById(`toggle-${itemId}`);
+  if (btn) btn.textContent = comps.length > 0 ? '▼' : '▶';
+}
+
+/* ── ADD / DELETE ITEM ── */
+function addItem(gi) {
+  const grp = catalogo[gi];
+  if (!grp) return;
+  const newId   = 'item-' + Date.now();
+  const newItem = { id: newId, nombre: 'Nuevo ítem', und: 'UND', precio: 0, desc: '', componentes: [], ref_qty: 1 };
+  grp.items.push(newItem);
+  // Inject rows into DOM without full re-render
+  const tbody = document.getElementById(`tbody-${gi}`);
+  if (tbody) {
+    const tmp = document.createElement('tbody');
+    tmp.innerHTML = renderItemRows(newItem);
+    while (tmp.firstChild) tbody.appendChild(tmp.firstChild);
+  }
+  // Update count chip
+  const countEl = document.getElementById(`cat-count-${gi}`);
+  if (countEl) countEl.textContent = `${grp.items.length} ítems`;
+  renderStats();
+  markDirty(newId);
+  setTimeout(() => document.querySelector(`#row-${newId} .inp-nombre`)?.focus(), 50);
+}
+
+function deleteItem(itemId) {
+  const item = findItem(itemId);
+  if (!item) return;
+  if (!confirm(`¿Eliminar "${item.nombre}"?\nEsta acción no se puede deshacer.`)) return;
+  // Remove from data and update count
+  for (let gi = 0; gi < catalogo.length; gi++) {
+    const grp = catalogo[gi];
+    const idx = grp.items.findIndex(i => i.id === itemId);
+    if (idx !== -1) {
+      grp.items.splice(idx, 1);
+      const countEl = document.getElementById(`cat-count-${gi}`);
+      if (countEl) countEl.textContent = `${grp.items.length} ítems`;
+      break;
+    }
+  }
+  // Remove both DOM rows
+  document.getElementById(`row-${itemId}`)?.remove();
+  document.getElementById(`comp-${itemId}`)?.remove();
+  delete dirty[itemId];
+  renderStats();
+  // Mark unsaved changes via a sentinel
+  dirty['__catalog_changed__'] = true;
+  updateSaveBar();
+}
+
+/* ── FIELD CHANGE (main row) ── */
+function fieldChange(el) {
+  const id    = el.dataset.id;
+  const field = el.dataset.field;
+  const item  = findItem(id);
+  if (!item) return;
+  item[field] = field === 'precio' ? (parseFloat(el.value) || 0) : el.value;
+  markDirty(id);
+}
+
+/* ── DIRTY TRACKING ── */
+function markDirty(id) {
+  dirty[id] = true;
+  document.getElementById(`row-${id}`)?.classList.add('modified');
+  updateSaveBar();
+}
+
+function updateSaveBar() {
+  const n   = Object.keys(dirty).length;
+  const bar = document.getElementById('save-bar');
+  document.getElementById('save-count').textContent =
+    `${n} ${n === 1 ? 'cambio' : 'cambios'}`;
+  bar.classList.toggle('open', n > 0);
+}
+
+/* ── GUARDAR ── */
+async function guardar() {
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    const res = await fetch('/api/catalogo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(catalogo),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Error del servidor');
+    Object.keys(dirty).forEach(id => document.getElementById(`row-${id}`)?.classList.remove('modified'));
+    document.querySelectorAll('.item-row.modified').forEach(el => el.classList.remove('modified'));
+    dirty = {};
+    updateSaveBar();
+    renderStats();
+    toast('✓ Precios guardados — el cotizador usará los nuevos valores');
+  } catch(e) {
+    toast('✗ Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
+  }
+}
+
+function descartar() {
+  if (!confirm('¿Descartar todos los cambios y recargar?')) return;
+  dirty = {};
+  init();
+}
+
+function toast(msg, isErr = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isErr ? 'var(--error)' : 'var(--ok)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+init();
+</script>
+</body>
+</html>

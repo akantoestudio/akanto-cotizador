@@ -1,0 +1,2842 @@
+[
+  {
+    "cat": "Demolición",
+    "items": [
+      {
+        "id": "dem-baldosa",
+        "nombre": "Demolición baldosa de piso",
+        "und": "M2",
+        "precio": 19715,
+        "desc": "Incluye herramienta menor, cuadrilla y retiro de material",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 60,
+            "vr_unit": 13400
+          },
+          {
+            "nombre": "Herramienta menor puntero y cincel",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Martillo demoledor",
+            "und": "DIA",
+            "cant": 1,
+            "vr_unit": 31350
+          },
+          {
+            "nombre": "Pala",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55990
+          }
+        ],
+        "ref_qty": 60
+      },
+      {
+        "id": "dem-laminado",
+        "nombre": "Desmonte de piso laminado",
+        "und": "M2",
+        "precio": 16618,
+        "desc": "Incluye herramienta menor y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "HC",
+            "cant": 63,
+            "vr_unit": 11035
+          },
+          {
+            "nombre": "Herramienta menor puntero y cincel",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Martillo demoledor",
+            "und": "DIA",
+            "cant": 1,
+            "vr_unit": 31350
+          },
+          {
+            "nombre": "Pala",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55990
+          }
+        ],
+        "ref_qty": 63
+      },
+      {
+        "id": "dem-dry-muro",
+        "nombre": "Demolición muros en Drywall",
+        "und": "M2",
+        "precio": 23455,
+        "desc": "Incluye herramienta menor, cuadrilla + resanes y filos",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 10,
+            "vr_unit": 14451
+          },
+          {
+            "nombre": "Serrucho de punta para Drywall",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 8878
+          },
+          {
+            "nombre": "Tijeras de corte lámina",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 21712
+          },
+          {
+            "nombre": "Espátula metálica",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 12540
+          }
+        ],
+        "ref_qty": 10
+      },
+      {
+        "id": "dem-dry-techo",
+        "nombre": "Demolición techos en Drywall",
+        "und": "M2",
+        "precio": 26393,
+        "desc": "Incluye herramienta menor, andamios + resanes y filos",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 46,
+            "vr_unit": 14451
+          },
+          {
+            "nombre": "Andamios",
+            "und": "DIA",
+            "cant": 5,
+            "vr_unit": 49500
+          },
+          {
+            "nombre": "Serrucho de punta para Drywall",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 37290
+          },
+          {
+            "nombre": "Tijeras de corte lámina",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 21712
+          }
+        ],
+        "ref_qty": 46
+      },
+      {
+        "id": "dem-bloque",
+        "nombre": "Demolición muros en bloque",
+        "und": "M2",
+        "precio": 57958,
+        "desc": "Incluye herramienta menor, cuadrilla + resanes y filos",
+        "componentes": [
+          {
+            "nombre": "Cuadrilla (2 albañiles c/prestaciones)",
+            "und": "UND",
+            "cant": 9,
+            "vr_unit": 30551
+          },
+          {
+            "nombre": "Herramienta menor puntero y cincel",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Martillo demoledor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 31350
+          },
+          {
+            "nombre": "Pala",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55990
+          }
+        ],
+        "ref_qty": 9
+      },
+      {
+        "id": "dem-enchape",
+        "nombre": "Demolición de enchape en madera",
+        "und": "M2",
+        "precio": 22445,
+        "desc": "Incluye cuadrilla con prestaciones y herramienta menor",
+        "componentes": []
+      },
+      {
+        "id": "dem-enchape-m",
+        "nombre": "Demolición de enchape en muros",
+        "und": "M2",
+        "precio": 22391,
+        "desc": "Incluye cuadrilla con prestaciones y herramienta menor",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Regatas y Perforaciones",
+    "items": [
+      {
+        "id": "reg-piso",
+        "nombre": "Regatas sobre piso",
+        "und": "ML",
+        "precio": 92306,
+        "desc": "Incluye herramienta menor, resane y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 30,
+            "vr_unit": 13880
+          },
+          {
+            "nombre": "Cortadora eléctrica",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 31350
+          },
+          {
+            "nombre": "Disco de corte Dewalt 4,5\"",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 13200
+          },
+          {
+            "nombre": "Arena (10 ML)",
+            "und": "M2",
+            "cant": 90,
+            "vr_unit": 18000
+          },
+          {
+            "nombre": "Cemento",
+            "und": "M2",
+            "cant": 1.5,
+            "vr_unit": 39000
+          }
+        ],
+        "ref_qty": 30
+      },
+      {
+        "id": "reg-muro",
+        "nombre": "Regatas en muro",
+        "und": "ML",
+        "precio": 53585,
+        "desc": "Incluye herramienta menor, resane y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 12,
+            "vr_unit": 13880
+          },
+          {
+            "nombre": "Cortadora eléctrica",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 37620
+          },
+          {
+            "nombre": "Herramienta menor puntero y cincel",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Disco de corte Dewalt 4,5\"",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15840
+          },
+          {
+            "nombre": "Arena (10 ML)",
+            "und": "M2",
+            "cant": 12,
+            "vr_unit": 18000
+          },
+          {
+            "nombre": "Cemento",
+            "und": "M2",
+            "cant": 0.6,
+            "vr_unit": 39000
+          }
+        ],
+        "ref_qty": 12
+      },
+      {
+        "id": "reg-perf",
+        "nombre": "Perforaciones en placa con saca núcleo",
+        "und": "UND",
+        "precio": 625000,
+        "desc": "Incluye herramienta menor y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de obra perforación (incl. herramienta)",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 500000
+          }
+        ],
+        "ref_qty": 3
+      }
+    ]
+  },
+  {
+    "cat": "Drywall",
+    "items": [
+      {
+        "id": "dry-ciel",
+        "nombre": "Panel Drywall cielo raso (1 cara)",
+        "und": "M2",
+        "precio": 89777,
+        "desc": "Incluye estructura, tornillería, masillado, lijado y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 393.8,
+            "vr_unit": 35000
+          },
+          {
+            "nombre": "Espátula",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 16500
+          },
+          {
+            "nombre": "Omega para techo",
+            "und": "UND",
+            "cant": 202.6,
+            "vr_unit": 4700
+          },
+          {
+            "nombre": "Vigueta para techo",
+            "und": "UND",
+            "cant": 104.3,
+            "vr_unit": 4700
+          },
+          {
+            "nombre": "Lámina yeso estándar 2.44×1.22m",
+            "und": "UND",
+            "cant": 120.539,
+            "vr_unit": 46900
+          },
+          {
+            "nombre": "Tornillo tapado drywall",
+            "und": "UND",
+            "cant": 25060,
+            "vr_unit": 50
+          },
+          {
+            "nombre": "Tornillo de estructura",
+            "und": "UND",
+            "cant": 10740,
+            "vr_unit": 50
+          },
+          {
+            "nombre": "Masilla Super Mastik",
+            "und": "GAL",
+            "cant": 3,
+            "vr_unit": 55500
+          },
+          {
+            "nombre": "Lija #120",
+            "und": "UND",
+            "cant": 8,
+            "vr_unit": 2500
+          },
+          {
+            "nombre": "Ángulos",
+            "und": "UND",
+            "cant": 927.9,
+            "vr_unit": 2998
+          },
+          {
+            "nombre": "Cinta filo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Cinta malla",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 18500
+          }
+        ],
+        "ref_qty": 358
+      },
+      {
+        "id": "dry-1c",
+        "nombre": "Panel divisorio Drywall (1 cara)",
+        "und": "M2",
+        "precio": 95938,
+        "desc": "Incluye estructura, tornillería, masillado, lijado y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 45.1,
+            "vr_unit": 38000
+          },
+          {
+            "nombre": "Espátula",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 46090
+          },
+          {
+            "nombre": "Paral base 6×2.44 cal. 26",
+            "und": "UND",
+            "cant": 36,
+            "vr_unit": 7500
+          },
+          {
+            "nombre": "Lámina yeso estándar 2.44×1.22m",
+            "und": "UND",
+            "cant": 13,
+            "vr_unit": 46900
+          },
+          {
+            "nombre": "Tornillo tapado drywall",
+            "und": "UND",
+            "cant": 2520,
+            "vr_unit": 50
+          },
+          {
+            "nombre": "Tornillo de estructura",
+            "und": "UND",
+            "cant": 1230,
+            "vr_unit": 50
+          },
+          {
+            "nombre": "Masilla Super Mastik",
+            "und": "GAL",
+            "cant": 1,
+            "vr_unit": 55500
+          },
+          {
+            "nombre": "Cinta doble faz",
+            "und": "UND",
+            "cant": 32.8,
+            "vr_unit": 3808
+          },
+          {
+            "nombre": "Lija #120",
+            "und": "UND",
+            "cant": 4,
+            "vr_unit": 1980
+          },
+          {
+            "nombre": "Canales",
+            "und": "UND",
+            "cant": 15.5,
+            "vr_unit": 4700
+          },
+          {
+            "nombre": "Cinta filo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Cinta malla",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 18500
+          }
+        ],
+        "ref_qty": 41
+      },
+      {
+        "id": "dry-2c",
+        "nombre": "Panel divisorio Drywall (doble cara)",
+        "und": "M2",
+        "precio": 127103,
+        "desc": "Incluye estructura, tornillería, masillado, lijado y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 33,
+            "vr_unit": 38000
+          },
+          {
+            "nombre": "Espátula",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 46090
+          },
+          {
+            "nombre": "Paral base 6×2.44 cal. 26",
+            "und": "UND",
+            "cant": 46,
+            "vr_unit": 7500
+          },
+          {
+            "nombre": "Lámina yeso estándar 2.44×1.22m",
+            "und": "UND",
+            "cant": 19,
+            "vr_unit": 46900
+          },
+          {
+            "nombre": "Tornillo tapado drywall",
+            "und": "UND",
+            "cant": 3202,
+            "vr_unit": 50
+          },
+          {
+            "nombre": "Tornillo de estructura",
+            "und": "UND",
+            "cant": 900,
+            "vr_unit": 50
+          },
+          {
+            "nombre": "Masilla Super Mastik",
+            "und": "GAL",
+            "cant": 1,
+            "vr_unit": 55500
+          },
+          {
+            "nombre": "Cinta doble faz",
+            "und": "UND",
+            "cant": 24,
+            "vr_unit": 3808
+          },
+          {
+            "nombre": "Lija #120",
+            "und": "UND",
+            "cant": 4,
+            "vr_unit": 1980
+          },
+          {
+            "nombre": "Canales",
+            "und": "UND",
+            "cant": 20.4,
+            "vr_unit": 4700
+          },
+          {
+            "nombre": "Cinta filo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Cinta malla",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 18500
+          }
+        ],
+        "ref_qty": 30
+      },
+      {
+        "id": "dry-bloque",
+        "nombre": "Muro divisor en bloque",
+        "und": "M2",
+        "precio": 233990,
+        "desc": "Incluye herramienta menor, bloque, varilla, cemento, pañete y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 14.3,
+            "vr_unit": 35000
+          },
+          {
+            "nombre": "Bloque",
+            "und": "M2",
+            "cant": 195,
+            "vr_unit": 2800
+          },
+          {
+            "nombre": "Varilla",
+            "und": "UND",
+            "cant": 52,
+            "vr_unit": 6000
+          },
+          {
+            "nombre": "Cemento",
+            "und": "M2",
+            "cant": 7,
+            "vr_unit": 39000
+          },
+          {
+            "nombre": "Arena",
+            "und": "M2",
+            "cant": 39,
+            "vr_unit": 18000
+          },
+          {
+            "nombre": "Balde",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 10000
+          },
+          {
+            "nombre": "Palustre",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 20000
+          },
+          {
+            "nombre": "Boquillera",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 30000
+          },
+          {
+            "nombre": "Llana",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          }
+        ],
+        "ref_qty": 13
+      },
+      {
+        "id": "piso-vinil",
+        "nombre": "Piso vinílico (suministro e instalación)",
+        "und": "M2",
+        "precio": 281900,
+        "desc": "Incluye yumbolón espuma PE, guardaescoba PVC, perfil de transición e instalación",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Pintura y Acabados",
+    "items": [
+      {
+        "id": "pin-tipo2",
+        "nombre": "Pintura tipo 2 (muros y techos)",
+        "und": "M2",
+        "precio": 24276,
+        "desc": "Viniltex Pintuco, incluye mano de obra y herramienta menor",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "JR",
+            "cant": 30,
+            "vr_unit": 10090
+          },
+          {
+            "nombre": "Pintura tipo 2 Viniltex Pintuco",
+            "und": "M2",
+            "cant": 0.4,
+            "vr_unit": 162000
+          },
+          {
+            "nombre": "Rodillo 9\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 43890
+          },
+          {
+            "nombre": "Brocha 2\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 13640
+          },
+          {
+            "nombre": "Plástico para cubrir",
+            "und": "M2",
+            "cant": 4,
+            "vr_unit": 20900
+          },
+          {
+            "nombre": "Cinta de enmascarar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 20000
+          },
+          {
+            "nombre": "Cinta para pintar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 17000
+          }
+        ],
+        "ref_qty": 30
+      },
+      {
+        "id": "pin-antibac",
+        "nombre": "Pintura antibacterial certificada",
+        "und": "M2",
+        "precio": 23380,
+        "desc": "Acrilica certificada Corona Pintuco para área clínica",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 110,
+            "vr_unit": 10090
+          },
+          {
+            "nombre": "Pintura acrílica certificada Corona",
+            "und": "UND",
+            "cant": 1.7,
+            "vr_unit": 480000
+          },
+          {
+            "nombre": "Rodillo 9\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 43890
+          },
+          {
+            "nombre": "Brocha 2\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 13640
+          },
+          {
+            "nombre": "Cinta de enmascarar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 20000
+          },
+          {
+            "nombre": "Cinta para pintar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 17000
+          }
+        ],
+        "ref_qty": 110
+      },
+      {
+        "id": "pin-color",
+        "nombre": "Pintura a color",
+        "und": "M2",
+        "precio": 23418,
+        "desc": "Incluye mano de obra, rodillo, brocha y materiales",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 80,
+            "vr_unit": 10090
+          },
+          {
+            "nombre": "Pintura a color",
+            "und": "UND",
+            "cant": 1.2,
+            "vr_unit": 466700
+          },
+          {
+            "nombre": "Rodillo 9\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 43890
+          },
+          {
+            "nombre": "Brocha 2\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 13640
+          },
+          {
+            "nombre": "Cinta de enmascarar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 20000
+          },
+          {
+            "nombre": "Cinta para pintar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 17000
+          }
+        ],
+        "ref_qty": 80
+      },
+      {
+        "id": "pin-dbrocha",
+        "nombre": "Pintura doble brocha",
+        "und": "M2",
+        "precio": 62893,
+        "desc": "Acabado doble brocha, incluye mano de obra y materiales",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "M2",
+            "cant": 22,
+            "vr_unit": 23122
+          },
+          {
+            "nombre": "Pintura a color",
+            "und": "M2",
+            "cant": 1,
+            "vr_unit": 466700
+          },
+          {
+            "nombre": "Rodillo 9\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 43890
+          },
+          {
+            "nombre": "Brocha 2\" Goya",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 13640
+          },
+          {
+            "nombre": "Cinta de enmascarar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 20000
+          },
+          {
+            "nombre": "Cinta para pintar",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 17000
+          }
+        ],
+        "ref_qty": 22
+      },
+      {
+        "id": "pin-negro",
+        "nombre": "Pintura y resane de techo en negro",
+        "und": "M2",
+        "precio": 30223,
+        "desc": "Mano de obra y material para pintura en techo",
+        "componentes": []
+      },
+      {
+        "id": "pin-micro",
+        "nombre": "Acabado en microcemento",
+        "und": "M2",
+        "precio": 118750,
+        "desc": "Mano de obra con material incluido",
+        "componentes": [
+          {
+            "nombre": "Mano de obra con material",
+            "und": "UND",
+            "cant": 55,
+            "vr_unit": 95000
+          }
+        ],
+        "ref_qty": 55
+      },
+      {
+        "id": "pin-marm",
+        "nombre": "Acabado en marmolizado",
+        "und": "M2",
+        "precio": 96250,
+        "desc": "Mano de obra con material incluido",
+        "componentes": [
+          {
+            "nombre": "Mano de obra con material",
+            "und": "UND",
+            "cant": 9,
+            "vr_unit": 77000
+          }
+        ],
+        "ref_qty": 9
+      },
+      {
+        "id": "pin-hum",
+        "nombre": "Tratamiento de humedades",
+        "und": "M2",
+        "precio": 323504,
+        "desc": "Impermeabilizante acrílico Sikafill, incluye mano de obra",
+        "componentes": [
+          {
+            "nombre": "Sikafill-12 Impermeabilizante Acrílico 4.4 KG",
+            "und": "GL",
+            "cant": 2.5,
+            "vr_unit": 106590
+          },
+          {
+            "nombre": "Puntero",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Martillo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Pala",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Espátula metálica",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 12540
+          },
+          {
+            "nombre": "Mano de obra Maestro",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 850000
+          }
+        ],
+        "ref_qty": 5
+      }
+    ]
+  },
+  {
+    "cat": "Hidráulico",
+    "items": [
+      {
+        "id": "hid-pre",
+        "nombre": "Punto hidráulico presión 1/2\"",
+        "und": "ML",
+        "precio": 97311,
+        "desc": "Incluye herramienta menor, adaptador, tubería y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "UND",
+            "cant": 10,
+            "vr_unit": 49500
+          },
+          {
+            "nombre": "Herramienta cortadora de tubos",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 13090
+          },
+          {
+            "nombre": "Tubería de presión 1/2\" × 3m",
+            "und": "ML",
+            "cant": 4,
+            "vr_unit": 9460
+          },
+          {
+            "nombre": "Uniones tubería presión 1/2\"",
+            "und": "UND",
+            "cant": 8,
+            "vr_unit": 1539
+          },
+          {
+            "nombre": "Codos tubería presión 1/2\"",
+            "und": "UND",
+            "cant": 5,
+            "vr_unit": 2114
+          },
+          {
+            "nombre": "T tubería presión 1/2\"",
+            "und": "UND",
+            "cant": 5,
+            "vr_unit": 1210
+          },
+          {
+            "nombre": "Tapón roscado tubería presión 1/2\"",
+            "und": "UND",
+            "cant": 5,
+            "vr_unit": 2093
+          },
+          {
+            "nombre": "Soldadura",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 61490
+          },
+          {
+            "nombre": "Limpiador",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55990
+          },
+          {
+            "nombre": "Estopa",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 14190
+          }
+        ],
+        "ref_qty": 10
+      },
+      {
+        "id": "hid-san",
+        "nombre": "Punto salida sanitaria PVC 2\"",
+        "und": "UND",
+        "precio": 109327,
+        "desc": "Incluye herramienta menor, adaptador, tubería y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Mano de Obra",
+            "und": "UND",
+            "cant": 10,
+            "vr_unit": 55000
+          },
+          {
+            "nombre": "Herramienta menor segueta",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 13090
+          },
+          {
+            "nombre": "Tubería sanitaria PVC 3m",
+            "und": "ML",
+            "cant": 4,
+            "vr_unit": 46848
+          },
+          {
+            "nombre": "Uniones tubería sanitaria",
+            "und": "UND",
+            "cant": 5,
+            "vr_unit": 2310
+          },
+          {
+            "nombre": "Codos tubería sanitaria",
+            "und": "UND",
+            "cant": 9,
+            "vr_unit": 3795
+          },
+          {
+            "nombre": "T tubería sanitaria",
+            "und": "UND",
+            "cant": 5,
+            "vr_unit": 8444
+          },
+          {
+            "nombre": "Tapón de prueba sanitario",
+            "und": "UND",
+            "cant": 5,
+            "vr_unit": 7242
+          }
+        ],
+        "ref_qty": 10
+      }
+    ]
+  },
+  {
+    "cat": "Eléctrico y Datos",
+    "items": [
+      {
+        "id": "ele-gfci",
+        "nombre": "Punto toma corriente GFCI",
+        "und": "UND",
+        "precio": 1307063,
+        "desc": "Incluye herramienta menor, tubería EMT y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Técnico con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 37000
+          },
+          {
+            "nombre": "Ayudante con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 32000
+          },
+          {
+            "nombre": "Tubería EMT",
+            "und": "UND",
+            "cant": 4,
+            "vr_unit": 45000
+          },
+          {
+            "nombre": "Cable libre de halógeno",
+            "und": "ML",
+            "cant": 159,
+            "vr_unit": 4500
+          },
+          {
+            "nombre": "Cinta aislante",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 12000
+          },
+          {
+            "nombre": "Caja 2400 para toma",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 9000
+          },
+          {
+            "nombre": "Capuchones",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 1050
+          },
+          {
+            "nombre": "Toma corriente GFCI",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 57000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "ele-toma",
+        "nombre": "Punto toma corriente 15A/120V",
+        "und": "UND",
+        "precio": 231341,
+        "desc": "Incluye herramienta menor, tubería EMT y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Técnico con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 27000
+          },
+          {
+            "nombre": "Ayudante con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 22000
+          },
+          {
+            "nombre": "Tubería EMT",
+            "und": "ML",
+            "cant": 13,
+            "vr_unit": 90000
+          },
+          {
+            "nombre": "Cable libre de halógeno",
+            "und": "ML",
+            "cant": 180,
+            "vr_unit": 4500
+          },
+          {
+            "nombre": "Cinta aislante",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 12000
+          },
+          {
+            "nombre": "Caja 2400 para toma",
+            "und": "UND",
+            "cant": 13,
+            "vr_unit": 9000
+          },
+          {
+            "nombre": "Capuchones",
+            "und": "UND",
+            "cant": 39,
+            "vr_unit": 1050
+          },
+          {
+            "nombre": "Toma corriente",
+            "und": "UND",
+            "cant": 13,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 13
+      },
+      {
+        "id": "ele-int-s",
+        "nombre": "Punto interruptor sencillo",
+        "und": "UND",
+        "precio": 302250,
+        "desc": "Incluye herramienta menor, tubería EMT y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Técnico con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 27000
+          },
+          {
+            "nombre": "Ayudante con prestaciones",
+            "und": "JR",
+            "cant": 2,
+            "vr_unit": 22000
+          },
+          {
+            "nombre": "Tubería EMT",
+            "und": "ML",
+            "cant": 4,
+            "vr_unit": 45000
+          },
+          {
+            "nombre": "Cable libre de halógeno",
+            "und": "ML",
+            "cant": 12,
+            "vr_unit": 4500
+          },
+          {
+            "nombre": "Cinta aislante",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 35000
+          },
+          {
+            "nombre": "Caja 5400/2800 para interruptor",
+            "und": "UND",
+            "cant": 4,
+            "vr_unit": 9000
+          },
+          {
+            "nombre": "Capuchones",
+            "und": "UND",
+            "cant": 12,
+            "vr_unit": 1050
+          },
+          {
+            "nombre": "Interruptor sencillo",
+            "und": "UND",
+            "cant": 4,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 2
+      },
+      {
+        "id": "ele-int-d",
+        "nombre": "Punto interruptor doble",
+        "und": "UND",
+        "precio": 468313,
+        "desc": "Incluye herramienta menor, tubería EMT y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Técnico con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 37000
+          },
+          {
+            "nombre": "Ayudante con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 32000
+          },
+          {
+            "nombre": "Tubería EMT",
+            "und": "ML",
+            "cant": 10,
+            "vr_unit": 45000
+          },
+          {
+            "nombre": "Cable libre de halógeno",
+            "und": "ML",
+            "cant": 30,
+            "vr_unit": 4500
+          },
+          {
+            "nombre": "Cinta aislante",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 35000
+          },
+          {
+            "nombre": "Caja 2400 para interruptor",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 9000
+          },
+          {
+            "nombre": "Capuchones",
+            "und": "UND",
+            "cant": 6,
+            "vr_unit": 1050
+          },
+          {
+            "nombre": "Interruptor doble",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 18000
+          }
+        ],
+        "ref_qty": 2
+      },
+      {
+        "id": "ele-ilum",
+        "nombre": "Punto salida de iluminación",
+        "und": "UND",
+        "precio": 584563,
+        "desc": "Incluye herramienta menor, tubería EMT y cuadrilla",
+        "componentes": [
+          {
+            "nombre": "Técnico con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 37000
+          },
+          {
+            "nombre": "Ayudante con prestaciones",
+            "und": "JR",
+            "cant": 1,
+            "vr_unit": 32000
+          },
+          {
+            "nombre": "Tubería EMT",
+            "und": "ML",
+            "cant": 8,
+            "vr_unit": 90000
+          },
+          {
+            "nombre": "Cable libre de halógeno",
+            "und": "ML",
+            "cant": 18,
+            "vr_unit": 4500
+          },
+          {
+            "nombre": "Cinta aislante",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 12000
+          },
+          {
+            "nombre": "Prensaestopa y cable encauchetado",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Tapa con salida para prensaestopa",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 3500
+          },
+          {
+            "nombre": "Caja octogonal",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 5000
+          },
+          {
+            "nombre": "Capuchones",
+            "und": "UND",
+            "cant": 6,
+            "vr_unit": 1050
+          }
+        ],
+        "ref_qty": 2
+      },
+      {
+        "id": "ele-datos",
+        "nombre": "Salida datos UTP cat. 6 (incl. CCTV IP)",
+        "und": "UND",
+        "precio": 373750,
+        "desc": "Incluye 3 CCTV IP",
+        "componentes": []
+      },
+      {
+        "id": "ele-rack",
+        "nombre": "Desmonte y traslado Rack comunicaciones",
+        "und": "UND",
+        "precio": 2156250,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ele-duct",
+        "nombre": "Ductería para traslado",
+        "und": "UND",
+        "precio": 330625,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ele-canal",
+        "nombre": "Canaleta metálica 10x4 con división",
+        "und": "ML",
+        "precio": 53188,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ele-troq",
+        "nombre": "Troquel triple metálico",
+        "und": "UND",
+        "precio": 17250,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ele-cito",
+        "nombre": "Salida para citófono",
+        "und": "UND",
+        "precio": 215625,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ele-boton",
+        "nombre": "Instalación botón de acceso",
+        "und": "UND",
+        "precio": 1800000,
+        "desc": "Instalación y reparaciones para conexión de botón de acceso",
+        "componentes": []
+      },
+      {
+        "id": "ele-acom",
+        "nombre": "Acometida eléctrica 4#6+1#8-T",
+        "und": "ML",
+        "precio": 88550,
+        "desc": "Desde celda de medida a tablero eléctrico",
+        "componentes": []
+      },
+      {
+        "id": "ele-tablero",
+        "nombre": "Tablero 24 cts + breaker y protecciones",
+        "und": "UND",
+        "precio": 2350000,
+        "desc": "",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Iluminación",
+    "items": [
+      {
+        "id": "ilu-lin-s",
+        "nombre": "Luminaria lineal incrustada 0–2 m",
+        "und": "UND",
+        "precio": 1125000,
+        "desc": "Instalada en muro o techo",
+        "componentes": []
+      },
+      {
+        "id": "ilu-lin-l",
+        "nombre": "Luminaria lineal incrustada 2–6 m",
+        "und": "UND",
+        "precio": 562500,
+        "desc": "Instalada en muro o techo",
+        "componentes": []
+      },
+      {
+        "id": "ilu-led18",
+        "nombre": "Panel LED redondo incrustar 18W",
+        "und": "UND",
+        "precio": 333750,
+        "desc": "Luz 6500K",
+        "componentes": []
+      },
+      {
+        "id": "ilu-led6",
+        "nombre": "Panel LED redondo incrustar 6W",
+        "und": "UND",
+        "precio": 285000,
+        "desc": "Luz 6500K",
+        "componentes": []
+      },
+      {
+        "id": "ilu-p60",
+        "nombre": "Panel 60×60 para descolgar Silvania",
+        "und": "UND",
+        "precio": 273125,
+        "desc": "Con marco para descolgar",
+        "componentes": []
+      },
+      {
+        "id": "ilu-p18s",
+        "nombre": "Panel 18W de incrustar Silvania",
+        "und": "UND",
+        "precio": 27313,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ilu-spot",
+        "nombre": "Spot sobreponer dirigible",
+        "und": "UND",
+        "precio": 149500,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "ilu-emerg",
+        "nombre": "Luminaria de emergencia Lumitek",
+        "und": "UND",
+        "precio": 215625,
+        "desc": "",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Logística",
+    "items": [
+      {
+        "id": "log-acarreo",
+        "nombre": "Acarreo",
+        "und": "UND",
+        "precio": 82500,
+        "desc": "Incluye acarreo de material, mobiliario y ornamentación",
+        "componentes": []
+      },
+      {
+        "id": "log-aseo",
+        "nombre": "Aseo general",
+        "und": "UND",
+        "precio": 146296,
+        "desc": "Personal de aseo con prestaciones, incluye insumos",
+        "componentes": []
+      },
+      {
+        "id": "log-aseof",
+        "nombre": "Aseo final de obra",
+        "und": "UND",
+        "precio": 431740,
+        "desc": "Limpieza profunda al finalizar obra",
+        "componentes": []
+      },
+      {
+        "id": "log-escomb",
+        "nombre": "Escombros",
+        "und": "UND",
+        "precio": 500000,
+        "desc": "Transporte y disposición de escombros",
+        "componentes": []
+      },
+      {
+        "id": "log-andamio",
+        "nombre": "Andamios",
+        "und": "MES",
+        "precio": 963900,
+        "desc": "Alquiler de andamios por mes",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Carpintería — Área Común",
+    "items": [
+      {
+        "id": "car-puerta",
+        "nombre": "Puerta entamborada",
+        "und": "M2",
+        "precio": 984375,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Puerta entamborada",
+            "und": "M2",
+            "cant": 1.75,
+            "vr_unit": 450000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-recep",
+        "nombre": "Mueble para recepción",
+        "und": "UND",
+        "precio": 1962500,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Mueble",
+            "und": "ML",
+            "cant": 1.2,
+            "vr_unit": 700000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Archivador",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 450000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 70000
+          },
+          {
+            "nombre": "Pasacables",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Cerradura",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-cafe",
+        "nombre": "Mueble de café",
+        "und": "UND",
+        "precio": 1031250,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Mueble",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 550000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Iluminación",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Interruptor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 70000
+          },
+          {
+            "nombre": "Pasacables",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Cerradura",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-vitr",
+        "nombre": "Mueble vitrina",
+        "und": "UND",
+        "precio": 1406250,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Mueble",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 850000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Iluminación",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Interruptor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 70000
+          },
+          {
+            "nombre": "Pasacables",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Cerradura",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-list",
+        "nombre": "Pared de listones",
+        "und": "UND",
+        "precio": 1368750,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Listones",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 900000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 60000
+          },
+          {
+            "nombre": "Interruptor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Iluminación",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 120000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-cocina",
+        "nombre": "Mueble para cocina",
+        "und": "UND",
+        "precio": 6740437,
+        "desc": "Producción, transporte e instalación",
+        "componentes": []
+      },
+      {
+        "id": "car-bano-mb",
+        "nombre": "Mueble para baño en madecor + Quarztone",
+        "und": "UND",
+        "precio": 1570982,
+        "desc": "No incluye poceta y grifería",
+        "componentes": []
+      },
+      {
+        "id": "car-bano-ep",
+        "nombre": "Entrepaños para baño en madecor",
+        "und": "UND",
+        "precio": 332679,
+        "desc": "Entamborados",
+        "componentes": []
+      },
+      {
+        "id": "car-pta-bano",
+        "nombre": "Puerta para baño",
+        "und": "UND",
+        "precio": 1201338,
+        "desc": "Producción, transporte e instalación",
+        "componentes": []
+      },
+      {
+        "id": "car-logo",
+        "nombre": "Logo y frase (producción e instalación)",
+        "und": "UND",
+        "precio": 1600000,
+        "desc": "",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Carpintería — Consultorios",
+    "items": [
+      {
+        "id": "car-cons-mb",
+        "nombre": "Mueble bajo para consultorio",
+        "und": "UND",
+        "precio": 2603750,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Mueble bajo",
+            "und": "ML",
+            "cant": 2.27,
+            "vr_unit": 900000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-cons-ma",
+        "nombre": "Mueble alto para consultorio",
+        "und": "UND",
+        "precio": 2180625,
+        "desc": "Con iluminación integrada",
+        "componentes": [
+          {
+            "nombre": "Mueble alto",
+            "und": "ML",
+            "cant": 2.27,
+            "vr_unit": 650000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 50000
+          },
+          {
+            "nombre": "Iluminación",
+            "und": "ML",
+            "cant": 1.7,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Interruptor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-ester-mb",
+        "nombre": "Mueble bajo zona esterilización",
+        "und": "UND",
+        "precio": 2825000,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Mueble bajo",
+            "und": "ML",
+            "cant": 1.8,
+            "vr_unit": 900000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 8,
+            "vr_unit": 70000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-ester-ma",
+        "nombre": "Mueble alto zona esterilización",
+        "und": "UND",
+        "precio": 1118750,
+        "desc": "Con iluminación integrada",
+        "componentes": [
+          {
+            "nombre": "Mueble alto",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 650000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Iluminación",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Interruptor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 70000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-aseo",
+        "nombre": "Mueble zona de aseo",
+        "und": "UND",
+        "precio": 2356250,
+        "desc": "Mueble altura completa",
+        "componentes": [
+          {
+            "nombre": "Mueble altura completa",
+            "und": "ML",
+            "cant": 2.1,
+            "vr_unit": 850000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 30000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 70000
+          }
+        ],
+        "ref_qty": 1
+      }
+    ]
+  },
+  {
+    "cat": "Carpintería — Oficinas",
+    "items": [
+      {
+        "id": "car-escrit",
+        "nombre": "Escritorio",
+        "und": "UND",
+        "precio": 2456250,
+        "desc": "Con archivador, herrajes y pasacables",
+        "componentes": [
+          {
+            "nombre": "Mueble",
+            "und": "ML",
+            "cant": 1.3,
+            "vr_unit": 300000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Archivador",
+            "und": "UND",
+            "cant": 1.5,
+            "vr_unit": 800000
+          },
+          {
+            "nombre": "Herrajes × cajón",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 70000
+          },
+          {
+            "nombre": "Pasacables",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Ornamentación / Soporte",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 110000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-puesto",
+        "nombre": "Puesto de trabajo",
+        "und": "UND",
+        "precio": 1456250,
+        "desc": "Con archivador y Grommet",
+        "componentes": [
+          {
+            "nombre": "Mueble",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 250000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 30000
+          },
+          {
+            "nombre": "Archivador",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 450000
+          },
+          {
+            "nombre": "Cerradura",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Ornamentación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 220000
+          },
+          {
+            "nombre": "Grommet",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 200000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-repisa",
+        "nombre": "Repisas",
+        "und": "UND",
+        "precio": 300000,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Repisa",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 70000
+          },
+          {
+            "nombre": "Herrajes",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 50000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-biblio",
+        "nombre": "Biblioteca",
+        "und": "UND",
+        "precio": 2518750,
+        "desc": "Con iluminación integrada",
+        "componentes": [
+          {
+            "nombre": "Mueble",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 1000000
+          },
+          {
+            "nombre": "Instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 30000
+          },
+          {
+            "nombre": "Herrajes",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 50000
+          },
+          {
+            "nombre": "Iluminación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Interruptor",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          },
+          {
+            "nombre": "Ornamentación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 800000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "car-biblio-of",
+        "nombre": "Biblioteca para oficina (con mueble bajo)",
+        "und": "UND",
+        "precio": 6300000,
+        "desc": "Medidas 2.63m × 0.50m × 0.70m",
+        "componentes": []
+      },
+      {
+        "id": "car-biblio-sr",
+        "nombre": "Biblioteca sala de reuniones",
+        "und": "UND",
+        "precio": 5317164,
+        "desc": "Laterales entamborados, entrepaños reengruesados",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Mesones",
+    "items": [
+      {
+        "id": "mes-quar",
+        "nombre": "Mesón en Quarzon",
+        "und": "ML",
+        "precio": 1250000,
+        "desc": "Suministro, transformación, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Quarzon (suministro, transformación e instalación)",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 1000000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mes-sint",
+        "nombre": "Mesón en Sinterizado",
+        "und": "ML",
+        "precio": 1937500,
+        "desc": "Suministro, transformación, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Sinterizado (suministro, transformación e instalación)",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 1550000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mes-dekt",
+        "nombre": "Mesón en Dekton",
+        "und": "ML",
+        "precio": 4125000,
+        "desc": "Suministro, transformación, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Dekton (suministro, transformación e instalación)",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 3300000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mes-gran",
+        "nombre": "Mesón en Granito",
+        "und": "ML",
+        "precio": 612500,
+        "desc": "Suministro, transformación, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Granito (suministro, transformación e instalación)",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 490000
+          }
+        ],
+        "ref_qty": 1
+      }
+    ]
+  },
+  {
+    "cat": "Mobiliario y Sillas",
+    "items": [
+      {
+        "id": "mob-sil-ger",
+        "nombre": "Silla tipo gerente",
+        "und": "UND",
+        "precio": 1000000,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Silla tipo gerente (suministro e instalación)",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 800000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mob-sil-pt",
+        "nombre": "Silla puesto de trabajo",
+        "und": "UND",
+        "precio": 687500,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Silla puesto de trabajo (suministro e instalación)",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 550000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mob-sil-cli",
+        "nombre": "Silla cliente / paciente",
+        "und": "UND",
+        "precio": 675000,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Silla en crudo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 380000
+          },
+          {
+            "nombre": "Tapizado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 80000
+          },
+          {
+            "nombre": "Pintura/lacado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 80000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mob-sil-bar",
+        "nombre": "Silla para barra",
+        "und": "UND",
+        "precio": 637500,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Silla en crudo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 330000
+          },
+          {
+            "nombre": "Tapizado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 60000
+          },
+          {
+            "nombre": "Pintura/lacado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 120000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mob-polt",
+        "nombre": "Poltrona",
+        "und": "UND",
+        "precio": 787500,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Poltrona en crudo",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 450000
+          },
+          {
+            "nombre": "Tapizado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Pintura/lacado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 60000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mob-sofa",
+        "nombre": "Sofá",
+        "und": "UND",
+        "precio": 3456250,
+        "desc": "Producción, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Sofá (ML)",
+            "und": "ML",
+            "cant": 1,
+            "vr_unit": 1250000
+          },
+          {
+            "nombre": "Tapizado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 700000
+          },
+          {
+            "nombre": "Estructura en madera",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 800000
+          },
+          {
+            "nombre": "Dilatadores",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 15000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "mob-sofa-sr",
+        "nombre": "Sofá para sala de reuniones",
+        "und": "UND",
+        "precio": 5410448,
+        "desc": "Acabado en prana, estructura en madera",
+        "componentes": []
+      },
+      {
+        "id": "mob-polt-sr",
+        "nombre": "Poltronas para sala de reuniones",
+        "und": "UND",
+        "precio": 2142857,
+        "desc": "Metálicas, acabado electroestático, tapizado en prana",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Vidriería",
+    "items": [
+      {
+        "id": "vid-esp-p",
+        "nombre": "Espejo pulido",
+        "und": "M2",
+        "precio": 694444,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Espejo pulido (compra mínima)",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 200000
+          }
+        ],
+        "ref_qty": 0.36
+      },
+      {
+        "id": "vid-esp-b",
+        "nombre": "Espejo bicelado",
+        "und": "M2",
+        "precio": 762500,
+        "desc": "Con marco, suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Espejo bicelado",
+            "und": "M2",
+            "cant": 1,
+            "vr_unit": 250000
+          },
+          {
+            "nombre": "Marco",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 360000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "vid-frost",
+        "nombre": "Vinilo Frost",
+        "und": "M2",
+        "precio": 81250,
+        "desc": "Instalación de frost para divisiones",
+        "componentes": [
+          {
+            "nombre": "Vinilo frost (instalación)",
+            "und": "M2",
+            "cant": 1,
+            "vr_unit": 65000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "vid-6n",
+        "nombre": "Vidrio crudo 6mm negro",
+        "und": "M2",
+        "precio": 1093750,
+        "desc": "Con marco negro, suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Vidrio crudo 5mm negro",
+            "und": "M2",
+            "cant": 1,
+            "vr_unit": 125000
+          },
+          {
+            "nombre": "Marco plateado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 350000
+          },
+          {
+            "nombre": "Marco negro",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 400000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "vid-6c",
+        "nombre": "Vidrio crudo 6mm incoloro",
+        "und": "M2",
+        "precio": 587500,
+        "desc": "Con marco, suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Vidrio crudo 6mm",
+            "und": "M2",
+            "cant": 1,
+            "vr_unit": 120000
+          },
+          {
+            "nombre": "Marco plateado",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 350000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "vid-8c",
+        "nombre": "Vidrio crudo 8mm",
+        "und": "M2",
+        "precio": 750000,
+        "desc": "Con accesorios negros",
+        "componentes": [
+          {
+            "nombre": "Vidrio crudo 8mm",
+            "und": "M2",
+            "cant": 3,
+            "vr_unit": 200000
+          },
+          {
+            "nombre": "Marco negro",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 400000
+          }
+        ],
+        "ref_qty": 3
+      },
+      {
+        "id": "vid-t5",
+        "nombre": "División vidrio templado 5mm",
+        "und": "M2",
+        "precio": 532813,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "División vidrio templado 5mm",
+            "und": "M2",
+            "cant": 8,
+            "vr_unit": 220000
+          },
+          {
+            "nombre": "Marco negro",
+            "und": "UND",
+            "cant": 3,
+            "vr_unit": 550000
+          }
+        ],
+        "ref_qty": 8
+      },
+      {
+        "id": "vid-t8",
+        "nombre": "División vidrio templado 8mm",
+        "und": "M2",
+        "precio": 562500,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "División vidrio templado 8mm",
+            "und": "M2",
+            "cant": 7.56,
+            "vr_unit": 450000
+          }
+        ],
+        "ref_qty": 7.56
+      },
+      {
+        "id": "vid-puerta8",
+        "nombre": "Puertas corredizas vidrio 8mm incoloro",
+        "und": "UND",
+        "precio": 2287500,
+        "desc": "Con accesorios negros, suministro, transporte e instalación",
+        "componentes": []
+      }
+    ]
+  },
+  {
+    "cat": "Grifería y Pocetas",
+    "items": [
+      {
+        "id": "grif-lav-sub",
+        "nombre": "Lavamanos cuadrado de submontar",
+        "und": "UND",
+        "precio": 324058,
+        "desc": "Cerámico, suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Lavamanos cerámico (submontar)",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 130000
+          },
+          {
+            "nombre": "Sifón push",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 35999
+          },
+          {
+            "nombre": "Desagüe acordeón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 24999
+          },
+          {
+            "nombre": "Buge",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 3999
+          },
+          {
+            "nombre": "Llave de regulación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 8999
+          },
+          {
+            "nombre": "Teflón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 250
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "grif-lav-sob",
+        "nombre": "Lavamanos cuadrado de sobreponer",
+        "und": "UND",
+        "precio": 374056,
+        "desc": "Cerámico, suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Lavamanos cerámico (sobreponer)",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 169999
+          },
+          {
+            "nombre": "Sifón push",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 35999
+          },
+          {
+            "nombre": "Desagüe acordeón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 24999
+          },
+          {
+            "nombre": "Buge",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 3999
+          },
+          {
+            "nombre": "Llave de regulación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 8999
+          },
+          {
+            "nombre": "Teflón",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 250
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 55000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "grif-lp-sub",
+        "nombre": "Lavaplatos de submontar",
+        "und": "UND",
+        "precio": 330308,
+        "desc": "Acero inoxidable, suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Lavaplatos acero inoxidable (submontar)",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 139999
+          },
+          {
+            "nombre": "Llave de regulación",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 8999
+          },
+          {
+            "nombre": "Sifón push",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 35999
+          },
+          {
+            "nombre": "Desagüe acordeón con canasta",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 20000
+          },
+          {
+            "nombre": "Buge",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 3999
+          },
+          {
+            "nombre": "Cinta teflón",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 250
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 55000
+          }
+        ],
+        "ref_qty": 2
+      },
+      {
+        "id": "grif-sen-cc",
+        "nombre": "Grifería de sensor cuello corto negro",
+        "und": "UND",
+        "precio": 531249,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Grifería de sensor cuello corto negro",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 388999
+          },
+          {
+            "nombre": "Manguera",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 11000
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 25000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "grif-sen-cis",
+        "nombre": "Grifería de sensor tipo cisne",
+        "und": "UND",
+        "precio": 407499,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Grifería de sensor tipo cisne",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 289999
+          },
+          {
+            "nombre": "Manguera",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 11000
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 2,
+            "vr_unit": 25000
+          }
+        ],
+        "ref_qty": 2
+      },
+      {
+        "id": "grif-mez",
+        "nombre": "Grifería con mezclador tipo cisne",
+        "und": "UND",
+        "precio": 411249,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Grifería con mezclador tipo cisne",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 292999
+          },
+          {
+            "nombre": "Manguera",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 11000
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 25000
+          }
+        ],
+        "ref_qty": 1
+      },
+      {
+        "id": "grif-san",
+        "nombre": "Sanitario en cerámica",
+        "und": "UND",
+        "precio": 701249,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": [
+          {
+            "nombre": "Sanitario en cerámica",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 440999
+          },
+          {
+            "nombre": "Boquilla",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 40000
+          },
+          {
+            "nombre": "Personal de instalación",
+            "und": "UND",
+            "cant": 1,
+            "vr_unit": 80000
+          }
+        ],
+        "ref_qty": 1
+      }
+    ]
+  },
+  {
+    "cat": "Persianas, Plantas y Otros",
+    "items": [
+      {
+        "id": "per-screen",
+        "nombre": "Persianas screen solar",
+        "und": "M2",
+        "precio": 187500,
+        "desc": "Color plata, suministro, transporte e instalación",
+        "componentes": []
+      },
+      {
+        "id": "per-planta",
+        "nombre": "Planta para oficina",
+        "und": "UND",
+        "precio": 700000,
+        "desc": "Suministro, transporte e instalación",
+        "componentes": []
+      },
+      {
+        "id": "per-ctrl",
+        "nombre": "Control de acceso biométrico (huella + tarjeta)",
+        "und": "UND",
+        "precio": 3311822,
+        "desc": "Incluye botón no touch, caja con fuente y batería, brazo hidráulico",
+        "componentes": []
+      },
+      {
+        "id": "per-aire",
+        "nombre": "Desmonte de aires acondicionados",
+        "und": "UND",
+        "precio": 1112000,
+        "desc": "",
+        "componentes": []
+      },
+      {
+        "id": "per-ducto",
+        "nombre": "Ducto ventilación 0.70×0.16 lámina galvanizada cal. 24",
+        "und": "UND",
+        "precio": 14783625,
+        "desc": "Con 4 rejillas, flanches y anclajes",
+        "componentes": []
+      }
+    ]
+  }
+]
