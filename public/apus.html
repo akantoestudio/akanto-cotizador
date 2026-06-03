@@ -127,12 +127,24 @@
     .btn-add-comp:hover { border-color: var(--terracota); color: var(--terracota); }
 
     /* ADD / DELETE ITEM */
-    .cat-footer { background: #fff; border-top: 1px dashed var(--borde); padding: 8px 14px; }
+    .cat-footer { background: #fff; border-top: 1px dashed var(--borde); padding: 8px 14px; display: flex; align-items: center; gap: 10px; }
     .btn-add-item { padding: 6px 14px; background: transparent; border: 1px dashed var(--borde); border-radius: 3px; font-family: inherit; font-size: 11px; color: var(--gris); cursor: pointer; transition: all 0.12s; }
     .btn-add-item:hover { border-color: var(--ok); color: var(--ok); }
-    .td-del-item { width: 30px; text-align: center; padding: 0 4px !important; }
-    .btn-del-item { background: transparent; border: none; color: var(--gris-cl); cursor: pointer; font-size: 15px; padding: 2px 6px; border-radius: 2px; line-height: 1; }
+    .td-del-item { width: 64px; text-align: right; padding: 0 6px !important; white-space: nowrap; }
+    .btn-del-item { background: transparent; border: none; color: var(--gris-cl); cursor: pointer; font-size: 15px; padding: 2px 4px; border-radius: 2px; line-height: 1; }
     .btn-del-item:hover { color: var(--error); background: rgba(176,58,46,0.08); }
+    /* Mover a categoría */
+    .btn-mover { background: transparent; border: none; color: var(--gris); cursor: pointer; font-size: 11px; padding: 2px 4px; border-radius: 2px; line-height: 1; title: "Mover a otra categoría"; }
+    .btn-mover:hover { color: var(--terracota); }
+    .sel-mover { background: var(--crema-suave); border: 1px solid var(--borde); border-radius: 3px; font-family: inherit; font-size: 10px; color: var(--negro); padding: 2px 4px; cursor: pointer; max-width: 160px; }
+    .sel-mover:focus { outline: none; border-color: var(--terracota); }
+    /* Nueva categoría */
+    .btn-nueva-cat { padding: 8px 18px; background: transparent; border: 1px dashed var(--terracota); border-radius: 4px; font-family: inherit; font-size: 12px; color: var(--terracota); cursor: pointer; transition: all 0.15s; }
+    .btn-nueva-cat:hover { background: rgba(160,104,81,0.08); }
+    /* Renombrar categoría */
+    .inp-cat-nombre { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: var(--crema); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; outline: none; padding: 0 2px 1px; cursor: pointer; }
+    .inp-cat-nombre:hover { border-bottom-color: rgba(255,255,255,0.5); }
+    .inp-cat-nombre:focus { border-bottom-color: var(--terracota-cl); cursor: text; }
 
     /* SAVE BAR */
     .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--negro-2); border-top: 1px solid rgba(255,255,255,0.08); padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; transform: translateY(100%); transition: transform 0.2s ease; z-index: 200; }
@@ -172,6 +184,9 @@
 
 <div class="page-content">
   <div id="contenido"><div class="loading">Cargando catálogo...</div></div>
+  <div style="padding: 12px 0 0;">
+    <button class="btn-nueva-cat" onclick="agregarCategoria()">+ Nueva categoría</button>
+  </div>
 </div>
 
 <div class="save-bar" id="save-bar">
@@ -227,9 +242,15 @@ function renderStats() {
 /* ── RENDER MAIN TABLE ── */
 function renderCatalogo() {
   document.getElementById('contenido').innerHTML = catalogo.map((grp, gi) => {
-    const rows = grp.items.map(item => renderItemRows(item)).join('');
+    const rows = grp.items.map(item => renderItemRows(item, gi)).join('');
     return `<section class="cat-section" id="cat-${gi}">
-      <div class="cat-title">${esc(grp.cat)} <span id="cat-count-${gi}">${grp.items.length} ítems</span></div>
+      <div class="cat-title">
+        <input class="inp-cat-nombre" type="text" value="${esc(grp.cat)}"
+               title="Clic para renombrar categoría"
+               onblur="renameCategoria(${gi}, this.value)"
+               onkeydown="if(event.key==='Enter')this.blur()" />
+        <span id="cat-count-${gi}">${grp.items.length} ítems</span>
+      </div>
       <table class="precio-tabla">
         <thead><tr>
           <th class="th-toggle"></th>
@@ -237,18 +258,25 @@ function renderCatalogo() {
           <th style="width:6%">Und</th>
           <th class="th-precio" style="width:15%">Precio unit.</th>
           <th>Descripción / Alcance</th>
-          <th style="width:30px"></th>
+          <th style="width:64px"></th>
         </tr></thead>
         <tbody id="tbody-${gi}">${rows}</tbody>
       </table>
       <div class="cat-footer">
         <button class="btn-add-item" onclick="addItem(${gi})">+ Agregar ítem</button>
+        <button class="btn-del-item" style="font-size:11px;color:var(--gris)" onclick="deleteCategoria(${gi})" title="Eliminar categoría (solo si está vacía)">Eliminar categoría</button>
       </div>
     </section>`;
   }).join('');
 }
 
-function renderItemRows(item) {
+function catOptions(currentGi) {
+  return catalogo.map((g, gi) =>
+    `<option value="${gi}"${gi === currentGi ? ' selected' : ''}>${esc(g.cat)}</option>`
+  ).join('');
+}
+
+function renderItemRows(item, gi = 0) {
   const comps    = item.componentes || [];
   const hasComps = comps.length > 0;
   const calcPrecio = hasComps
@@ -279,6 +307,7 @@ function renderItemRows(item) {
     <td><input class="inp-desc" type="text" value="${esc(item.desc||'')}"
                data-id="${item.id}" data-field="desc" onblur="fieldChange(this)" /></td>
     <td class="td-del-item">
+      <select class="sel-mover" title="Mover a otra categoría" onchange="moveItem('${item.id}', parseInt(this.value))">${catOptions(gi)}</select>
       <button class="btn-del-item" onclick="deleteItem('${item.id}')" title="Eliminar ítem">×</button>
     </td>
   </tr>`;
@@ -514,6 +543,59 @@ function rebuildCompTable(itemId) {
   // Update toggle label
   const btn = document.getElementById(`toggle-${itemId}`);
   if (btn) btn.textContent = comps.length > 0 ? '▼' : '▶';
+}
+
+/* ── CATEGORÍAS ── */
+function agregarCategoria() {
+  const nombre = prompt('Nombre de la nueva categoría:');
+  if (!nombre || !nombre.trim()) return;
+  catalogo.push({ cat: nombre.trim(), items: [] });
+  dirty['__catalog_changed__'] = true;
+  updateSaveBar();
+  renderCatalogo();
+  renderStats();
+}
+
+function renameCategoria(gi, nuevoNombre) {
+  const grp = catalogo[gi];
+  if (!grp || !nuevoNombre.trim() || grp.cat === nuevoNombre.trim()) return;
+  grp.cat = nuevoNombre.trim();
+  dirty['__catalog_changed__'] = true;
+  updateSaveBar();
+}
+
+function deleteCategoria(gi) {
+  const grp = catalogo[gi];
+  if (!grp) return;
+  if (grp.items.length > 0) {
+    alert(`No se puede eliminar "${grp.cat}" porque tiene ${grp.items.length} ítems. Mueve o elimina los ítems primero.`);
+    return;
+  }
+  if (!confirm(`¿Eliminar la categoría "${grp.cat}"?`)) return;
+  catalogo.splice(gi, 1);
+  dirty['__catalog_changed__'] = true;
+  updateSaveBar();
+  renderCatalogo();
+  renderStats();
+}
+
+function moveItem(itemId, targetGi) {
+  const targetGrp = catalogo[targetGi];
+  if (!targetGrp) return;
+  // Find and remove from current group
+  for (let gi = 0; gi < catalogo.length; gi++) {
+    const idx = catalogo[gi].items.findIndex(i => i.id === itemId);
+    if (idx !== -1) {
+      if (gi === targetGi) return; // same category, nothing to do
+      const [item] = catalogo[gi].items.splice(idx, 1);
+      targetGrp.items.push(item);
+      dirty['__catalog_changed__'] = true;
+      updateSaveBar();
+      renderCatalogo();
+      renderStats();
+      return;
+    }
+  }
 }
 
 /* ── ADD / DELETE ITEM ── */
