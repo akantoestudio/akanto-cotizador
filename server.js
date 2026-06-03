@@ -21,6 +21,8 @@ app.use((req, res, next) => {
   if (req.headers['x-forwarded-proto'] === 'http') {
     return res.redirect(301, 'https://' + req.headers.host + req.url);
   }
+  // HSTS: fuerza HTTPS en el navegador durante 1 año
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
 
