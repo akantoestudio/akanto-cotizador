@@ -160,8 +160,13 @@
     .doc-tabla thead th:nth-child(3),
     .doc-tabla thead th:nth-child(4),
     .doc-tabla thead th:nth-child(5) { text-align: right; }
+    /* Section header (Obra civil / Mobiliario) */
+    .doc-tabla .section-header-row td { background: var(--negro); color: var(--crema); padding: 9px 10px; font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; border: none; }
     /* Category row */
     .doc-tabla .cat-row td { background: var(--crema); padding: 6px 10px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--terracota); border-bottom: 1px solid var(--borde); }
+    /* Category subtotal */
+    .doc-tabla .cat-subtotal-row td { background: #F0EFE8; padding: 5px 10px; font-size: 10px; font-weight: 600; color: var(--negro); border-top: 1px solid var(--borde); border-bottom: 2px solid var(--borde); }
+    .doc-tabla .cat-subtotal-row td.right { text-align: right; color: var(--terracota); }
     /* Data rows */
     .doc-tabla tbody tr.data-row { border-bottom: 1px solid #EBEBDF; }
     .doc-tabla tbody tr.data-row:nth-child(even) { background: #FAFAF5; }
@@ -173,6 +178,8 @@
     /* Subtotal por super-grupo */
     .doc-tabla .subtotal-row td { background: var(--crema); padding: 8px 10px; font-size: 11px; font-weight: 700; color: var(--negro); border-top: 2px solid var(--terracota-cl); border-bottom: 2px solid var(--borde); }
     .doc-tabla .subtotal-row td.right { text-align: right; color: var(--terracota); }
+    /* Spacer between sections */
+    .doc-tabla .section-spacer td { padding: 6px; background: var(--crema-suave); border: none; }
 
     /* Totales */
     .doc-totales-wrap { padding: 0 44px 28px; }
@@ -191,8 +198,23 @@
     .doc-nota-item { display: flex; gap: 8px; font-size: 10px; color: #5a5850; margin-bottom: 4px; line-height: 1.4; }
     .doc-nota-item::before { content: '—'; color: var(--terracota); flex-shrink: 0; }
 
+    /* Firma */
+    .doc-firma { padding: 28px 44px 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; background: white; border-top: 1px solid var(--borde); }
+    .doc-firma-box { display: flex; flex-direction: column; gap: 6px; }
+    .doc-firma-label { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); }
+    .doc-firma-line { border-top: 1px solid #aaa; margin-top: 48px; }
+    .doc-firma-nombre { font-size: 10px; color: var(--negro); margin-top: 4px; font-weight: 500; }
+    .doc-firma-cargo { font-size: 9px; color: var(--gris); }
+
     /* Footer */
     .doc-footer { background: var(--negro); padding: 16px 44px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Guardar / cargar cotización */
+    .sb-save-bar { display: flex; gap: 6px; padding: 0 20px 10px; flex-shrink: 0; }
+    .btn-save { flex:1; padding:6px 0; border:1px solid rgba(255,255,255,0.15); border-radius:3px; background:transparent; color:var(--gris); font-size:10px; cursor:pointer; transition:all 0.15s; }
+    .btn-save:hover { background:rgba(255,255,255,0.07); color:var(--crema); }
+    .btn-save.primary { background:var(--terracota); border-color:var(--terracota); color:white; font-weight:600; }
+    .btn-save.primary:hover { background:#8a5740; }
     .doc-footer-left { font-size: 10px; color: var(--gris); }
     .doc-footer-left strong { color: var(--crema); display: block; margin-bottom: 1px; }
     .doc-footer-right { text-align: right; font-size: 10px; color: var(--gris); }
@@ -229,14 +251,23 @@
   <div class="sb-nav">
     <a href="/apus.html">Editor de precios →</a>
   </div>
-  <div class="sb-body">
-
-    <!-- TABS -->
+  <!-- TABS fijos (fuera del scroll) -->
+  <div style="padding: 0 20px 6px; flex-shrink:0;">
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('cliente',this)">Cliente</button>
       <button class="tab-btn" onclick="switchTab('catalogo',this)">Catálogo</button>
       <button class="tab-btn" onclick="switchTab('config',this)">AIU / Config</button>
     </div>
+  </div>
+
+  <!-- Botones guardar -->
+  <div class="sb-save-bar">
+    <button class="btn-save primary" onclick="guardarCotizacion()">💾 Guardar</button>
+    <button class="btn-save" onclick="verCotizacionesGuardadas()">📂 Cargar</button>
+    <button class="btn-save" onclick="limpiar()">✕ Nueva</button>
+  </div>
+
+  <div class="sb-body">
 
     <!-- TAB CLIENTE -->
     <div class="tab-panel active" id="tab-cliente">
@@ -391,6 +422,21 @@
     <div class="doc-notas">
       <div class="doc-notas-title">Términos y condiciones</div>
       <div id="d-notas"></div>
+    </div>
+
+    <div class="doc-firma">
+      <div class="doc-firma-box">
+        <div class="doc-firma-label">Elaborado por</div>
+        <div class="doc-firma-line"></div>
+        <div class="doc-firma-nombre">Akanto Estudio</div>
+        <div class="doc-firma-cargo">Diseño · Arquitectura · Interiorismo</div>
+      </div>
+      <div class="doc-firma-box">
+        <div class="doc-firma-label">Aprobado por — Cliente</div>
+        <div class="doc-firma-line"></div>
+        <div class="doc-firma-nombre" id="d-firma-cli-nombre"></div>
+        <div class="doc-firma-cargo">Firma y fecha de aceptación</div>
+      </div>
     </div>
 
     <div class="doc-footer">
@@ -750,39 +796,58 @@ function render() {
     Object.keys(sgMap).forEach(sg => { if (!sgOrder.includes(sg)) sgOrder.push(sg); });
     const activeSGs = sgOrder.filter(sg => sgMap[sg]);
     let html = '';
-    activeSGs.forEach(sg => {
-      let lastCat = null;
-      let sgSub = 0;
+    activeSGs.forEach((sg, sgIdx) => {
+      // Espaciador entre secciones
+      if (sgIdx > 0) html += `<tr class="section-spacer"><td colspan="5"></td></tr>`;
+      // Encabezado de sección (Obra civil / Mobiliario y acabados)
+      html += `<tr class="section-header-row"><td colspan="5">${esc(sg)}</td></tr>`;
+
+      // Agrupar por categoría dentro del super-grupo (evita headers duplicados)
+      const catMap = {};
+      const catOrder = [];
       sgMap[sg].forEach(it => {
-        if (it._cat && it._cat !== lastCat) {
-          html += `<tr class="cat-row"><td colspan="5">${esc(it._cat)}</td></tr>`;
-          lastCat = it._cat;
-        }
-        const rowSub = it.cant * it.precio;
-        sgSub += rowSub;
-        html += `<tr class="data-row">
-          <td><div class="srv-name">${esc(it.nombre)||'<em style="color:var(--gris)">Sin nombre</em>'}</div>${it.desc ? `<div class="srv-desc">${esc(it.desc)}</div>` : ''}</td>
-          <td class="und-cell">${esc(it.und)}</td>
-          <td class="right">${it.cant}</td>
-          <td class="right">${fmt(it.precio, mon)}</td>
-          <td class="right"><strong>${fmt(rowSub, mon)}</strong></td>
-        </tr>`;
-        // Sub-filas de componentes (solo si toggle activo y hay componentes)
-        if (showDesglose && (it.componentes||[]).length) {
-          const ref = it.ref_qty || 1;
-          it.componentes.forEach(c => {
-            const dc = c.cant_ov != null ? c.cant_ov : c.cant * it.cant / ref;
-            const tot = dc * (c.vr_unit||0);
-            html += `<tr class="comp-sub-row">
-              <td class="comp-ind">${esc(c.nombre||'')}</td>
-              <td class="und-cell">${esc(c.und||'')}</td>
-              <td class="right">${fmtCant(dc)}</td>
-              <td class="right">${fmt(c.vr_unit||0, mon)}</td>
-              <td class="right">${fmt(Math.round(tot), mon)}</td>
-            </tr>`;
-          });
-        }
+        if (!catMap[it._cat]) { catMap[it._cat] = []; catOrder.push(it._cat); }
+        catMap[it._cat].push(it);
       });
+
+      let sgSub = 0;
+      catOrder.forEach(cat => {
+        // Encabezado de categoría
+        if (cat) html += `<tr class="cat-row"><td colspan="5">${esc(cat)}</td></tr>`;
+        let catSub = 0;
+        catMap[cat].forEach(it => {
+          const rowSub = it.cant * it.precio;
+          sgSub  += rowSub;
+          catSub += rowSub;
+          html += `<tr class="data-row">
+            <td><div class="srv-name">${esc(it.nombre)||'<em style="color:var(--gris)">Sin nombre</em>'}</div>${it.desc ? `<div class="srv-desc">${esc(it.desc)}</div>` : ''}</td>
+            <td class="und-cell">${esc(it.und)}</td>
+            <td class="right">${it.cant}</td>
+            <td class="right">${fmt(it.precio, mon)}</td>
+            <td class="right"><strong>${fmt(rowSub, mon)}</strong></td>
+          </tr>`;
+          if (showDesglose && (it.componentes||[]).length) {
+            const ref = it.ref_qty || 1;
+            it.componentes.forEach(c => {
+              const dc = c.cant_ov != null ? c.cant_ov : c.cant * it.cant / ref;
+              const tot = dc * (c.vr_unit||0);
+              html += `<tr class="comp-sub-row">
+                <td class="comp-ind">${esc(c.nombre||'')}</td>
+                <td class="und-cell">${esc(c.und||'')}</td>
+                <td class="right">${fmtCant(dc)}</td>
+                <td class="right">${fmt(c.vr_unit||0, mon)}</td>
+                <td class="right">${fmt(Math.round(tot), mon)}</td>
+              </tr>`;
+            });
+          }
+        });
+        // Subtotal por categoría
+        if (cat) html += `<tr class="cat-subtotal-row">
+          <td colspan="4">Subtotal ${esc(cat)}</td>
+          <td class="right">${fmt(catSub, mon)}</td>
+        </tr>`;
+      });
+      // Subtotal por super-grupo
       html += `<tr class="subtotal-row">
         <td colspan="4">Subtotal ${esc(sg)}</td>
         <td class="right">${fmt(sgSub, mon)}</td>
@@ -809,17 +874,140 @@ function render() {
   /* doc notas */
   document.getElementById('d-notas').innerHTML = condiciones.filter(c=>c.trim()).map(c=>`<div class="doc-nota-item">${esc(c)}</div>`).join('');
 
+  /* firma cliente */
+  document.getElementById('d-firma-cli-nombre').textContent = document.getElementById('cli-nombre').value || '';
+
   /* sidebar items */
   renderSrvActivos();
 }
 
 function limpiar() {
-  if (!confirm('¿Limpiar todos los ítems de esta cotización?')) return;
+  if (!confirm('¿Crear una cotización nueva? Se perderán los cambios no guardados.')) return;
   items = [];
+  condiciones = [...CONDICIONES_DEFAULT];
   ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cot-num').value   = numAuto();
   document.getElementById('cot-fecha').value = hoy();
+  renderCondiciones();
   render();
+}
+
+/* ── GUARDAR / CARGAR ── */
+function estadoActual() {
+  return {
+    v: 1,
+    items,
+    condiciones,
+    cliente: {
+      nombre: document.getElementById('cli-nombre').value,
+      nit:    document.getElementById('cli-nit').value,
+      email:  document.getElementById('cli-email').value,
+      tel:    document.getElementById('cli-tel').value,
+      ciudad: document.getElementById('cli-ciudad').value,
+    },
+    proyecto: {
+      nombre: document.getElementById('proy-nombre').value,
+      desc:   document.getElementById('proy-desc').value,
+    },
+    cotizacion: {
+      num:   document.getElementById('cot-num').value,
+      fecha: document.getElementById('cot-fecha').value,
+    },
+    config: {
+      admin:   document.getElementById('cfg-admin').value,
+      imprev:  document.getElementById('cfg-imprev').value,
+      util:    document.getElementById('cfg-util').value,
+      desc:    document.getElementById('cfg-desc').value,
+      moneda:  document.getElementById('cfg-moneda')?.value || 'COP',
+      validez: document.getElementById('cfg-validez')?.value || '30',
+    },
+    savedAt: new Date().toISOString(),
+  };
+}
+
+function guardarCotizacion() {
+  const state = estadoActual();
+  const key = 'akanto-cot-' + (state.cotizacion.num || Date.now());
+  localStorage.setItem(key, JSON.stringify(state));
+  // Mantener índice de cotizaciones guardadas
+  const idx = JSON.parse(localStorage.getItem('akanto-cot-index') || '[]');
+  if (!idx.includes(key)) { idx.unshift(key); localStorage.setItem('akanto-cot-index', JSON.stringify(idx.slice(0, 20))); }
+  // Toast
+  const t = document.createElement('div');
+  t.textContent = '✓ Cotización guardada';
+  Object.assign(t.style, { position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)', background:'#2a5c2a', color:'white', padding:'8px 18px', borderRadius:'4px', fontSize:'12px', zIndex:9999, transition:'opacity 0.4s' });
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 1800);
+}
+
+function cargarEstado(state) {
+  items = state.items || [];
+  condiciones = state.condiciones || [...CONDICIONES_DEFAULT];
+  if (state.cliente) {
+    document.getElementById('cli-nombre').value = state.cliente.nombre || '';
+    document.getElementById('cli-nit').value    = state.cliente.nit    || '';
+    document.getElementById('cli-email').value  = state.cliente.email  || '';
+    document.getElementById('cli-tel').value    = state.cliente.tel    || '';
+    document.getElementById('cli-ciudad').value = state.cliente.ciudad || 'Bogotá';
+  }
+  if (state.proyecto) {
+    document.getElementById('proy-nombre').value = state.proyecto.nombre || '';
+    document.getElementById('proy-desc').value   = state.proyecto.desc   || '';
+  }
+  if (state.cotizacion) {
+    document.getElementById('cot-num').value   = state.cotizacion.num   || numAuto();
+    document.getElementById('cot-fecha').value = state.cotizacion.fecha || hoy();
+  }
+  if (state.config) {
+    document.getElementById('cfg-admin').value  = state.config.admin   ?? 9;
+    document.getElementById('cfg-imprev').value = state.config.imprev  ?? 0;
+    document.getElementById('cfg-util').value   = state.config.util    ?? 3;
+    document.getElementById('cfg-desc').value   = state.config.desc    ?? 0;
+    if (document.getElementById('cfg-moneda'))  document.getElementById('cfg-moneda').value  = state.config.moneda  || 'COP';
+    if (document.getElementById('cfg-validez')) document.getElementById('cfg-validez').value = state.config.validez || '30';
+  }
+  renderCondiciones();
+  render();
+}
+
+function verCotizacionesGuardadas() {
+  const idx = JSON.parse(localStorage.getItem('akanto-cot-index') || '[]');
+  if (!idx.length) { alert('No hay cotizaciones guardadas.'); return; }
+  const lista = idx.map(k => {
+    try {
+      const s = JSON.parse(localStorage.getItem(k));
+      const fecha = s?.savedAt ? new Date(s.savedAt).toLocaleDateString('es-CO') : '—';
+      const cliente = s?.cliente?.nombre || '(sin cliente)';
+      const num = s?.cotizacion?.num || k;
+      return { key: k, label: `${num} — ${cliente} — ${fecha}` };
+    } catch { return { key: k, label: k }; }
+  });
+  // Modal sencillo
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, { position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' });
+  const box = document.createElement('div');
+  Object.assign(box.style, { background:'#1A1D1F', color:'#E2E2BD', borderRadius:'6px', padding:'24px', minWidth:'340px', maxWidth:'480px', maxHeight:'70vh', overflowY:'auto' });
+  box.innerHTML = `<div style="font-size:13px;font-weight:600;margin-bottom:14px">Cotizaciones guardadas</div>`;
+  lista.forEach(({ key, label }) => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    Object.assign(btn.style, { display:'block', width:'100%', textAlign:'left', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'3px', color:'#E2E2BD', padding:'8px 10px', marginBottom:'6px', cursor:'pointer', fontSize:'11px' });
+    btn.onmouseenter = () => btn.style.background = 'rgba(160,104,81,0.25)';
+    btn.onmouseleave = () => btn.style.background = 'rgba(255,255,255,0.05)';
+    btn.onclick = () => {
+      const s = JSON.parse(localStorage.getItem(key));
+      if (s) { document.body.removeChild(overlay); cargarEstado(s); }
+    };
+    box.appendChild(btn);
+  });
+  const cerrar = document.createElement('button');
+  cerrar.textContent = 'Cancelar';
+  Object.assign(cerrar.style, { marginTop:'8px', background:'transparent', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'3px', color:'var(--gris)', padding:'6px 14px', cursor:'pointer', fontSize:'11px' });
+  cerrar.onclick = () => document.body.removeChild(overlay);
+  box.appendChild(cerrar);
+  overlay.appendChild(box);
+  overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); };
+  document.body.appendChild(overlay);
 }
 </script>
 </body>
