@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ficha de Requerimientos — Akanto Estudio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --negro:       #0C0F11;
+      --negro-2:     #1A1D1F;
+      --crema:       #E2E2BD;
+      --crema-suave: #F0EFEA;
+      --crema-medio: #D8D7C4;
+      --terracota:   #A06851;
+      --terracota-cl:#CEB0A0;
+      --gris:        #86928A;
+      --gris-cl:     #C5CFC8;
+      --blanco:      #FFFFFF;
+      --borde:       #D4D3C0;
+      --error:       #B03A2E;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--crema-suave); color: var(--negro); font-size: 13px; line-height: 1.5; min-height: 100vh; }
+    input, select, textarea, button { font-family: inherit; }
+
+    /* ── LAYOUT ── */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: 360px; min-width: 320px; background: var(--negro); color: var(--crema); display: flex; flex-direction: column; overflow-y: auto; height: 100vh; position: sticky; top: 0; }
+    .sb-head { padding: 20px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .sb-logo { display: flex; flex-direction: column; gap: 3px; }
+    .sb-logo-img { height: 30px; filter: brightness(0) invert(1); }
+    .sb-logo span { font-weight: 300; font-size: 10px; letter-spacing: 0.2em; color: var(--gris); display: block; margin-top: 2px; }
+
+    .doc-actions { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-top: 12px; }
+    .doc-action-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 7px 4px 6px; color: var(--gris); font-size: 10px; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .doc-action-btn:hover { border-color: var(--terracota); color: var(--terracota-cl); }
+    .doc-action-btn .icon { font-size: 15px; line-height: 1; }
+    .doc-action-btn.primary { background: var(--terracota); border-color: var(--terracota); color: var(--blanco); }
+    .doc-action-btn.primary:hover { background: #8a5843; }
+
+    .preview-toggle { display: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 7px 12px; color: var(--gris); font-size: 11px; cursor: pointer; width: 100%; justify-content: center; font-family: inherit; margin-top: 8px; }
+    .preview-toggle:hover { border-color: var(--terracota); color: var(--terracota-cl); }
+
+    .sb-body { padding: 14px 20px; flex: 1; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 2px; background: rgba(255,255,255,0.05); border-radius: 5px; padding: 3px; flex-shrink: 0; }
+    .tab-btn { flex: 1; padding: 6px 6px; border: none; border-radius: 3px; background: transparent; color: var(--gris); font-size: 11px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .tab-btn.active { background: var(--terracota); color: var(--blanco); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── FIELDS ── */
+    .sec-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--terracota-cl); margin-bottom: 2px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 10px; color: var(--gris); }
+    .field input, .field select, .field textarea { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 7px 9px; color: var(--crema); font-size: 12px; outline: none; transition: border-color 0.15s; width: 100%; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--terracota); }
+    .field select option { background: #1a1d1f; }
+    .field textarea { resize: vertical; min-height: 64px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── CATALOG ── */
+    .cat-search { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 7px 9px; color: var(--crema); font-size: 12px; outline: none; width: 100%; }
+    .cat-search:focus { border-color: var(--terracota); }
+    .cat-search::placeholder { color: var(--gris); }
+    .cat-main-group { margin-bottom: 6px; }
+    .cat-main-title { font-size: 9px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--terracota-cl); padding: 7px 0 4px; border-bottom: 1px solid rgba(160,104,81,0.25); margin-bottom: 2px; }
+    .cat-sub-group { margin-bottom: 2px; }
+    .cat-sub-title { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gris); padding: 5px 8px 2px; }
+    .cat-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border-radius: 3px; cursor: pointer; transition: background 0.12s; gap: 6px; border: none; background: transparent; width: 100%; text-align: left; color: var(--crema); }
+    .cat-item:hover { background: rgba(160,104,81,0.15); }
+    .cat-item.added { opacity: 0.45; }
+    .cat-item-name { font-size: 11px; flex: 1; }
+    .cat-item-add { font-size: 14px; color: var(--gris); flex-shrink: 0; line-height: 1; transition: color 0.12s; }
+    .cat-item:hover .cat-item-add { color: var(--terracota-cl); }
+    .cat-item.added .cat-item-add { content: '✓'; }
+    .btn-add-blank { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.15); color: var(--gris); width: 100%; padding: 7px; border-radius: 3px; cursor: pointer; font-size: 11px; font-family: inherit; }
+    .btn-add-blank:hover { border-color: var(--terracota); color: var(--terracota-cl); }
+    .hidden { display: none !important; }
+
+    /* ── ACTIVE ITEMS ── */
+    .req-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 9px 10px; margin-bottom: 6px; }
+    .req-item-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .req-item-name { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 2px 0; color: var(--blanco); font-size: 12px; font-weight: 500; flex: 1; outline: none; min-width: 0; }
+    .req-item-name:focus { border-bottom-color: var(--terracota); }
+    .req-item-badge { font-size: 9px; color: var(--terracota-cl); margin-bottom: 7px; }
+    .req-item-fields { display: grid; grid-template-columns: 76px 1fr; gap: 6px; }
+    .req-field-lbl { font-size: 9px; color: var(--gris); margin-bottom: 2px; }
+    .req-item-fields input, .req-item-fields textarea { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; padding: 4px 6px; color: var(--crema); font-size: 11px; outline: none; width: 100%; }
+    .req-item-fields input:focus, .req-item-fields textarea:focus { border-color: var(--terracota); }
+    .req-item-fields textarea { resize: none; min-height: 42px; }
+    .btn-del { background: transparent; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 2px; flex-shrink: 0; }
+    .btn-del:hover { color: var(--error); background: rgba(176,58,46,0.15); }
+
+    /* ── PREVIEW ── */
+    .preview-area { flex: 1; padding: 40px; display: flex; justify-content: center; overflow-y: auto; }
+    .documento { width: 100%; max-width: 800px; background: var(--blanco); box-shadow: 0 4px 40px rgba(0,0,0,0.14); }
+
+    /* Doc header */
+    .doc-header { background: var(--negro); padding: 32px 44px 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .doc-logo-img { height: 36px; filter: brightness(0) invert(1); }
+    .doc-meta { text-align: right; }
+    .doc-tipo { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--terracota); margin-bottom: 4px; }
+    .doc-num { font-size: 12px; color: var(--crema); }
+    .doc-fecha { font-size: 11px; color: var(--gris); margin-top: 2px; }
+    .doc-banda { height: 3px; background: linear-gradient(90deg, var(--terracota) 0%, var(--terracota-cl) 55%, var(--crema) 100%); }
+
+    /* Client info */
+    .doc-info { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--borde); }
+    .doc-info-col { padding: 22px 44px; }
+    .doc-info-col + .doc-info-col { border-left: 1px solid var(--borde); }
+    .doc-info-title { font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--terracota); margin-bottom: 8px; }
+    .doc-info-line { font-size: 11px; color: var(--negro); margin-bottom: 2px; }
+    .doc-info-line.bold { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .doc-info-line.muted { color: var(--gris); }
+
+    /* Project */
+    .doc-proyecto { padding: 14px 44px; background: var(--crema-suave); border-bottom: 1px solid var(--borde); }
+    .doc-proy-label { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); margin-bottom: 4px; }
+    .doc-proy-nombre { font-size: 16px; font-weight: 600; color: var(--negro); }
+    .doc-proy-desc { font-size: 11px; color: var(--gris); margin-top: 3px; }
+
+    /* Table */
+    .doc-tabla-wrap { padding: 24px 44px 0; }
+    .doc-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .doc-tabla thead tr { background: var(--negro); }
+    .doc-tabla thead th { padding: 8px 10px; text-align: left; font-size: 8px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--crema); }
+    .doc-tabla thead th.center { text-align: center; }
+    .doc-tabla .cat-row td { background: var(--crema); padding: 6px 10px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--terracota); border-bottom: 1px solid var(--borde); }
+    .doc-tabla .subcat-row td { background: #F5F5EE; padding: 5px 10px 5px 20px; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gris); border-bottom: 1px solid #EBEBDF; }
+    .doc-tabla tbody tr.data-row { border-bottom: 1px solid #EBEBDF; }
+    .doc-tabla tbody tr.data-row:nth-child(even) { background: #FAFAF5; }
+    .doc-tabla tbody td { padding: 8px 10px; color: var(--negro); vertical-align: top; }
+    .doc-tabla td.center { text-align: center; }
+    .req-name { font-weight: 500; }
+    .cant-badge { display: inline-block; background: rgba(160,104,81,0.1); color: var(--terracota); font-weight: 600; padding: 1px 7px; border-radius: 3px; }
+    .obs-cell { color: var(--gris); font-style: italic; font-size: 10px; }
+
+    /* Observations */
+    .doc-obs { padding: 20px 44px; border-top: 1px solid var(--borde); }
+    .doc-section-title { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gris); margin-bottom: 8px; }
+    .doc-obs-content { font-size: 11px; color: var(--negro); line-height: 1.7; white-space: pre-wrap; }
+
+    /* Signature */
+    .doc-firma { padding: 24px 44px 32px; border-top: 1px solid var(--borde); background: var(--crema-suave); }
+    .doc-firma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 16px; }
+    .doc-firma-col { display: flex; flex-direction: column; gap: 0; }
+    .doc-firma-space { height: 48px; }
+    .doc-firma-line { border-bottom: 1px solid #999; margin-bottom: 6px; }
+    .doc-firma-label { font-size: 10px; font-weight: 600; color: var(--negro); margin-bottom: 6px; }
+    .doc-firma-sublabel { font-size: 10px; color: var(--gris); margin-bottom: 3px; }
+
+    /* Footer */
+    .doc-footer { background: var(--negro); padding: 14px 44px; display: flex; justify-content: space-between; align-items: center; }
+    .doc-footer-left { font-size: 10px; color: var(--gris); }
+    .doc-footer-left strong { color: var(--crema); display: block; margin-bottom: 1px; }
+    .doc-footer-right { text-align: right; font-size: 10px; color: var(--gris); }
+    .doc-footer-right strong { color: var(--terracota-cl); display: block; }
+
+    /* Empty */
+    .empty-doc { text-align: center; padding: 40px 0; color: var(--gris); font-size: 12px; }
+    .empty-doc-icon { font-size: 28px; opacity: 0.3; margin-bottom: 8px; }
+
+    /* ── PRINT ── */
+    @media print {
+      @page { size: A4; margin: 0; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white; }
+      .sidebar { display: none !important; }
+      .app-shell { display: block !important; }
+      .preview-area { padding: 0 !important; display: block !important; }
+      .documento { box-shadow: none !important; max-width: 100% !important; width: 100% !important; }
+      .doc-logo-img { filter: brightness(0) invert(1) !important; }
+      .doc-tabla tbody tr { page-break-inside: avoid; }
+      .doc-obs, .doc-firma, .doc-footer { page-break-inside: avoid; }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .app-shell { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; overflow-y: visible; }
+      .sb-body { overflow-y: visible; }
+      .preview-toggle { display: flex; }
+      .preview-area { padding: 16px; }
+      .preview-area.hidden-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo">
+      <img src="logo.png" alt="Akanto Estudio" class="sb-logo-img">
+      <span>Ficha de Requerimientos</span>
+    </div>
+    <div class="doc-actions">
+      <button class="doc-action-btn" onclick="nuevoDoc()">
+        <span class="icon">✦</span><span>Nuevo</span>
+      </button>
+      <button class="doc-action-btn" onclick="cargarDoc()">
+        <span class="icon">↑</span><span>Cargar</span>
+      </button>
+      <button class="doc-action-btn" onclick="guardarDoc()">
+        <span class="icon">↓</span><span>Guardar</span>
+      </button>
+      <button class="doc-action-btn primary" onclick="window.print()">
+        <span class="icon">⎙</span><span>PDF</span>
+      </button>
+    </div>
+    <button class="preview-toggle" onclick="togglePreview()" id="preview-toggle-btn">Ver documento ↓</button>
+  </div>
+
+  <div class="sb-body">
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('cliente',this)">Cliente</button>
+      <button class="tab-btn" onclick="switchTab('catalogo',this)">Catálogo</button>
+    </div>
+
+    <!-- TAB CLIENTE -->
+    <div class="tab-panel active" id="tab-cliente">
+      <div class="sec-label">Datos del cliente</div>
+      <div class="field"><label>Nombre / Empresa</label><input id="cli-nombre" type="text" placeholder="Empresa o persona" oninput="render()" /></div>
+      <div class="field-row">
+        <div class="field"><label>NIT / Cédula</label><input id="cli-nit" type="text" placeholder="NIT o cédula" oninput="render()" /></div>
+        <div class="field"><label>Teléfono</label><input id="cli-tel" type="text" placeholder="Cel." oninput="render()" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input id="cli-email" type="email" placeholder="correo@email.com" oninput="render()" /></div>
+        <div class="field"><label>Ciudad</label><input id="cli-ciudad" type="text" placeholder="Bogotá" oninput="render()" /></div>
+      </div>
+
+      <div class="sec-label" style="margin-top:4px">Proyecto</div>
+      <div class="field"><label>Nombre del proyecto</label><input id="proy-nombre" type="text" placeholder="Ej. Consultorio Dra. García" oninput="render()" /></div>
+      <div class="field"><label>Descripción / Alcance</label><textarea id="proy-desc" placeholder="Descripción general del proyecto..." oninput="render()"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>N° Ficha</label><input id="req-num" type="text" oninput="render()" /></div>
+        <div class="field"><label>Fecha</label><input id="req-fecha" type="date" oninput="render()" /></div>
+      </div>
+
+      <div class="sec-label" style="margin-top:4px">Observaciones generales</div>
+      <div class="field">
+        <textarea id="obs-generales" placeholder="Observaciones, acuerdos o consideraciones adicionales del cliente..." oninput="render()" style="min-height:80px;"></textarea>
+      </div>
+    </div>
+
+    <!-- TAB CATÁLOGO -->
+    <div class="tab-panel" id="tab-catalogo">
+      <input class="cat-search" type="text" placeholder="Buscar requerimiento..." oninput="filtrarCatalogo(this.value)" id="cat-buscar" />
+      <div id="catalogo-container" style="overflow-y:auto; max-height:440px; padding-right:2px;"></div>
+      <button class="btn-add-blank" onclick="agregarPersonalizado()">+ Agregar ítem personalizado</button>
+    </div>
+
+    <!-- ITEMS ACTIVOS -->
+    <div>
+      <div class="sec-label">Requerimientos seleccionados (<span id="req-count">0</span>)</div>
+      <div id="req-activos"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ PREVIEW ═══ -->
+<main class="preview-area hidden-mobile" id="preview-area">
+  <div class="documento" id="doc">
+
+    <div class="doc-header">
+      <img src="logo.png" alt="Akanto Estudio" class="doc-logo-img">
+      <div class="doc-meta">
+        <div class="doc-tipo">Ficha de Requerimientos</div>
+        <div class="doc-num">N° <span id="d-num">—</span></div>
+        <div class="doc-fecha" id="d-fecha">—</div>
+      </div>
+    </div>
+    <div class="doc-banda"></div>
+
+    <div class="doc-info">
+      <div class="doc-info-col">
+        <div class="doc-info-title">Elaborado por</div>
+        <div class="doc-info-line bold">Akanto Estudio</div>
+        <div class="doc-info-line">Av. Carrera 19 # 118-30 Oficina 506</div>
+        <div class="doc-info-line">Bogotá, Colombia</div>
+        <div class="doc-info-line muted">contacto@akantoestudio.co</div>
+        <div class="doc-info-line muted">311 634 9520</div>
+      </div>
+      <div class="doc-info-col">
+        <div class="doc-info-title">Cliente</div>
+        <div class="doc-info-line bold" id="d-cli-nombre">—</div>
+        <div class="doc-info-line" id="d-cli-nit"></div>
+        <div class="doc-info-line" id="d-cli-ciudad"></div>
+        <div class="doc-info-line muted" id="d-cli-email"></div>
+        <div class="doc-info-line muted" id="d-cli-tel"></div>
+      </div>
+    </div>
+
+    <div class="doc-proyecto">
+      <div class="doc-proy-label">Proyecto</div>
+      <div class="doc-proy-nombre" id="d-proy-nombre">— Sin nombre —</div>
+      <div class="doc-proy-desc" id="d-proy-desc"></div>
+    </div>
+
+    <div class="doc-tabla-wrap">
+      <table class="doc-tabla">
+        <thead>
+          <tr>
+            <th style="width:48%">Requerimiento</th>
+            <th style="width:10%" class="center">Cant.</th>
+            <th style="width:42%">Observaciones</th>
+          </tr>
+        </thead>
+        <tbody id="d-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="doc-obs">
+      <div class="doc-section-title">Observaciones generales</div>
+      <div class="doc-obs-content" id="d-obs">—</div>
+    </div>
+
+    <div class="doc-firma">
+      <div class="doc-section-title">Aprobación del cliente</div>
+      <div class="doc-firma-grid">
+        <div class="doc-firma-col">
+          <div class="doc-firma-space"></div>
+          <div class="doc-firma-line"></div>
+          <div class="doc-firma-label">Firma del cliente</div>
+          <div class="doc-firma-sublabel" id="d-firma-nombre">Nombre: ___________________________</div>
+          <div class="doc-firma-sublabel">C.C.: _____________________________</div>
+          <div class="doc-firma-sublabel">Fecha: ____________________________</div>
+        </div>
+        <div class="doc-firma-col">
+          <div class="doc-firma-space"></div>
+          <div class="doc-firma-line"></div>
+          <div class="doc-firma-label">Responsable Akanto Estudio</div>
+          <div class="doc-firma-sublabel">Nombre: ___________________________</div>
+          <div class="doc-firma-sublabel">Cargo: ____________________________</div>
+          <div class="doc-firma-sublabel">Fecha: ____________________________</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-footer">
+      <div class="doc-footer-left"><strong>Akanto Estudio</strong>Diseño · Arquitectura · Interiorismo</div>
+      <div class="doc-footer-right"><strong>@akanto.estudio</strong>contacto@akantoestudio.co</div>
+    </div>
+  </div>
+</main>
+</div>
+
+<input type="file" id="file-input" accept=".json" style="display:none" onchange="onFileLoad(event)" />
+
+<script>
+/* ════════════════════════════════════════════════
+   CATÁLOGO — edita los ítems aquí
+   Hojas 2 (Levantamiento) y 3 (Diseño) marcadas
+   como PENDIENTE — reemplazar con ítems reales.
+   ════════════════════════════════════════════════ */
+const CATALOGO = [
+  {
+    cat: "Requerimientos Iniciales",
+    subcats: [
+      {
+        subcat: "Espacios",
+        items: [
+          { id:"esp-recepcion",    nombre:"Recepción" },
+          { id:"esp-sala-espera",  nombre:"Sala de espera" },
+          { id:"esp-consultorios", nombre:"Consultorios" },
+          { id:"esp-esteriliz",    nombre:"Esterilización Aparte" },
+          { id:"esp-poceta",       nombre:"Poceta y Basuras" },
+          { id:"esp-bano",         nombre:"Baño / Baño discapacitados" },
+          { id:"esp-cafe",         nombre:"Zona de Café" },
+          { id:"esp-insumos",      nombre:"Cuarto de insumos" },
+          { id:"esp-cocineta",     nombre:"Cocineta" },
+          { id:"esp-foto",         nombre:"Zona de Fotografía" },
+          { id:"esp-compresores",  nombre:"Cuarto de compresores" },
+          { id:"esp-juntas",       nombre:"Sala de juntas u oficinas" },
+          { id:"esp-tecnico",      nombre:"Cuarto técnico" },
+          { id:"esp-otros",        nombre:"Otros espacios" },
+        ]
+      },
+      {
+        subcat: "No Negociables",
+        items: [
+          { id:"nn-piso",  nombre:"Cambio de piso" },
+          { id:"nn-techo", nombre:"Cambio de techo" },
+          { id:"nn-muros", nombre:"Conservar muros existentes" },
+          { id:"nn-ilum",  nombre:"Iluminación" },
+        ]
+      },
+      {
+        subcat: "Tecnología",
+        items: [
+          { id:"tec-sonido",    nombre:"Sonido" },
+          { id:"tec-camaras",   nombre:"Cámaras" },
+          { id:"tec-seguridad", nombre:"Sistema de seguridad" },
+          { id:"tec-ups",       nombre:"UPS" },
+          { id:"tec-equipos",   nombre:"Equipos médicos (Tomas reguladas)" },
+          { id:"tec-neveras",   nombre:"Neveras" },
+          { id:"tec-datos",     nombre:"Puntos de Datos" },
+          { id:"tec-citofono",  nombre:"Citófono" },
+          { id:"tec-tv",        nombre:"Televisores" },
+          { id:"tec-rack",      nombre:"Rack" },
+          { id:"tec-impresora", nombre:"Impresora" },
+        ]
+      }
+    ]
+  },
+  {
+    cat: "Levantamiento",
+    subcats: [
+      {
+        subcat: null,
+        items: [
+          { id:"lev-tacos",    nombre:"Caja de tacos" },
+          { id:"lev-desague",  nombre:"Punto de desagüe" },
+          { id:"lev-hidra",    nombre:"Punto hidráulico" },
+          { id:"lev-rci",      nombre:"RCI" },
+          { id:"lev-detec",    nombre:"Detección" },
+          { id:"lev-reg-muro", nombre:"Se puede regatear muros" },
+          { id:"lev-reg-piso", nombre:"Se puede regatear piso" },
+        ]
+      }
+    ]
+  },
+  {
+    cat: "Diseño",
+    subcats: [
+      {
+        subcat: "Diseño Antes",
+        items: [
+          { id:"dis-ant-ref",    nombre:"Referentes" },
+          { id:"dis-ant-pal",    nombre:"Paleta de colores" },
+          { id:"dis-ant-acab",   nombre:"Acabados" },
+          { id:"dis-ant-ilum",   nombre:"Iluminación" },
+          { id:"dis-ant-ilumi",  nombre:"Iluminación indirecta" },
+          { id:"dis-ant-vid",    nombre:"Vidrio" },
+          { id:"dis-ant-curv",   nombre:"Curvas" },
+          { id:"dis-ant-tomas",  nombre:"Tomas" },
+          { id:"dis-ant-dimer",  nombre:"Dimer" },
+          { id:"dis-ant-acces",  nombre:"Accesorios" },
+          { id:"dis-ant-logos",  nombre:"Logos y señalización" },
+          { id:"dis-ant-apli",   nombre:"Apliques" },
+          { id:"dis-ant-esp",    nombre:"Espejos" },
+          { id:"dis-ant-lav",    nombre:"Tipo de lavados" },
+          { id:"dis-ant-soc",    nombre:"Sócalos" },
+          { id:"dis-ant-grif",   nombre:"Griferías" },
+        ]
+      },
+      {
+        subcat: "Diseño Después",
+        items: [
+          { id:"dis-des-equip",  nombre:"Equipos en muebles" },
+          { id:"dis-des-acab",   nombre:"Acabados" },
+          { id:"dis-des-ilum",   nombre:"Iluminación" },
+          { id:"dis-des-vid",    nombre:"Vidrio (frost)" },
+          { id:"dis-des-acces",  nombre:"Accesorios" },
+          { id:"dis-des-lav",    nombre:"Tipo de lavados" },
+          { id:"dis-des-perc",   nombre:"Persianas" },
+          { id:"dis-des-dit",    nombre:"Diteles" },
+          { id:"dis-des-cort",   nombre:"Cortineros" },
+          { id:"dis-des-fig",    nombre:"Figuras" },
+          { id:"dis-des-plan",   nombre:"Plantas" },
+          { id:"dis-des-muebl",  nombre:"Muebles" },
+        ]
+      }
+    ]
+  }
+];
+
+/* ════════════════════════════════════════════════
+   ESTADO
+   ════════════════════════════════════════════════ */
+let items = [];
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('req-num').value   = numAuto();
+  document.getElementById('req-fecha').value = hoy();
+  buildCatalogo();
+  render();
+});
+
+/* ── UTILS ── */
+const hoy = () => new Date().toISOString().slice(0, 10);
+const numAuto = () => {
+  const d = new Date();
+  return `REQ-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+function fmtFecha(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${parseInt(d)} de ${M[parseInt(m)-1]} de ${y}`;
+}
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── TABS ── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── MOBILE ── */
+let previewVisible = false;
+function togglePreview() {
+  previewVisible = !previewVisible;
+  document.getElementById('preview-area').classList.toggle('hidden-mobile', !previewVisible);
+  document.getElementById('preview-toggle-btn').textContent = previewVisible ? 'Ocultar documento ↑' : 'Ver documento ↓';
+}
+
+/* ── CATÁLOGO ── */
+function buildCatalogo() {
+  const cont = document.getElementById('catalogo-container');
+  cont.innerHTML = '';
+  CATALOGO.forEach(grp => {
+    const mainDiv = document.createElement('div');
+    mainDiv.className = 'cat-main-group';
+    mainDiv.innerHTML = `<div class="cat-main-title">${esc(grp.cat)}</div>`;
+    grp.subcats.forEach(sg => {
+      const subDiv = document.createElement('div');
+      subDiv.className = 'cat-sub-group';
+      if (sg.subcat) subDiv.innerHTML = `<div class="cat-sub-title">${esc(sg.subcat)}</div>`;
+      sg.items.forEach(item => {
+        const b = document.createElement('button');
+        b.className = 'cat-item';
+        b.id = 'cat-btn-' + item.id;
+        b.dataset.texto = (item.nombre + ' ' + grp.cat + ' ' + (sg.subcat||'')).toLowerCase();
+        b.innerHTML = `<span class="cat-item-name">${esc(item.nombre)}</span><span class="cat-item-add">+</span>`;
+        b.onclick = () => agregarItem(item, grp.cat, sg.subcat);
+        subDiv.appendChild(b);
+      });
+      mainDiv.appendChild(subDiv);
+    });
+    cont.appendChild(mainDiv);
+  });
+}
+
+function filtrarCatalogo(q) {
+  const term = q.toLowerCase().trim();
+  document.querySelectorAll('.cat-item').forEach(b => {
+    b.classList.toggle('hidden', term.length > 0 && !b.dataset.texto.includes(term));
+  });
+  document.querySelectorAll('.cat-sub-group').forEach(g => {
+    const vis = [...g.querySelectorAll('.cat-item')].some(b => !b.classList.contains('hidden'));
+    g.style.display = (!term || vis) ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-main-group').forEach(g => {
+    const vis = [...g.querySelectorAll('.cat-item')].some(b => !b.classList.contains('hidden'));
+    g.style.display = (!term || vis) ? '' : 'none';
+  });
+}
+
+function refreshCatBadges() {
+  const addedIds = new Set(items.filter(i => i.srcId).map(i => i.srcId));
+  document.querySelectorAll('.cat-item').forEach(b => {
+    const id = b.id.replace('cat-btn-', '');
+    const isAdded = addedIds.has(id);
+    b.classList.toggle('added', isAdded);
+    b.querySelector('.cat-item-add').textContent = isAdded ? '✓' : '+';
+  });
+}
+
+/* ── ITEMS ── */
+function agregarItem(item, cat, subcat) {
+  if (items.find(i => i.srcId === item.id)) return;
+  items.push({ _id: Date.now(), srcId: item.id, nombre: item.nombre, cat, subcat: subcat || '', cantidad: 1, obs: '', custom: false });
+  render();
+  switchTab('cliente', document.querySelectorAll('.tab-btn')[0]);
+}
+
+function agregarPersonalizado() {
+  items.push({ _id: Date.now(), srcId: null, nombre: '', cat: CATALOGO[0].cat, subcat: '', cantidad: 1, obs: '', custom: true });
+  render();
+  switchTab('cliente', document.querySelectorAll('.tab-btn')[0]);
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.req-item-name');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function delItem(id) { items = items.filter(i => i._id !== id); render(); }
+
+function updItem(id, campo, val) {
+  const it = items.find(i => i._id === id);
+  if (!it) return;
+  it[campo] = campo === 'cantidad' ? (parseFloat(val) || 0) : val;
+  renderDoc();
+}
+
+/* ── RENDER SIDEBAR ITEMS ── */
+function renderReqActivos() {
+  const c = document.getElementById('req-activos');
+  document.getElementById('req-count').textContent = items.length;
+  if (!items.length) {
+    c.innerHTML = `<div style="color:var(--gris);font-size:11px;text-align:center;padding:12px 0">Sin requerimientos aún</div>`;
+    return;
+  }
+  const catOpts = CATALOGO.map(g => `<option value="${esc(g.cat)}">${esc(g.cat)}</option>`).join('');
+  c.innerHTML = '';
+  items.forEach(it => {
+    const badge = it.subcat ? `${it.cat} › ${it.subcat}` : it.cat;
+    const d = document.createElement('div');
+    d.className = 'req-item';
+    d.innerHTML = `
+      <div class="req-item-top">
+        <input class="req-item-name" type="text" value="${esc(it.nombre)}" placeholder="Nombre del requerimiento" onchange="updItem(${it._id},'nombre',this.value)" />
+        <button class="btn-del" onclick="delItem(${it._id})">×</button>
+      </div>
+      <div class="req-item-badge">${esc(badge)}</div>
+      <div class="req-item-fields">
+        <div>
+          <div class="req-field-lbl">Cantidad</div>
+          <input type="number" min="0" step="1" value="${it.cantidad}" onchange="updItem(${it._id},'cantidad',this.value)" />
+        </div>
+        <div>
+          <div class="req-field-lbl">Observaciones</div>
+          <textarea onchange="updItem(${it._id},'obs',this.value)" placeholder="Notas...">${esc(it.obs)}</textarea>
+        </div>
+      </div>`;
+    c.appendChild(d);
+  });
+  refreshCatBadges();
+}
+
+/* ── RENDER DOCUMENTO ── */
+function renderDoc() {
+  document.getElementById('d-num').textContent     = document.getElementById('req-num').value || '—';
+  document.getElementById('d-fecha').textContent   = fmtFecha(document.getElementById('req-fecha').value);
+  document.getElementById('d-cli-nombre').textContent = document.getElementById('cli-nombre').value || '—';
+  document.getElementById('d-cli-nit').textContent    = document.getElementById('cli-nit').value;
+  document.getElementById('d-cli-ciudad').textContent = document.getElementById('cli-ciudad').value;
+  document.getElementById('d-cli-email').textContent  = document.getElementById('cli-email').value;
+  document.getElementById('d-cli-tel').textContent    = document.getElementById('cli-tel').value;
+  const cliNombre = document.getElementById('cli-nombre').value;
+  document.getElementById('d-firma-nombre').textContent = cliNombre ? `Nombre: ${cliNombre}` : 'Nombre: ___________________________';
+  document.getElementById('d-proy-nombre').textContent = document.getElementById('proy-nombre').value || '— Sin nombre —';
+  document.getElementById('d-proy-desc').textContent   = document.getElementById('proy-desc').value;
+
+  const tbody = document.getElementById('d-tbody');
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="empty-doc"><div class="empty-doc-icon">⬡</div>Agrega requerimientos desde el panel "Catálogo"</div></td></tr>`;
+  } else {
+    const catMap = {};
+    items.forEach(it => {
+      if (!catMap[it.cat]) catMap[it.cat] = {};
+      const sk = it.subcat || '__none__';
+      if (!catMap[it.cat][sk]) catMap[it.cat][sk] = [];
+      catMap[it.cat][sk].push(it);
+    });
+    const catOrder = CATALOGO.map(g => g.cat);
+    Object.keys(catMap).forEach(c => { if (!catOrder.includes(c)) catOrder.push(c); });
+    let html = '';
+    catOrder.forEach(cat => {
+      if (!catMap[cat]) return;
+      html += `<tr class="cat-row"><td colspan="3">${esc(cat)}</td></tr>`;
+      const subcatOrder = [];
+      const catDef = CATALOGO.find(g => g.cat === cat);
+      if (catDef) catDef.subcats.forEach(s => subcatOrder.push(s.subcat || '__none__'));
+      Object.keys(catMap[cat]).forEach(s => { if (!subcatOrder.includes(s)) subcatOrder.push(s); });
+      subcatOrder.forEach(subcat => {
+        if (!catMap[cat][subcat]) return;
+        if (subcat !== '__none__') html += `<tr class="subcat-row"><td colspan="3">${esc(subcat)}</td></tr>`;
+        catMap[cat][subcat].forEach(it => {
+          html += `<tr class="data-row">
+            <td class="req-name">${esc(it.nombre) || '<em style="color:var(--gris)">Sin nombre</em>'}</td>
+            <td class="center">${it.cantidad > 0 ? `<span class="cant-badge">${it.cantidad}</span>` : '—'}</td>
+            <td class="obs-cell">${esc(it.obs)}</td>
+          </tr>`;
+        });
+      });
+    });
+    tbody.innerHTML = html;
+  }
+
+  const obs = document.getElementById('obs-generales').value.trim();
+  document.getElementById('d-obs').textContent = obs || '—';
+}
+
+function render() {
+  renderDoc();
+  renderReqActivos();
+}
+
+/* ── GUARDAR / CARGAR / NUEVO ── */
+function getState() {
+  return {
+    version: 1,
+    num:   document.getElementById('req-num').value,
+    fecha: document.getElementById('req-fecha').value,
+    cliente: {
+      nombre:  document.getElementById('cli-nombre').value,
+      nit:     document.getElementById('cli-nit').value,
+      email:   document.getElementById('cli-email').value,
+      tel:     document.getElementById('cli-tel').value,
+      ciudad:  document.getElementById('cli-ciudad').value,
+    },
+    proyecto: {
+      nombre: document.getElementById('proy-nombre').value,
+      desc:   document.getElementById('proy-desc').value,
+    },
+    obs:   document.getElementById('obs-generales').value,
+    items,
+  };
+}
+
+function setState(state) {
+  document.getElementById('req-num').value    = state.num   || '';
+  document.getElementById('req-fecha').value  = state.fecha || hoy();
+  document.getElementById('cli-nombre').value = state.cliente?.nombre  || '';
+  document.getElementById('cli-nit').value    = state.cliente?.nit     || '';
+  document.getElementById('cli-email').value  = state.cliente?.email   || '';
+  document.getElementById('cli-tel').value    = state.cliente?.tel     || '';
+  document.getElementById('cli-ciudad').value = state.cliente?.ciudad  || '';
+  document.getElementById('proy-nombre').value = state.proyecto?.nombre || '';
+  document.getElementById('proy-desc').value   = state.proyecto?.desc   || '';
+  document.getElementById('obs-generales').value = state.obs || '';
+  items = state.items || [];
+  render();
+}
+
+function guardarDoc() {
+  const state = getState();
+  const slug  = (state.proyecto.nombre || 'sin-nombre').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const blob  = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  a.href = url; a.download = `req-${slug}-${state.fecha || hoy()}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function cargarDoc() { document.getElementById('file-input').click(); }
+
+function onFileLoad(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { setState(JSON.parse(e.target.result)); }
+    catch { alert('Archivo no válido. Asegúrate de cargar un archivo .json guardado desde esta herramienta.'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function nuevoDoc() {
+  if (items.length || document.getElementById('cli-nombre').value) {
+    if (!confirm('¿Crear un nuevo documento? Los datos no guardados se perderán.')) return;
+  }
+  items = [];
+  ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc','obs-generales'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('req-num').value   = numAuto();
+  document.getElementById('req-fecha').value = hoy();
+  render();
+}
+</script>
+</body>
+</html>
