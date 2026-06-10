@@ -354,7 +354,22 @@
 </main>
 </div>
 
-<input type="file" id="file-input" accept=".json" style="display:none" onchange="onFileLoad(event)" />
+<!-- Modal fichas guardadas -->
+<div id="modal-fichas" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:var(--negro-2);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:520px;max-width:94vw;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--terracota-cl)">Fichas guardadas</div>
+        <div style="font-size:10px;color:var(--gris);margin-top:2px">Selecciona una ficha para cargarla</div>
+      </div>
+      <button onclick="cerrarModal()" style="background:transparent;border:none;color:var(--gris);font-size:18px;cursor:pointer;padding:2px 6px;border-radius:3px;">×</button>
+    </div>
+    <div id="modal-lista" style="overflow-y:auto;flex:1;padding:10px 16px;"></div>
+  </div>
+</div>
+
+<!-- Toast notificación -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--negro);border:1px solid rgba(160,104,81,0.4);color:var(--crema);padding:9px 18px;border-radius:4px;font-size:12px;z-index:2000;white-space:nowrap;"></div>
 
 <script>
 /* ════════════════════════════════════════════════
@@ -693,9 +708,18 @@ function render() {
 }
 
 /* ── GUARDAR / CARGAR / NUEVO ── */
+let currentId = null;
+
+function toast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, dur);
+}
+
 function getState() {
   return {
     version: 1,
+    id: currentId,
     num:   document.getElementById('req-num').value,
     fecha: document.getElementById('req-fecha').value,
     cliente: {
@@ -715,6 +739,7 @@ function getState() {
 }
 
 function setState(state) {
+  currentId = state.id || null;
   document.getElementById('req-num').value    = state.num   || '';
   document.getElementById('req-fecha').value  = state.fecha || hoy();
   document.getElementById('cli-nombre').value = state.cliente?.nombre  || '';
@@ -729,34 +754,73 @@ function setState(state) {
   render();
 }
 
-function guardarDoc() {
+async function guardarDoc() {
   const state = getState();
-  const slug  = (state.proyecto.nombre || 'sin-nombre').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  const blob  = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const url   = URL.createObjectURL(blob);
-  const a     = document.createElement('a');
-  a.href = url; a.download = `req-${slug}-${state.fecha || hoy()}.json`; a.click();
-  URL.revokeObjectURL(url);
+  if (!state.proyecto.nombre && !state.cliente.nombre) {
+    toast('⚠ Completa al menos el nombre del cliente o proyecto antes de guardar.'); return;
+  }
+  try {
+    const res  = await fetch('/api/fichas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) });
+    const data = await res.json();
+    if (data.ok) { currentId = data.id; toast('✓ Ficha guardada correctamente'); }
+    else toast('Error al guardar: ' + (data.error || 'desconocido'));
+  } catch (e) { toast('Error de conexión al guardar'); }
 }
 
-function cargarDoc() { document.getElementById('file-input').click(); }
-
-function onFileLoad(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try { setState(JSON.parse(e.target.result)); }
-    catch { alert('Archivo no válido. Asegúrate de cargar un archivo .json guardado desde esta herramienta.'); }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
+async function cargarDoc() {
+  const modal = document.getElementById('modal-fichas');
+  const lista = document.getElementById('modal-lista');
+  lista.innerHTML = '<div style="color:var(--gris);font-size:11px;padding:16px 4px">Cargando fichas...</div>';
+  modal.style.display = 'flex';
+  try {
+    const fichas = await fetch('/api/fichas').then(r => r.json());
+    if (!fichas.length) {
+      lista.innerHTML = '<div style="color:var(--gris);font-size:11px;padding:16px 4px;text-align:center">No hay fichas guardadas aún.</div>';
+      return;
+    }
+    lista.innerHTML = fichas.map(f => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;border-radius:3px;transition:background 0.12s;" onmouseover="this.style.background='rgba(160,104,81,0.1)'" onmouseout="this.style.background=''" onclick="cargarFicha('${f.id}')">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;color:var(--crema);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(f.nombre)}</div>
+          <div style="font-size:10px;color:var(--gris);margin-top:2px;">${esc(f.cliente)} · ${f.fecha || '—'}</div>
+        </div>
+        <button onclick="event.stopPropagation();eliminarFicha('${f.id}',this.closest('div[onclick]'))" style="background:transparent;border:none;color:rgba(255,255,255,0.25);font-size:14px;cursor:pointer;padding:3px 6px;border-radius:3px;flex-shrink:0;" onmouseover="this.style.color='var(--error)'" onmouseout="this.style.color='rgba(255,255,255,0.25)'">×</button>
+      </div>`).join('');
+  } catch (e) { lista.innerHTML = '<div style="color:var(--error);font-size:11px;padding:16px 4px">Error al conectar con el servidor.</div>'; }
 }
+
+async function cargarFicha(id) {
+  try {
+    const state = await fetch('/api/fichas/' + id).then(r => r.json());
+    setState(state);
+    cerrarModal();
+    toast('✓ Ficha cargada');
+  } catch (e) { toast('Error al cargar la ficha'); }
+}
+
+async function eliminarFicha(id, row) {
+  if (!confirm('¿Eliminar esta ficha del servidor?')) return;
+  try {
+    await fetch('/api/fichas/' + id, { method: 'DELETE' });
+    row.remove();
+    const lista = document.getElementById('modal-lista');
+    if (!lista.children.length) lista.innerHTML = '<div style="color:var(--gris);font-size:11px;padding:16px 4px;text-align:center">No hay fichas guardadas aún.</div>';
+  } catch (e) { toast('Error al eliminar'); }
+}
+
+function cerrarModal() {
+  document.getElementById('modal-fichas').style.display = 'none';
+}
+
+document.getElementById('modal-fichas').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-fichas')) cerrarModal();
+});
 
 function nuevoDoc() {
   if (items.length || document.getElementById('cli-nombre').value) {
     if (!confirm('¿Crear un nuevo documento? Los datos no guardados se perderán.')) return;
   }
+  currentId = null;
   items = [];
   ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc','obs-generales'].forEach(id => {
     document.getElementById(id).value = '';

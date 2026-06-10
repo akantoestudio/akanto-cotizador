@@ -6,6 +6,8 @@ const os      = require('os');
 const app      = express();
 const PORT     = process.env.PORT || 3000;
 const DATA     = path.join(__dirname, 'data', 'catalogo.json');
+const FICHAS_DIR = path.join(__dirname, 'data', 'fichas');
+if (!fs.existsSync(FICHAS_DIR)) fs.mkdirSync(FICHAS_DIR, { recursive: true });
 
 function getLocalIP() {
   for (const ifaces of Object.values(os.networkInterfaces())) {
@@ -45,6 +47,48 @@ app.post('/api/catalogo', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: 'No se pudo guardar' });
   }
+});
+
+/* ── FICHAS DE REQUERIMIENTOS ── */
+app.get('/api/fichas', (req, res) => {
+  try {
+    const files = fs.readdirSync(FICHAS_DIR).filter(f => f.endsWith('.json'));
+    const index = files.map(f => {
+      try {
+        const d = JSON.parse(fs.readFileSync(path.join(FICHAS_DIR, f), 'utf8'));
+        return { id: f.replace('.json',''), nombre: d.proyecto?.nombre || 'Sin nombre', cliente: d.cliente?.nombre || '—', fecha: d.fecha || '', savedAt: d.savedAt || '' };
+      } catch { return null; }
+    }).filter(Boolean).sort((a,b) => (b.savedAt||'').localeCompare(a.savedAt||''));
+    res.json(index);
+  } catch (e) { res.status(500).json({ error: 'Error al listar fichas' }); }
+});
+
+app.get('/api/fichas/:id', (req, res) => {
+  try {
+    const file = path.join(FICHAS_DIR, req.params.id + '.json');
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'No encontrada' });
+    res.json(JSON.parse(fs.readFileSync(file, 'utf8')));
+  } catch (e) { res.status(500).json({ error: 'Error al leer ficha' }); }
+});
+
+app.post('/api/fichas', (req, res) => {
+  try {
+    const state = req.body;
+    if (!state || typeof state !== 'object') return res.status(400).json({ error: 'Datos inválidos' });
+    const id = state.id || ('ficha-' + Date.now());
+    state.id = id;
+    state.savedAt = new Date().toISOString();
+    fs.writeFileSync(path.join(FICHAS_DIR, id + '.json'), JSON.stringify(state, null, 2));
+    res.json({ ok: true, id });
+  } catch (e) { res.status(500).json({ error: 'Error al guardar ficha' }); }
+});
+
+app.delete('/api/fichas/:id', (req, res) => {
+  try {
+    const file = path.join(FICHAS_DIR, req.params.id + '.json');
+    if (fs.existsSync(file)) fs.unlinkSync(file);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'Error al eliminar ficha' }); }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
