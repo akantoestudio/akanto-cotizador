@@ -531,8 +531,8 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 const numAuto = () => { const d = new Date(); return `COT-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 function fmt(v, m) {
   const sym = m === 'USD' ? 'USD ' : m === 'EUR' ? 'EUR ' : '$';
-  if (m === 'COP') return sym + Math.round(v).toLocaleString('es-CO');
-  return sym + v.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (m === 'COP') return sym + Math.round(v).toLocaleString('en-US');
+  return sym + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function fmtFecha(s) {
   if (!s) return '—';

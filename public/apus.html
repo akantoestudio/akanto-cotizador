@@ -223,9 +223,9 @@ function findItem(id) {
   return null;
 }
 
-function fmtCOP(v) {
-  return '$' + Math.round(v || 0).toLocaleString('es-CO');
-}
+function fmtNum(v) { return Math.round(v || 0).toLocaleString('en-US'); }
+function parseNum(s) { return parseFloat(String(s).replace(/,/g, '')) || 0; }
+function fmtCOP(v) { return '$' + fmtNum(v); }
 function esc(s) {
   return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -298,10 +298,10 @@ function renderItemRows(item, gi = 0) {
     </select></td>
     <td class="td-precio"><div class="precio-wrap">
       <span class="precio-sym">$</span>
-      <input class="inp-precio" id="precio-${item.id}" type="number"
-             value="${calcPrecio}"
+      <input class="inp-precio" id="precio-${item.id}" type="text"
+             value="${fmtNum(calcPrecio)}"
              data-id="${item.id}" data-field="precio"
-             ${hasComps ? 'readonly tabindex="-1"' : 'onblur="fieldChange(this)"'} />
+             ${hasComps ? 'readonly tabindex="-1"' : 'onfocus="this.value=this.value.replace(/,/g,\'\')" onblur="this.value=fmtNum(parseNum(this.value));fieldChange(this)"'} />
       ${hasComps ? `<span class="badge-auto">auto</span>` : ''}
     </div></td>
     <td><input class="inp-desc" type="text" value="${esc(item.desc||'')}"
@@ -360,9 +360,10 @@ function compRowHTML(itemId, idx, c) {
     <td class="td-r"><input class="inp-comp-num" type="number" value="${c.cant||0}" min="0" step="0.01"
              oninput="liveTotal('${itemId}',${idx},this,'cant')"
              onblur="compChange('${itemId}', ${idx}, 'cant', this.value)" /></td>
-    <td class="td-r"><input class="inp-comp-num" type="number" value="${c.vr_unit||0}" min="0" step="100"
+    <td class="td-r"><input class="inp-comp-num inp-vr" type="text" value="${fmtNum(c.vr_unit||0)}" step="100"
+             onfocus="this.value=this.value.replace(/,/g,\'\')"
              oninput="liveTotal('${itemId}',${idx},this,'vr_unit')"
-             onblur="compChange('${itemId}', ${idx}, 'vr_unit', this.value)" /></td>
+             onblur="this.value=fmtNum(parseNum(this.value));compChange('${itemId}',${idx},'vr_unit',this.value)" /></td>
     <td class="td-r" id="comp-total-${itemId}-${idx}">${fmtCOP(total)}</td>
     <td class="td-del"><button class="btn-del-comp" onclick="delComp('${itemId}',${idx})" title="Eliminar">×</button></td>
   </tr>`;
@@ -409,7 +410,7 @@ function toggleComp(itemId) {
 function liveTotal(itemId, idx, changedEl, changedField) {
   const row  = document.getElementById(`comp-row-${itemId}-${idx}`);
   const cant = parseFloat(row.querySelector('[step="0.01"]').value) || 0;
-  const vr   = parseFloat(row.querySelector('[step="100"]').value)  || 0;
+  const vr   = parseNum(row.querySelector('.inp-vr').value);
   document.getElementById(`comp-total-${itemId}-${idx}`).textContent = fmtCOP(cant * vr);
   // Live update item subtotal in total row
   const item   = findItem(itemId);
@@ -425,7 +426,7 @@ function compChange(itemId, idx, field, val) {
   if (!item || !item.componentes) return;
   const c = item.componentes[idx];
   if (!c) return;
-  c[field] = (field === 'cant' || field === 'vr_unit') ? (parseFloat(val) || 0) : val;
+  c[field] = (field === 'cant' || field === 'vr_unit') ? parseNum(val) : val;
   refreshSubtotals(itemId);
   markDirty(itemId);
 }
@@ -465,7 +466,7 @@ function refreshSubtotals(itemId) {
   // Campo precio del ítem (readonly cuando tiene componentes)
   const priceEl = document.getElementById(`precio-${itemId}`);
   if (priceEl && priceEl.readOnly) {
-    priceEl.value = unitPrecio;
+    priceEl.value = fmtNum(unitPrecio);
     item.precio   = unitPrecio;
   }
 }
@@ -526,7 +527,11 @@ function delComp(itemId, idx) {
   // If no more components, make price editable again
   if (item.componentes.length === 0) {
     const priceEl = document.getElementById(`precio-${itemId}`);
-    if (priceEl) { priceEl.readOnly = false; priceEl.setAttribute('onblur', `fieldChange(this)`); }
+    if (priceEl) {
+      priceEl.readOnly = false;
+      priceEl.setAttribute('onfocus', "this.value=this.value.replace(/,/g,'')");
+      priceEl.setAttribute('onblur',  "this.value=fmtNum(parseNum(this.value));fieldChange(this)");
+    }
     document.getElementById(`precio-${itemId}`)?.parentElement
       ?.querySelector('.badge-auto')?.remove();
   }
@@ -651,7 +656,7 @@ function fieldChange(el) {
   const field = el.dataset.field;
   const item  = findItem(id);
   if (!item) return;
-  item[field] = field === 'precio' ? (parseFloat(el.value) || 0) : el.value;
+  item[field] = field === 'precio' ? parseNum(el.value) : el.value;
   markDirty(id);
 }
 
