@@ -486,12 +486,16 @@
    Campos: id, nombre, und, precio (COP), descripcion (opcional)
    ═══════════════════════════════════════════════════════════════ */
 let CATALOGO = [];
+let GRUPOS_SUBTOTAL = {}; // se construye dinámicamente al cargar el catálogo
 
-/* Agrupación para subtotales en el PDF */
-const GRUPOS_SUBTOTAL = {
-  'Obra civil':            new Set(['Demolición','Regatas y Perforaciones','Drywall','Pintura y Acabados','Hidráulico','Eléctrico y Datos','Iluminación','Logística','Grifería y Pocetas','Mesones']),
-  'Mobiliario y acabados': new Set(['Carpintería — Área Común','Carpintería — Consultorios','Carpintería — Oficinas','Mobiliario y Sillas','Vidriería','Persianas, Plantas y Otros']),
-};
+function buildGruposSubtotal() {
+  GRUPOS_SUBTOTAL = {};
+  for (const g of CATALOGO) {
+    const sg = g.sg || 'Otros';
+    if (!GRUPOS_SUBTOTAL[sg]) GRUPOS_SUBTOTAL[sg] = new Set();
+    GRUPOS_SUBTOTAL[sg].add(g.cat);
+  }
+}
 
 const CONDICIONES_DEFAULT = [
   "Los precios no incluyen IVA, excepto el IVA sobre la utilidad indicado en el resumen.",
@@ -517,6 +521,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch('/api/catalogo');
     CATALOGO = await res.json();
+    buildGruposSubtotal();
   } catch (e) {
     document.getElementById('catalogo-container').innerHTML =
       '<div style="color:var(--error);font-size:11px;padding:10px">Error al cargar el catálogo. ¿Está corriendo el servidor?</div>';

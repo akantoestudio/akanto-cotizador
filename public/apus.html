@@ -145,6 +145,12 @@
     .inp-cat-nombre { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: var(--crema); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; outline: none; padding: 0 2px 1px; cursor: pointer; }
     .inp-cat-nombre:hover { border-bottom-color: rgba(255,255,255,0.5); }
     .inp-cat-nombre:focus { border-bottom-color: var(--terracota-cl); cursor: text; }
+    /* Selector de sección (super-grupo) */
+    .cat-sg-wrap { display: flex; align-items: center; gap: 5px; margin-left: 12px; }
+    .cat-sg-label { font-size: 9px; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; text-transform: uppercase; }
+    .sel-sg { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 3px; color: var(--terracota-cl); font-family: inherit; font-size: 10px; font-weight: 600; padding: 2px 6px; outline: none; cursor: pointer; }
+    .sel-sg:hover { background: rgba(255,255,255,0.14); }
+    .sel-sg:focus { border-color: var(--terracota-cl); }
 
     /* SAVE BAR */
     .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--negro-2); border-top: 1px solid rgba(255,255,255,0.08); padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; transform: translateY(100%); transition: transform 0.2s ease; z-index: 200; }
@@ -240,6 +246,20 @@ function renderStats() {
 }
 
 /* ── RENDER MAIN TABLE ── */
+function getAllSgs() {
+  const seen = new Set();
+  catalogo.forEach(g => { if (g.sg) seen.add(g.sg); });
+  return [...seen];
+}
+
+function sgOptions(gi) {
+  const current = catalogo[gi]?.sg || '';
+  const sgs = getAllSgs();
+  if (current && !sgs.includes(current)) sgs.push(current);
+  const opts = sgs.map(s => `<option value="${esc(s)}"${s === current ? ' selected' : ''}>${esc(s)}</option>`).join('');
+  return opts + `<option value="__new__">+ Nueva sección...</option>`;
+}
+
 function renderCatalogo() {
   document.getElementById('contenido').innerHTML = catalogo.map((grp, gi) => {
     const rows = grp.items.map(item => renderItemRows(item, gi)).join('');
@@ -249,6 +269,10 @@ function renderCatalogo() {
                title="Clic para renombrar categoría"
                onblur="renameCategoria(${gi}, this.value)"
                onkeydown="if(event.key==='Enter')this.blur()" />
+        <div class="cat-sg-wrap">
+          <span class="cat-sg-label">Sección</span>
+          <select class="sel-sg" onchange="changeSg(${gi}, this.value)">${sgOptions(gi)}</select>
+        </div>
         <span id="cat-count-${gi}">${grp.items.length} ítems</span>
       </div>
       <table class="precio-tabla">
@@ -554,7 +578,9 @@ function rebuildCompTable(itemId) {
 function agregarCategoria() {
   const nombre = prompt('Nombre de la nueva categoría:');
   if (!nombre || !nombre.trim()) return;
-  catalogo.push({ cat: nombre.trim(), items: [] });
+  const sgs = getAllSgs();
+  const sg = sgs.length > 0 ? sgs[0] : 'Otros';
+  catalogo.push({ cat: nombre.trim(), sg, items: [] });
   dirty['__catalog_changed__'] = true;
   updateSaveBar();
   renderCatalogo();
@@ -567,6 +593,27 @@ function renameCategoria(gi, nuevoNombre) {
   grp.cat = nuevoNombre.trim();
   dirty['__catalog_changed__'] = true;
   updateSaveBar();
+}
+
+function changeSg(gi, val) {
+  const grp = catalogo[gi];
+  if (!grp) return;
+  if (val === '__new__') {
+    const nombre = prompt('Nombre de la nueva sección:');
+    if (!nombre || !nombre.trim()) {
+      // Revertir el selector al valor actual
+      document.querySelector(`#cat-${gi} .sel-sg`).value = grp.sg || '';
+      return;
+    }
+    grp.sg = nombre.trim();
+    dirty['__catalog_changed__'] = true;
+    updateSaveBar();
+    renderCatalogo(); // re-render para que aparezca la nueva sección en todos los selectores
+  } else {
+    grp.sg = val;
+    dirty['__catalog_changed__'] = true;
+    updateSaveBar();
+  }
 }
 
 function deleteCategoria(gi) {

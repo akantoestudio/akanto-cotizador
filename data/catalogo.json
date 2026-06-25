@@ -1,18 +1,19 @@
 [
   {
     "cat": "Demolición",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "dem-baldosa",
         "nombre": "Demolición baldosa de piso",
         "und": "M2",
-        "precio": 19715,
+        "precio": 194675,
         "desc": "Incluye herramienta menor, cuadrilla y retiro de material",
         "componentes": [
           {
             "nombre": "Mano de Obra",
             "und": "M2",
-            "cant": 60,
+            "cant": 1,
             "vr_unit": 13400
           },
           {
@@ -34,7 +35,7 @@
             "vr_unit": 55990
           }
         ],
-        "ref_qty": 60
+        "ref_qty": 1
       },
       {
         "id": "dem-laminado",
@@ -192,6 +193,7 @@
   },
   {
     "cat": "Regatas y Perforaciones",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "reg-piso",
@@ -299,6 +301,7 @@
   },
   {
     "cat": "Drywall",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "dry-ciel",
@@ -550,38 +553,38 @@
         "id": "dry-bloque",
         "nombre": "Muro divisor en bloque",
         "und": "M2",
-        "precio": 233990,
+        "precio": 280875,
         "desc": "Incluye herramienta menor, bloque, varilla, cemento, pañete y cuadrilla",
         "componentes": [
           {
             "nombre": "Mano de Obra",
             "und": "M2",
-            "cant": 14.3,
+            "cant": 1,
             "vr_unit": 35000
           },
           {
             "nombre": "Bloque",
             "und": "M2",
-            "cant": 195,
+            "cant": 15,
             "vr_unit": 2800
           },
           {
             "nombre": "Varilla",
             "und": "UND",
-            "cant": 52,
+            "cant": 4,
             "vr_unit": 6000
           },
           {
             "nombre": "Cemento",
             "und": "M2",
-            "cant": 7,
+            "cant": 0.5,
             "vr_unit": 39000
           },
           {
             "nombre": "Arena",
             "und": "M2",
-            "cant": 39,
-            "vr_unit": 18000
+            "cant": 0.02,
+            "vr_unit": 210000
           },
           {
             "nombre": "Balde",
@@ -608,7 +611,7 @@
             "vr_unit": 40000
           }
         ],
-        "ref_qty": 13
+        "ref_qty": 1
       },
       {
         "id": "piso-vinil",
@@ -622,24 +625,25 @@
   },
   {
     "cat": "Pintura y Acabados",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "pin-tipo2",
         "nombre": "Pintura tipo 2 (muros y techos)",
         "und": "M2",
-        "precio": 24276,
+        "precio": 282943,
         "desc": "Viniltex Pintuco, incluye mano de obra y herramienta menor",
         "componentes": [
           {
             "nombre": "Mano de Obra",
             "und": "JR",
-            "cant": 30,
+            "cant": 1,
             "vr_unit": 10090
           },
           {
             "nombre": "Pintura tipo 2 Viniltex Pintuco",
             "und": "M2",
-            "cant": 0.4,
+            "cant": 0.007,
             "vr_unit": 162000
           },
           {
@@ -673,7 +677,7 @@
             "vr_unit": 17000
           }
         ],
-        "ref_qty": 30
+        "ref_qty": 1
       },
       {
         "id": "pin-antibac",
@@ -903,6 +907,7 @@
   },
   {
     "cat": "Hidráulico",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "hid-pre",
@@ -1030,6 +1035,7 @@
   },
   {
     "cat": "Eléctrico y Datos",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "ele-gfci",
@@ -1403,6 +1409,7 @@
   },
   {
     "cat": "Iluminación",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "ilu-lin-s",
@@ -1472,12 +1479,13 @@
   },
   {
     "cat": "Logística",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "log-acarreo",
         "nombre": "Acarreo",
         "und": "UND",
-        "precio": 82500,
+        "precio": 360500,
         "desc": "Incluye acarreo de material, mobiliario y ornamentación",
         "componentes": []
       },
@@ -1485,7 +1493,7 @@
         "id": "log-aseo",
         "nombre": "Aseo general",
         "und": "UND",
-        "precio": 146296,
+        "precio": 190000,
         "desc": "Personal de aseo con prestaciones, incluye insumos",
         "componentes": []
       },
@@ -1493,7 +1501,7 @@
         "id": "log-aseof",
         "nombre": "Aseo final de obra",
         "und": "UND",
-        "precio": 431740,
+        "precio": 933480,
         "desc": "Limpieza profunda al finalizar obra",
         "componentes": []
       },
@@ -1517,6 +1525,7 @@
   },
   {
     "cat": "Carpintería — Área Común",
+    "sg": "Mobiliario y acabados",
     "items": [
       {
         "id": "car-puerta",
@@ -1762,6 +1771,7 @@
   },
   {
     "cat": "Carpintería — Consultorios",
+    "sg": "Mobiliario y acabados",
     "items": [
       {
         "id": "car-cons-mb",
@@ -1919,6 +1929,7 @@
   },
   {
     "cat": "Carpintería — Oficinas",
+    "sg": "Mobiliario y acabados",
     "items": [
       {
         "id": "car-escrit",
@@ -2106,6 +2117,7 @@
   },
   {
     "cat": "Mesones",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "mes-quar",
@@ -2175,6 +2187,7 @@
   },
   {
     "cat": "Mobiliario y Sillas",
+    "sg": "Mobiliario y acabados",
     "items": [
       {
         "id": "mob-sil-ger",
@@ -2346,6 +2359,7 @@
   },
   {
     "cat": "Vidriería",
+    "sg": "Mobiliario y acabados",
     "items": [
       {
         "id": "vid-esp-p",
@@ -2523,6 +2537,7 @@
   },
   {
     "cat": "Grifería y Pocetas",
+    "sg": "Obra civil",
     "items": [
       {
         "id": "grif-lav-sub",
@@ -2796,6 +2811,7 @@
   },
   {
     "cat": "Persianas, Plantas y Otros",
+    "sg": "Mobiliario y acabados",
     "items": [
       {
         "id": "per-screen",
