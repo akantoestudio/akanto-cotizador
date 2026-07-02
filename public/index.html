@@ -693,6 +693,8 @@ function renderSrvActivos() {
   const mon = document.getElementById('cfg-moneda').value;
   const c = document.getElementById('srv-activos');
   document.getElementById('srv-count').textContent = items.length;
+  // Guardar qué paneles de componentes están abiertos antes de re-renderizar
+  const abiertos = new Set([...c.querySelectorAll('.srv-comps-body:not(.hidden)')].map(el => el.closest('.srv-comps')?.dataset.id));
   if (!items.length) { c.innerHTML = `<div style="color:var(--gris);font-size:11px;text-align:center;padding:12px 0">Sin ítems aún</div>`; return; }
   c.innerHTML = '';
   items.forEach(it => {
@@ -749,7 +751,7 @@ function renderSrvActivos() {
           </tr>`;
         }).join('');
         const unitP = calcPrecioItem(it);
-        return `<div class="srv-comps">
+        return `<div class="srv-comps" data-id="${it._id}">
           <button class="srv-comps-toggle" onclick="toggleCompsUI(this)">▶ Componentes (${comps.length})</button>
           <div class="srv-comps-body hidden">
             <table class="srv-comps-table">
@@ -769,6 +771,18 @@ function renderSrvActivos() {
         </div>`;
       })()}`;
     c.appendChild(d);
+  });
+  // Restaurar paneles que estaban abiertos
+  abiertos.forEach(id => {
+    if (!id) return;
+    const wrap = c.querySelector(`.srv-comps[data-id="${id}"]`);
+    if (!wrap) return;
+    const body = wrap.querySelector('.srv-comps-body');
+    const btn  = wrap.querySelector('.srv-comps-toggle');
+    if (body && btn) {
+      body.classList.remove('hidden');
+      btn.textContent = '▼' + btn.textContent.slice(1);
+    }
   });
 }
 
