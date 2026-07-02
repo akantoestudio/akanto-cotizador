@@ -5,9 +5,11 @@ const os      = require('os');
 
 const app      = express();
 const PORT     = process.env.PORT || 3000;
-const DATA     = path.join(__dirname, 'data', 'catalogo.json');
+const DATA       = path.join(__dirname, 'data', 'catalogo.json');
 const FICHAS_DIR = path.join(__dirname, 'data', 'fichas');
+const COT_DIR    = path.join(__dirname, 'data', 'cotizaciones');
 if (!fs.existsSync(FICHAS_DIR)) fs.mkdirSync(FICHAS_DIR, { recursive: true });
+if (!fs.existsSync(COT_DIR))    fs.mkdirSync(COT_DIR,    { recursive: true });
 
 function getLocalIP() {
   for (const ifaces of Object.values(os.networkInterfaces())) {
@@ -47,6 +49,55 @@ app.post('/api/catalogo', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: 'No se pudo guardar' });
   }
+});
+
+/* ── COTIZACIONES (guardado en servidor, acceso multi-dispositivo) ── */
+app.get('/api/cotizaciones', (req, res) => {
+  try {
+    const files = fs.readdirSync(COT_DIR).filter(f => f.endsWith('.json'));
+    const index = files.map(f => {
+      try {
+        const d = JSON.parse(fs.readFileSync(path.join(COT_DIR, f), 'utf8'));
+        return {
+          key:     f.replace('.json', ''),
+          num:     d.cotizacion?.num    || '—',
+          cliente: d.cliente?.nombre   || '(sin cliente)',
+          proyecto:d.proyecto?.nombre  || '',
+          savedAt: d.savedAt           || '',
+        };
+      } catch { return null; }
+    }).filter(Boolean).sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
+    res.json(index);
+  } catch (e) { res.status(500).json({ error: 'Error al listar cotizaciones' }); }
+});
+
+app.get('/api/cotizaciones/:key', (req, res) => {
+  try {
+    const file = path.join(COT_DIR, req.params.key + '.json');
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'No encontrada' });
+    res.json(JSON.parse(fs.readFileSync(file, 'utf8')));
+  } catch (e) { res.status(500).json({ error: 'Error al leer cotización' }); }
+});
+
+app.post('/api/cotizaciones', (req, res) => {
+  try {
+    const state = req.body;
+    if (!state || typeof state !== 'object') return res.status(400).json({ error: 'Datos inválidos' });
+    const ts  = Date.now();
+    const num = (state.cotizacion?.num || 'sin-num').replace(/[^a-zA-Z0-9-]/g, '-');
+    const key = `cot-${num}-${ts}`;
+    state.savedAt = new Date().toISOString();
+    fs.writeFileSync(path.join(COT_DIR, key + '.json'), JSON.stringify(state, null, 2));
+    res.json({ ok: true, key });
+  } catch (e) { res.status(500).json({ error: 'Error al guardar cotización' }); }
+});
+
+app.delete('/api/cotizaciones/:key', (req, res) => {
+  try {
+    const file = path.join(COT_DIR, req.params.key + '.json');
+    if (fs.existsSync(file)) fs.unlinkSync(file);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: 'Error al eliminar cotización' }); }
 });
 
 /* ── FICHAS DE REQUERIMIENTOS ── */

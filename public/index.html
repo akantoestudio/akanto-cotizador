@@ -972,22 +972,24 @@ function volverPanel() {
   window.scrollTo(0, 0);
 }
 
-function guardarCotizacion() {
-  const state = estadoActual();
-  // Clave única: número de cotización + timestamp (permite múltiples versiones del mismo número)
-  const ts  = Date.now();
-  const key = 'akanto-cot-' + (state.cotizacion.num || 'sin-num') + '-' + ts;
-  localStorage.setItem(key, JSON.stringify(state));
-  // Índice sin límite, orden cronológico inverso
-  const idx = JSON.parse(localStorage.getItem('akanto-cot-index') || '[]');
-  idx.unshift(key);
-  localStorage.setItem('akanto-cot-index', JSON.stringify(idx));
-  // Toast
+function showToast(msg, error = false) {
   const t = document.createElement('div');
-  t.textContent = '✓ Cotización guardada';
-  Object.assign(t.style, { position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)', background:'#2a5c2a', color:'white', padding:'8px 18px', borderRadius:'4px', fontSize:'12px', zIndex:9999, transition:'opacity 0.4s' });
+  t.textContent = msg;
+  Object.assign(t.style, { position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)', background: error ? '#7a1e1e' : '#2a5c2a', color:'white', padding:'8px 18px', borderRadius:'4px', fontSize:'12px', zIndex:9999, transition:'opacity 0.4s' });
   document.body.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 1800);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2200);
+}
+
+async function guardarCotizacion() {
+  const state = estadoActual();
+  try {
+    const res  = await fetch('/api/cotizaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(state) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    showToast('✓ Cotización guardada en el servidor');
+  } catch (e) {
+    showToast('✗ Error al guardar: ' + e.message, true);
+  }
 }
 
 function cargarEstado(state) {
@@ -1020,60 +1022,68 @@ function cargarEstado(state) {
   render();
 }
 
-function verCotizacionesGuardadas() {
-  const idx = JSON.parse(localStorage.getItem('akanto-cot-index') || '[]');
-  if (!idx.length) { alert('No hay cotizaciones guardadas.'); return; }
-  const lista = idx.map(k => {
-    try {
-      const s = JSON.parse(localStorage.getItem(k));
-      const fecha = s?.savedAt ? new Date(s.savedAt).toLocaleDateString('es-CO') : '—';
-      const cliente = s?.cliente?.nombre || '(sin cliente)';
-      const num = s?.cotizacion?.num || k;
-      return { key: k, label: `${num} — ${cliente} — ${fecha}` };
-    } catch { return { key: k, label: k }; }
-  });
-  // Modal sencillo
+async function verCotizacionesGuardadas() {
+  let lista;
+  try {
+    const res = await fetch('/api/cotizaciones');
+    lista = await res.json();
+  } catch (e) {
+    alert('Error al conectar con el servidor.'); return;
+  }
+  if (!lista.length) { alert('No hay cotizaciones guardadas.'); return; }
+
   const overlay = document.createElement('div');
   Object.assign(overlay.style, { position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' });
   const box = document.createElement('div');
-  Object.assign(box.style, { background:'#1A1D1F', color:'#E2E2BD', borderRadius:'6px', padding:'24px', minWidth:'340px', maxWidth:'480px', maxHeight:'70vh', overflowY:'auto' });
-  box.innerHTML = `<div style="font-size:13px;font-weight:600;margin-bottom:14px">Cotizaciones guardadas</div>`;
-  lista.forEach(({ key, label }) => {
+  Object.assign(box.style, { background:'#1A1D1F', color:'#E2E2BD', borderRadius:'6px', padding:'24px', minWidth:'340px', maxWidth:'500px', width:'92vw', maxHeight:'75vh', overflowY:'auto' });
+  box.innerHTML = `<div style="font-size:13px;font-weight:600;margin-bottom:4px">Cotizaciones guardadas</div>
+    <div style="font-size:10px;color:var(--gris);margin-bottom:14px">Disponibles desde cualquier dispositivo</div>`;
+
+  lista.forEach(({ key, num, cliente, proyecto, savedAt }) => {
+    const fecha = savedAt ? new Date(savedAt).toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    const label = `${num} — ${cliente}${proyecto ? ' · ' + proyecto : ''}`;
+
     const row = document.createElement('div');
     Object.assign(row.style, { display:'flex', alignItems:'stretch', gap:'4px', marginBottom:'6px' });
 
     const btn = document.createElement('button');
-    btn.textContent = label;
-    Object.assign(btn.style, { flex:'1', textAlign:'left', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'3px', color:'#E2E2BD', padding:'8px 10px', cursor:'pointer', fontSize:'11px' });
+    btn.innerHTML = `<span style="font-weight:600">${label}</span><br><span style="font-size:10px;color:var(--gris)">${fecha}</span>`;
+    Object.assign(btn.style, { flex:'1', textAlign:'left', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'3px', color:'#E2E2BD', padding:'8px 10px', cursor:'pointer', fontSize:'11px', lineHeight:'1.6' });
     btn.onmouseenter = () => btn.style.background = 'rgba(160,104,81,0.25)';
     btn.onmouseleave = () => btn.style.background = 'rgba(255,255,255,0.05)';
-    btn.onclick = () => {
-      const s = JSON.parse(localStorage.getItem(key));
-      if (s) { document.body.removeChild(overlay); cargarEstado(s); }
+    btn.onclick = async () => {
+      try {
+        const r = await fetch(`/api/cotizaciones/${encodeURIComponent(key)}`);
+        const s = await r.json();
+        document.body.removeChild(overlay);
+        cargarEstado(s);
+      } catch { showToast('✗ Error al cargar la cotización', true); }
     };
 
     const del = document.createElement('button');
     del.textContent = '🗑';
-    del.title = 'Eliminar esta cotización guardada';
+    del.title = 'Eliminar';
     Object.assign(del.style, { background:'rgba(255,80,80,0.12)', border:'1px solid rgba(255,80,80,0.25)', borderRadius:'3px', color:'#ff8080', padding:'0 10px', cursor:'pointer', fontSize:'13px', flexShrink:0 });
     del.onmouseenter = () => del.style.background = 'rgba(255,80,80,0.3)';
     del.onmouseleave = () => del.style.background = 'rgba(255,80,80,0.12)';
-    del.onclick = () => {
+    del.onclick = async () => {
       if (!confirm(`¿Eliminar "${label}"?`)) return;
-      localStorage.removeItem(key);
-      const newIdx = JSON.parse(localStorage.getItem('akanto-cot-index') || '[]').filter(k => k !== key);
-      localStorage.setItem('akanto-cot-index', JSON.stringify(newIdx));
-      row.remove();
-      if (!newIdx.length) { document.body.removeChild(overlay); alert('No quedan cotizaciones guardadas.'); }
+      try {
+        await fetch(`/api/cotizaciones/${encodeURIComponent(key)}`, { method:'DELETE' });
+        row.remove();
+        if (!box.querySelectorAll('button[data-cot]').length) { document.body.removeChild(overlay); }
+      } catch { showToast('✗ Error al eliminar', true); }
     };
+    del.dataset.cot = key;
 
     row.appendChild(btn);
     row.appendChild(del);
     box.appendChild(row);
   });
+
   const cerrar = document.createElement('button');
-  cerrar.textContent = 'Cancelar';
-  Object.assign(cerrar.style, { marginTop:'8px', background:'transparent', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'3px', color:'var(--gris)', padding:'6px 14px', cursor:'pointer', fontSize:'11px' });
+  cerrar.textContent = 'Cerrar';
+  Object.assign(cerrar.style, { marginTop:'10px', background:'transparent', border:'1px solid rgba(255,255,255,0.2)', borderRadius:'3px', color:'var(--gris)', padding:'6px 14px', cursor:'pointer', fontSize:'11px' });
   cerrar.onclick = () => document.body.removeChild(overlay);
   box.appendChild(cerrar);
   overlay.appendChild(box);
