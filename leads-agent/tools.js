@@ -6,6 +6,7 @@ const store = require('./store');
 const TIPO_LABELS = {
   consultorio: 'consultorio',
   espacio_comercial: 'espacio comercial',
+  mobiliario: 'mobiliario',
 };
 
 const toolDefinitions = [
@@ -21,10 +22,16 @@ const toolDefinitions = [
       properties: {
         tipo_proyecto: {
           type: 'string',
-          enum: ['consultorio', 'espacio_comercial'],
-          description: 'Tipo de proyecto del lead.',
+          enum: ['consultorio', 'espacio_comercial', 'mobiliario'],
+          description: 'Tipo de proyecto del lead. "mobiliario" es para leads que solo buscan desarrollo de muebles.',
         },
-        m2: { type: 'number', description: 'Metros cuadrados aproximados del espacio.' },
+        m2: {
+          type: 'string',
+          description:
+            'Metros cuadrados aproximados del espacio (como texto, ej. "45"). Si el lead no lo ' +
+            'sabe, quiere asesoría, o aún está buscando el local/espacio, usa una nota breve en ' +
+            'vez de un número (ej. "no sabe, quiere asesoría" o "buscando local aún").',
+        },
         ciudad: { type: 'string', description: 'Ciudad donde está ubicado el proyecto.' },
         franjas_disponibilidad: {
           type: 'array',
@@ -72,6 +79,11 @@ function formatHorario(start) {
   }).format(start);
 }
 
+function formatM2(m2) {
+  const value = String(m2).trim();
+  return /^\d+([.,]\d+)?$/.test(value) ? `${value} m²` : value;
+}
+
 function formatFecha(date) {
   return new Intl.DateTimeFormat('es-CO', {
     day: '2-digit',
@@ -108,7 +120,7 @@ async function handleSubmitQualifiedLead(input, context) {
     start: slot.start,
     end: slot.end,
     summary: `Llamada con ${nombre} — ${tipoLabel}`,
-    description: `${tipoLabel}, ${input.m2} m², ${input.ciudad}. Contacto: ${contacto}`,
+    description: `${tipoLabel}, ${formatM2(input.m2)}, ${input.ciudad}. Contacto: ${contacto}`,
   });
 
   const horario = formatHorario(slot.start);
