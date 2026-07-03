@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const fs      = require('fs');
 const path    = require('path');
@@ -29,6 +30,8 @@ app.use((req, res, next) => {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
+
+app.use(require('./leads-agent'));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
