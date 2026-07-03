@@ -87,6 +87,13 @@ async function handleSubmitQualifiedLead(input, context) {
   const contacto = `WhatsApp: ${phone}`;
   const nombre = leadName || 'Lead sin nombre en WhatsApp';
 
+  const existing = store.getConversation(phone);
+  if (existing.status === 'scheduled' && existing.scheduledEvent) {
+    // Ya se agendó antes en esta conversación — evita duplicar el evento/fila si el modelo
+    // vuelve a invocar la tool (ej. tras un mensaje de seguimiento del lead).
+    return { agendado: true, horario: existing.scheduledEvent.horario, ya_agendado: true };
+  }
+
   const slot = await calendar.findMatchingSlot(input.franjas_disponibilidad);
 
   const state = store.getConversation(phone);
