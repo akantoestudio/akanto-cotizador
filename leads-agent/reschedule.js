@@ -63,8 +63,10 @@ async function handleMariaJoseMessage(text) {
 
   const pendingConfirmation = store.getMostRecentByStatus('pending_confirmation');
   if (pendingConfirmation) {
-    const no = matchesAny(normalized, PENDING_NO_WORDS);
-    const yes = !no && matchesAny(normalized, PENDING_YES_WORDS);
+    // "no"/"sí" sueltos (sin más palabras) no calzan con las frases de la lista — se detectan
+    // aparte como palabra completa al inicio del mensaje.
+    const no = /^no\b/.test(normalized) || matchesAny(normalized, PENDING_NO_WORDS);
+    const yes = !no && (/^s[ií]\b/.test(normalized) || matchesAny(normalized, PENDING_YES_WORDS));
     if (yes) {
       const result = await tools.handlePendingConfirmationReply(pendingConfirmation.phone, true);
       return result ? `Perfecto, quedó confirmada la llamada con ${result.nombre} para ${result.horario}.` : 'Listo.';
