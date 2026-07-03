@@ -93,6 +93,37 @@ function formatFecha(date) {
   }).format(date);
 }
 
+// Crea el evento + fila de Sheets y marca la conversación como agendada. Usado tanto al
+// agendar directo (franja libre) como al confirmar una franja que chocaba (ver más abajo).
+async function finalizeBooking({ phone, start, end, tipoLabel, m2, ciudad, nombre, contacto }) {
+  const createdEvent = await calendar.createEvent({
+    start,
+    end,
+    summary: `Llamada con ${nombre} — ${tipoLabel}`,
+    description: `${tipoLabel}, ${formatM2(m2)}, ${ciudad}. Contacto: ${contacto}`,
+  });
+
+  const horario = formatHorario(start);
+
+  await sheets.appendLeadRow({
+    fecha: formatFecha(new Date()),
+    nombre,
+    tipoProyecto: tipoLabel,
+    m2,
+    ciudad,
+    horario,
+    estado: 'Agendado',
+  });
+
+  const state = store.getConversation(phone);
+  state.status = 'scheduled';
+  state.scheduledEvent = { start: start.toISOString(), end: end.toISOString(), horario, eventId: createdEvent.id || null };
+  delete state.pendingConfirmation;
+  store.saveConversation(phone, state);
+
+  return horario;
+}
+
 async function handleSubmitQualifiedLead(input, context) {
   const { phone, leadName } = context;
   const tipoLabel = TIPO_LABELS[input.tipo_proyecto] || input.tipo_proyecto;
@@ -106,43 +137,56 @@ async function handleSubmitQualifiedLead(input, context) {
     return { agendado: true, horario: existing.scheduledEvent.horario, ya_agendado: true };
   }
 
-  const slot = await calendar.findMatchingSlot(input.franjas_disponibilidad);
-
   const state = store.getConversation(phone);
   state.collected = { ...state.collected, ...input, nombre };
 
-  if (!slot) {
+  const enHorarioLaboral = (input.franjas_disponibilidad || []).filter(calendar.isWithinBusinessHours);
+  if (enHorarioLaboral.length === 0) {
     store.saveConversation(phone, state);
-    return { agendado: false, razon: 'ninguna_franja_libre' };
+    return { agendado: false, razon: 'fuera_de_horario_laboral' };
   }
 
-  const createdEvent = await calendar.createEvent({
+  const slot = await calendar.findMatchingSlot(enHorarioLaboral);
+
+  if (!slot) {
+    // Ninguna de las franjas propuestas está libre en el calendario de María José — en vez de
+    // rechazar, le preguntamos directamente si puede atender la primera de todas formas.
+    const proposed = calendar.slotToRange(enHorarioLaboral[0]);
+    const horarioPropuesto = formatHorario(proposed.start);
+
+    state.status = 'pending_confirmation';
+    state.pendingConfirmation = {
+      start: proposed.start.toISOString(),
+      end: proposed.end.toISOString(),
+      horario: horarioPropuesto,
+      tipoLabel,
+      m2: input.m2,
+      ciudad: input.ciudad,
+      nombre,
+      contacto,
+    };
+    store.saveConversation(phone, state);
+
+    if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
+      await whatsapp.sendMessage(
+        process.env.MARIA_JOSE_WHATSAPP_NUMBER,
+        `¿Podrías atender una llamada con ${nombre} el ${horarioPropuesto} aunque tengas algo más agendado a esa hora? Es sobre ${tipoLabel} en ${input.ciudad}. Contesta sí o no.`
+      );
+    }
+
+    return { agendado: false, razon: 'confirmando_con_maria_jose', horario_propuesto: horarioPropuesto };
+  }
+
+  const horario = await finalizeBooking({
+    phone,
     start: slot.start,
     end: slot.end,
-    summary: `Llamada con ${nombre} — ${tipoLabel}`,
-    description: `${tipoLabel}, ${formatM2(input.m2)}, ${input.ciudad}. Contacto: ${contacto}`,
-  });
-
-  const horario = formatHorario(slot.start);
-
-  await sheets.appendLeadRow({
-    fecha: formatFecha(new Date()),
-    nombre,
-    tipoProyecto: tipoLabel,
+    tipoLabel,
     m2: input.m2,
     ciudad: input.ciudad,
-    horario,
-    estado: 'Agendado',
+    nombre,
+    contacto,
   });
-
-  state.status = 'scheduled';
-  state.scheduledEvent = {
-    start: slot.start.toISOString(),
-    end: slot.end.toISOString(),
-    horario,
-    eventId: createdEvent.id || null,
-  };
-  store.saveConversation(phone, state);
 
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
     await whatsapp.sendMessage(
@@ -152,6 +196,42 @@ async function handleSubmitQualifiedLead(input, context) {
   }
 
   return { agendado: true, horario };
+}
+
+// Llamado desde reschedule.js cuando María José responde sí/no a una franja que chocaba con
+// su calendario. Si confirma, agenda de una vez y avisa al lead directamente (no hay turno de
+// Claude activo en ese momento). Si no, libera la conversación para que el lead proponga otra franja.
+async function handlePendingConfirmationReply(phone, confirmed) {
+  const state = store.getConversation(phone);
+  const pending = state.pendingConfirmation;
+  if (!pending) return null;
+
+  if (confirmed) {
+    const horario = await finalizeBooking({
+      phone,
+      start: new Date(pending.start),
+      end: new Date(pending.end),
+      tipoLabel: pending.tipoLabel,
+      m2: pending.m2,
+      ciudad: pending.ciudad,
+      nombre: pending.nombre,
+      contacto: pending.contacto,
+    });
+    await whatsapp.sendMessage(
+      phone,
+      `¡Buenas noticias, ${pending.nombre}! María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!`
+    );
+    return { confirmed: true, horario, nombre: pending.nombre };
+  }
+
+  state.status = 'in_progress';
+  delete state.pendingConfirmation;
+  store.saveConversation(phone, state);
+  await whatsapp.sendMessage(
+    phone,
+    `Ese horario finalmente no le funcionó a María José. ¿Me das 2-3 franjas alternativas (día y hora) para intentar de nuevo?`
+  );
+  return { confirmed: false, nombre: pending.nombre };
 }
 
 async function handleEscalateToHuman(input, context) {
@@ -176,4 +256,4 @@ const toolHandlers = {
   escalate_to_human: handleEscalateToHuman,
 };
 
-module.exports = { toolDefinitions, toolHandlers };
+module.exports = { toolDefinitions, toolHandlers, handlePendingConfirmationReply };

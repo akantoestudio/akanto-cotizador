@@ -1,9 +1,12 @@
 const calendar = require('./calendar');
 const whatsapp = require('./whatsapp');
 const store = require('./store');
+const tools = require('./tools');
 
 const CONFIRM_WORDS = ['si', 'listo', 'perfecto', 'dale', 'vale', 'ok', 'okay', 'confirmado', 'sirve'];
 const RESCHEDULE_WORDS = ['reagendar', 'reagenda', 'cambiar', 'cambio', 'otra', 'muevelo', 'no puedo', 'no me sirve'];
+const PENDING_YES_WORDS = ['si', 'puedo', 'claro', 'listo', 'dale', 'sirve'];
+const PENDING_NO_WORDS = ['no puedo', 'no puede', 'no le sirve', 'no funciona', 'imposible', 'no va a poder'];
 
 function normalize(text) {
   return String(text)
@@ -56,6 +59,21 @@ async function handleMariaJoseMessage(text) {
       }
     }
     return 'Contesta 1, 2 o 3 para elegir una de las franjas que te propuse.';
+  }
+
+  const pendingConfirmation = store.getMostRecentByStatus('pending_confirmation');
+  if (pendingConfirmation) {
+    const no = matchesAny(normalized, PENDING_NO_WORDS);
+    const yes = !no && matchesAny(normalized, PENDING_YES_WORDS);
+    if (yes) {
+      const result = await tools.handlePendingConfirmationReply(pendingConfirmation.phone, true);
+      return result ? `Perfecto, quedó confirmada la llamada con ${result.nombre} para ${result.horario}.` : 'Listo.';
+    }
+    if (no) {
+      await tools.handlePendingConfirmationReply(pendingConfirmation.phone, false);
+      return 'Entendido, le pido al lead que proponga otra franja.';
+    }
+    return 'Contesta "sí" si puedes atenderla a esa hora, o "no" si prefieres que busque otro horario.';
   }
 
   const scheduled = store.getMostRecentByStatus('scheduled');

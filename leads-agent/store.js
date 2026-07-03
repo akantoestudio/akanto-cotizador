@@ -16,7 +16,7 @@ function defaultConversation(phone) {
   const now = new Date().toISOString();
   return {
     phone: sanitizePhone(phone),
-    status: 'in_progress', // in_progress | scheduled | rescheduling | escalated | completed
+    status: 'in_progress', // in_progress | pending_confirmation | scheduled | rescheduling | escalated | completed
     messages: [],
     collected: {},
     createdAt: now,

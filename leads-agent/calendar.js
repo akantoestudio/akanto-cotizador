@@ -3,8 +3,10 @@ const { google } = require('googleapis');
 const TIMEZONE = 'America/Bogota';
 const BOGOTA_UTC_OFFSET = '-05:00'; // Colombia no observa horario de verano
 const EVENT_DURATION_MINUTES = 60;
-const BUSINESS_HOUR_START = 9;
-const BUSINESS_HOUR_END = 18;
+const BUSINESS_DAYS = [1, 2, 3, 4, 5]; // lunes(1) a viernes(5) — domingo=0, sábado=6
+const BUSINESS_HOUR_START = 9; // 9:00am
+const BUSINESS_HOUR_END = 17; // usado para generar sugerencias de reagendamiento (última hora en punto: 4:00pm)
+const BUSINESS_LAST_CALL_MINUTES = 16 * 60 + 30; // 4:30pm — hora de inicio más tardía permitida
 
 function isConfigured() {
   return Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 && process.env.GOOGLE_CALENDAR_ID);
@@ -101,10 +103,24 @@ async function moveEvent(eventId, start, end) {
   return res.data;
 }
 
-// Convierte un instante a sus componentes de fecha/día-de-semana en hora de Bogotá.
+// Convierte un instante a sus componentes de fecha/día-de-semana/hora en hora de Bogotá.
 function bogotaParts(date) {
   const b = new Date(date.getTime() - 5 * 60 * 60 * 1000);
-  return { year: b.getUTCFullYear(), month: b.getUTCMonth(), date: b.getUTCDate(), day: b.getUTCDay() };
+  return {
+    year: b.getUTCFullYear(),
+    month: b.getUTCMonth(),
+    date: b.getUTCDate(),
+    day: b.getUTCDay(),
+    minutesSinceMidnight: b.getUTCHours() * 60 + b.getUTCMinutes(),
+  };
+}
+
+// Horario corporativo: lunes a viernes, 9:00am a 4:30pm (última hora de inicio permitida).
+function isWithinBusinessHours(slot) {
+  const { start } = slotToRange(slot);
+  const parts = bogotaParts(start);
+  if (!BUSINESS_DAYS.includes(parts.day)) return false;
+  return parts.minutesSinceMidnight >= BUSINESS_HOUR_START * 60 && parts.minutesSinceMidnight <= BUSINESS_LAST_CALL_MINUTES;
 }
 
 function fechaStr(year, month, date) {
@@ -158,5 +174,7 @@ module.exports = {
   createEvent,
   moveEvent,
   findNextFreeSlots,
+  slotToRange,
+  isWithinBusinessHours,
   TIMEZONE,
 };
