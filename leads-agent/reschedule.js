@@ -1,5 +1,5 @@
 const calendar = require('./calendar');
-const whatsapp = require('./whatsapp');
+const channels = require('./channels');
 const store = require('./store');
 const tools = require('./tools');
 
@@ -54,7 +54,7 @@ async function handleMariaJoseMessage(text) {
         delete pending.pendingRescheduleOptions;
         store.saveConversation(pending.phone, pending);
 
-        await whatsapp.sendMessage(pending.phone, `¡Buenas noticias! Movimos tu llamada con María José a ${horario}. Cualquier cosa me escribes.`);
+        await channels.sendToLead(pending, `¡Buenas noticias! Movimos tu llamada con María José a ${horario}. Cualquier cosa me escribes.`);
         return `Confirmado, quedó movido a ${horario}.`;
       }
     }

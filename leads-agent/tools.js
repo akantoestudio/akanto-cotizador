@@ -1,6 +1,7 @@
 const calendar = require('./calendar');
 const sheets = require('./sheets');
 const whatsapp = require('./whatsapp');
+const channels = require('./channels');
 const store = require('./store');
 
 const TIPO_LABELS = {
@@ -129,10 +130,11 @@ async function finalizeBooking({ phone, start, end, tipoLabel, m2, ciudad, nombr
 async function handleSubmitQualifiedLead(input, context) {
   const { phone, leadName } = context;
   const tipoLabel = TIPO_LABELS[input.tipo_proyecto] || input.tipo_proyecto;
-  const contacto = `WhatsApp: ${phone}`;
-  const nombre = leadName || 'Lead sin nombre en WhatsApp';
 
   const existing = store.getConversation(phone);
+  const contacto = channels.contactLabel(existing);
+  const nombre = leadName || `Lead sin nombre (${contacto})`;
+
   if (existing.status === 'scheduled' && existing.scheduledEvent) {
     // Ya se agendó antes en esta conversación — evita duplicar el evento/fila si el modelo
     // vuelve a invocar la tool (ej. tras un mensaje de seguimiento del lead).
@@ -220,8 +222,8 @@ async function handlePendingConfirmationReply(phone, confirmed) {
       nombre: pending.nombre,
       contacto: pending.contacto,
     });
-    await whatsapp.sendMessage(
-      phone,
+    await channels.sendToLead(
+      state,
       `¡Buenas noticias, ${pending.nombre}! María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!`
     );
     return { confirmed: true, horario, nombre: pending.nombre };
@@ -230,8 +232,8 @@ async function handlePendingConfirmationReply(phone, confirmed) {
   state.status = 'in_progress';
   delete state.pendingConfirmation;
   store.saveConversation(phone, state);
-  await whatsapp.sendMessage(
-    phone,
+  await channels.sendToLead(
+    state,
     `Ese horario finalmente no le funcionó a María José. ¿Me das 2-3 franjas alternativas (día y hora) para intentar de nuevo?`
   );
   return { confirmed: false, nombre: pending.nombre };
@@ -247,7 +249,7 @@ async function handleEscalateToHuman(input, context) {
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
     await whatsapp.sendMessage(
       process.env.MARIA_JOSE_WHATSAPP_NUMBER,
-      `Un lead necesita atención humana (${input.motivo}). Contacto: WhatsApp ${phone}${leadName ? ' — ' + leadName : ''}.`
+      `Un lead necesita atención humana (${input.motivo}). Contacto: ${channels.contactLabel(state)}${leadName ? ' — ' + leadName : ''}.`
     );
   }
 

@@ -96,6 +96,8 @@
   </div>
 
   <script>
+    const CHANNEL_LABELS = { whatsapp: 'WhatsApp', instagram: 'Instagram' };
+
     const STATUS_LABELS = {
       in_progress: 'En curso',
       pending_confirmation: 'Confirmando',
@@ -163,7 +165,7 @@
             <span class="conv-name">${escapeHtml(c.nombre || c.phone)}</span>
             <span class="badge ${c.status}">${STATUS_LABELS[c.status] || c.status}</span>
           </div>
-          <div class="conv-phone">${c.phone} · ${timeAgo(c.updatedAt)}</div>
+          <div class="conv-phone">${CHANNEL_LABELS[c.channel] || 'WhatsApp'} · ${c.phone} · ${timeAgo(c.updatedAt)}</div>
           <div class="conv-preview">${escapeHtml(c.lastMessage?.content || '')}</div>
         </div>
       `).join('');
@@ -192,7 +194,7 @@
         <div class="detail-head">
           <div>
             <h2>${escapeHtml(nombre)}</h2>
-            <div class="sub">${conv.phone}${tipo}${ciudad}</div>
+            <div class="sub">${CHANNEL_LABELS[conv.channel] || 'WhatsApp'} · ${conv.phone}${tipo}${ciudad}</div>
           </div>
           <span class="badge ${conv.status}">${STATUS_LABELS[conv.status] || conv.status}</span>
         </div>

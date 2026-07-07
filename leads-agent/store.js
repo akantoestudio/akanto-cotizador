@@ -12,10 +12,11 @@ function filePathFor(phone) {
   return path.join(LEADS_DIR, `${sanitizePhone(phone)}.json`);
 }
 
-function defaultConversation(phone) {
+function defaultConversation(phone, channel = 'whatsapp') {
   const now = new Date().toISOString();
   return {
     phone: sanitizePhone(phone),
+    channel, // 'whatsapp' | 'instagram' — determina por dónde se le responde al lead
     status: 'in_progress', // in_progress | pending_confirmation | scheduled | rescheduling | escalated | completed
     messages: [],
     collected: {},
@@ -24,13 +25,15 @@ function defaultConversation(phone) {
   };
 }
 
-function getConversation(phone) {
+function getConversation(phone, channel = 'whatsapp') {
   const file = filePathFor(phone);
-  if (!fs.existsSync(file)) return defaultConversation(phone);
+  if (!fs.existsSync(file)) return defaultConversation(phone, channel);
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    const state = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!state.channel) state.channel = 'whatsapp'; // conversaciones creadas antes de soportar canales
+    return state;
   } catch (e) {
-    return defaultConversation(phone);
+    return defaultConversation(phone, channel);
   }
 }
 
@@ -41,8 +44,8 @@ function saveConversation(phone, state) {
   return state;
 }
 
-function appendMessage(phone, role, content) {
-  const state = getConversation(phone);
+function appendMessage(phone, role, content, channel = 'whatsapp') {
+  const state = getConversation(phone, channel);
   state.messages.push({ role, content, ts: new Date().toISOString() });
   return saveConversation(phone, state);
 }

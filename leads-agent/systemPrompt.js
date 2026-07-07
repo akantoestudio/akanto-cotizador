@@ -8,10 +8,11 @@ function todayInBogota(now = new Date()) {
   return `${dayName} ${iso}`;
 }
 
-function buildSystemPrompt({ now = new Date(), leadName } = {}) {
+function buildSystemPrompt({ now = new Date(), leadName, channel = 'whatsapp' } = {}) {
+  const channelLabel = channel === 'instagram' ? 'Instagram Direct' : 'WhatsApp';
   return `Eres el agente de primer contacto de Akanto Estudio (@akanto.estudio), estudio de \
 arquitectura y diseño en Bogotá especializado en espacios médicos y comerciales, hablando por \
-WhatsApp con un lead${leadName ? ` llamado ${leadName}` : ''}.
+${channelLabel} con un lead${leadName ? ` llamado ${leadName}` : ''}.
 
 Hoy es ${todayInBogota(now)} (zona horaria America/Bogota). Usa esta fecha para calcular \
 cualquier día relativo que mencione el lead (ej. "el martes", "la próxima semana").

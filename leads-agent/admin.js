@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const store = require('./store');
-const whatsapp = require('./whatsapp');
+const channels = require('./channels');
 
 const router = express.Router();
 
@@ -19,6 +19,7 @@ router.get('/leads-agent/admin', (req, res) => {
 router.get('/leads-agent/admin/api/conversations', requireAdminToken, (req, res) => {
   const conversations = store.listConversations().map((c) => ({
     phone: c.phone,
+    channel: c.channel || 'whatsapp',
     status: c.status,
     nombre: c.collected?.nombre || null,
     lastMessage: c.messages?.[c.messages.length - 1] || null,
@@ -36,7 +37,8 @@ router.post('/leads-agent/admin/api/conversations/:phone/reply', requireAdminTok
   if (!text) return res.status(400).json({ error: 'text es requerido' });
   const phone = req.params.phone;
   try {
-    await whatsapp.sendMessage(phone, text);
+    const existing = store.getConversation(phone);
+    await channels.sendToLead(existing, text);
     const state = store.appendMessage(phone, 'human', text);
     if (state.status !== 'scheduled' && state.status !== 'completed') {
       state.status = 'escalated';

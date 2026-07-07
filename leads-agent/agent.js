@@ -18,16 +18,16 @@ function toAnthropicMessages(messages) {
 
 // Procesa un mensaje entrante de un lead: actualiza el historial, llama a Claude con las
 // tools de calificación/agendamiento, ejecuta las tools que el modelo invoque, y devuelve el
-// texto final que hay que enviarle por WhatsApp (o null si la conversación ya fue escalada).
-async function handleIncomingLeadMessage(phone, text, leadName) {
-  const current = store.getConversation(phone);
+// texto final que hay que enviarle de vuelta (o null si la conversación ya fue escalada).
+async function handleIncomingLeadMessage(phone, text, leadName, channel = 'whatsapp') {
+  const current = store.getConversation(phone, channel);
 
   if (current.status === 'escalated') {
-    store.appendMessage(phone, 'user', text);
+    store.appendMessage(phone, 'user', text, channel);
     return { reply: null, state: store.getConversation(phone) };
   }
 
-  store.appendMessage(phone, 'user', text);
+  store.appendMessage(phone, 'user', text, channel);
 
   if (!process.env.ANTHROPIC_API_KEY) {
     const reply = '[dry-run] ANTHROPIC_API_KEY no configurada — no se puede generar una respuesta real.';
@@ -36,7 +36,7 @@ async function handleIncomingLeadMessage(phone, text, leadName) {
   }
 
   const client = getClient();
-  const system = buildSystemPrompt({ leadName });
+  const system = buildSystemPrompt({ leadName, channel });
   const messages = toAnthropicMessages(store.getConversation(phone).messages);
   let finalText = null;
 
