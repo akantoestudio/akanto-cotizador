@@ -98,6 +98,29 @@ para verificar la firma del webhook (misma app de Meta que WhatsApp).
    `INSTAGRAM_ACCOUNT_ID` (el ID que acepta la Graph API en `/​<ID>/messages` — probar en vivo
    cuál ID es el correcto: el de la cuenta profesional de Instagram o el de la Página).
 
+### ⚠️ Pendiente: App Review de Meta
+
+Con todo lo anterior configurado (permisos agregados, Página suscrita al campo `messages`,
+webhook verificado), los mensajes reales de Instagram **todavía no llegan** — la API devuelve
+`"Application does not have the capability to make this API call"`. A diferencia de WhatsApp,
+la mensajería de Instagram (`instagram_business_manage_messages`) parece requerir que la app
+pase por **revisión de Meta (App Review)** antes de funcionar con cuentas reales, incluso en
+modo Desarrollo. Verificado:
+
+- Permisos `instagram_business_basic` e `instagram_business_manage_messages` agregados y en
+  estado "Listo para la prueba".
+- Página "Akanto Estudio" (ID `114120541484647`) suscrita correctamente a esta app para el
+  campo `messages` (confirmado por API).
+- Webhook `/webhook/instagram` verificado (GET exitoso), pero nunca recibe el POST real de un
+  DM entrante.
+- Se descartó que fuera la automatización nativa de Instagram ("AI Auto Replies") — se
+  desactivó y el problema persistió.
+
+**Siguiente paso**: enviar la app a revisión desde Meta for Developers → **Casos de uso → API
+de Instagram → Permisos y funciones**, solicitando `instagram_business_manage_messages` para
+uso en producción. El código ya está listo — en cuanto se apruebe, debería funcionar sin
+cambios adicionales.
+
 **Probar en dry-run** (sin credenciales de Instagram configuradas):
 
 ```bash
