@@ -35,35 +35,45 @@ Cada llamada devuelve la respuesta del agente y el estado actual de esa conversa
 (`status`, `collected`). Repite el `curl` con el mismo `from` para simular los siguientes
 mensajes del mismo lead y ver cómo avanza el flujo (m², ciudad, disponibilidad, agendamiento).
 
-## Checklist antes de pasar a producción
+## Panel de administración (respuesta manual humana)
 
-Estos son los 4 pendientes que deja la sección 6 del brief — nada de esto se puede resolver
-desde el código, son decisiones/configuración del negocio:
+Meta Business Suite **no** ofrece bandeja de chat nativa para números conectados solo por Cloud
+API (esa función de bandeja compartida es de nivel API/empresarial, no del plan gratuito —
+lo confirmamos probando en vivo). Por eso se construyó un panel propio simple:
 
-- [ ] **Verificación de negocio de Akanto Estudio en Meta Business Manager**, si aún no está
-      hecha (requisito para usar la API oficial de WhatsApp Business).
-- [ ] **Definir el número de WhatsApp** que va a hablar con los leads: ¿el mismo que usa hoy
-      María José, o uno nuevo dedicado al agente? Ese número es el que se conecta a Meta Cloud
-      API y se configura como `WHATSAPP_PHONE_NUMBER_ID`.
-- [ ] **Cuenta de Google Calendar/Sheets a usar** (la de María José o una cuenta compartida de
-      Akanto). Una vez decidida:
-  1. Crear una cuenta de servicio en Google Cloud Console (IAM & Admin → Service Accounts),
-     habilitar las APIs de Calendar y Sheets en el proyecto.
-  2. Descargar la clave JSON de la cuenta de servicio y convertirla a base64
-     (`base64 -i clave.json | tr -d '\n'`) → pegarla en `GOOGLE_SERVICE_ACCOUNT_KEY_BASE64`.
-  3. Desde la cuenta de Google elegida, **compartir el Calendar** con el email de la cuenta de
-     servicio (permiso "Ver todos los detalles de eventos" como mínimo, "Hacer cambios en
-     eventos" para que pueda crear/mover eventos).
-  4. **Compartir la hoja de Google Sheets** con el mismo email de la cuenta de servicio (permiso
-     Editor), y crear en ella una pestaña llamada `Leads` con encabezados: Nombre, Tipo de
-     proyecto, m², Ciudad, Horario agendado, Contacto.
-  5. Copiar el ID del calendario (`GOOGLE_CALENDAR_ID`, normalmente el email de la cuenta de
-     Google si es el calendario principal) y el ID de la hoja (`GOOGLE_SHEET_ID`, de la URL de
-     Sheets).
-- [ ] **Definir dónde corre el servidor/webhook**. Ya está resuelto en la práctica: este mismo
-      `akanto-app` ya está desplegado en Railway — solo falta apuntar la URL del webhook de Meta
-      a `https://<tu-dominio-railway>/webhook/whatsapp` y setear las variables de entorno en
-      Railway (ver `.env.example`).
+- **URL**: `/leads-agent/admin` (ej. `https://cotizador.akantoestudio.co/leads-agent/admin`)
+- Pide un token (`ADMIN_TOKEN`) para entrar.
+- Lista todas las conversaciones (más recientes primero), con badge de estado.
+- Al seleccionar una, muestra el hilo completo (lead en blanco, bot en negro, respuestas
+  manuales en terracota) y un cuadro para escribir y enviar una respuesta real por WhatsApp.
+- Si la conversación no estaba ya agendada/completada, enviar una respuesta manual la marca
+  como `escalated` — el bot deja de responder automático a ese número hasta que se reactive
+  manualmente (editando el JSON en `data/leads/`).
+- Implementado en `leads-agent/admin.js` (rutas) y `public/leads-admin.html` (interfaz).
+
+## Checklist — estado actual
+
+- [x] **Verificación de negocio de Akanto Estudio en Meta Business Manager** — completa.
+- [x] **Número de WhatsApp dedicado al agente** — se creó un número nuevo (no el que ya usaba
+      la oficina activamente), registrado vía Meta for Developers → WhatsApp → Configuración de
+      la API → Paso 2. Su Phone Number ID está en `WHATSAPP_PHONE_NUMBER_ID`.
+- [x] **Cuenta de Google Calendar/Sheets** — cuenta de servicio configurada, Calendar y Sheet
+      compartidos con su email, IDs en `GOOGLE_CALENDAR_ID` / `GOOGLE_SHEET_ID`.
+- [x] **Hosting del servidor/webhook** — este mismo `akanto-app` en Railway, webhook apuntando a
+      `https://<dominio-railway>/webhook/whatsapp`.
+
+### Notas para si se agrega otro número de WhatsApp en el futuro
+
+Cada número (o más precisamente cada WhatsApp Business Account / WABA) tiene que quedar
+**suscrito a esta app** para que los webhooks lleguen — no basta con registrarlo:
+
+```bash
+curl -X POST "https://graph.facebook.com/v20.0/<WABA_ID>/subscribed_apps" \
+  -H "Authorization: Bearer <WHATSAPP_ACCESS_TOKEN>"
+```
+
+Verifica con un `GET` a la misma URL que devuelva el nombre de esta app ("Akanto Leads Agent")
+en la lista.
 
 ## Variables de entorno
 

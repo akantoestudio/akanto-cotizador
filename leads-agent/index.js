@@ -3,11 +3,15 @@ const whatsapp = require('./whatsapp');
 const agent = require('./agent');
 const reschedule = require('./reschedule');
 const store = require('./store');
+const adminRouter = require('./admin');
 
 const router = express.Router();
 
 if (!process.env.LEADS_AGENT_SIMULATE_TOKEN) {
   console.warn('[leads-agent] LEADS_AGENT_SIMULATE_TOKEN no configurado — /leads-agent/simulate queda sin protección.');
+}
+if (!process.env.ADMIN_TOKEN) {
+  console.warn('[leads-agent] ADMIN_TOKEN no configurado — /leads-agent/admin queda sin protección.');
 }
 
 function rawBodySaver(req, res, buf) {
@@ -76,5 +80,7 @@ router.post('/leads-agent/simulate', express.json(), async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+router.use(adminRouter);
 
 module.exports = router;

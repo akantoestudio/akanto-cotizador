@@ -11,7 +11,9 @@ function getClient() {
 }
 
 function toAnthropicMessages(messages) {
-  return messages.map((m) => ({ role: m.role, content: m.content }));
+  // 'human' = mensaje manual enviado desde el panel de administración — Claude lo ve como un
+  // turno más del negocio (assistant), igual que sus propias respuestas.
+  return messages.map((m) => ({ role: m.role === 'human' ? 'assistant' : m.role, content: m.content }));
 }
 
 // Procesa un mensaje entrante de un lead: actualiza el historial, llama a Claude con las

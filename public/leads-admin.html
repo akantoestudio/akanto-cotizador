@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads — Akanto Estudio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --negro:       #0C0F11;
+      --negro-2:     #1A1D1F;
+      --crema:       #E2E2BD;
+      --crema-suave: #F0EFEA;
+      --terracota:   #A06851;
+      --terracota-cl:#CEB0A0;
+      --gris:        #86928A;
+      --blanco:      #FFFFFF;
+      --borde:       #D4D3C0;
+      --verde:       #4C7A5C;
+      --naranja:     #B8853A;
+      --rojo:        #B03A2E;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--crema-suave); color: var(--negro); font-size: 13px; line-height: 1.5; }
+    button, input, textarea { font-family: inherit; }
+
+    /* ── LOGIN ── */
+    #login { max-width: 340px; margin: 15vh auto; padding: 28px; background: var(--blanco); border-radius: 8px; border: 1px solid var(--borde); }
+    #login h1 { font-size: 16px; margin-bottom: 14px; }
+    #login input { width: 100%; padding: 9px 11px; border: 1px solid var(--borde); border-radius: 4px; font-size: 13px; margin-bottom: 10px; }
+    #login button { width: 100%; padding: 9px; background: var(--negro); color: var(--crema); border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    #login button:hover { background: var(--negro-2); }
+    #login .err { color: var(--rojo); font-size: 11px; margin-top: -4px; margin-bottom: 8px; min-height: 14px; }
+
+    /* ── APP ── */
+    #app { display: none; height: 100vh; }
+    .shell { display: flex; height: 100vh; }
+    .list { width: 340px; min-width: 300px; background: var(--negro); color: var(--crema); overflow-y: auto; display: flex; flex-direction: column; }
+    .list-head { padding: 18px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .list-head h1 { font-size: 14px; font-weight: 600; }
+    .list-head span { font-size: 10px; color: var(--gris); letter-spacing: 0.05em; }
+    .conv-item { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; }
+    .conv-item:hover { background: rgba(255,255,255,0.04); }
+    .conv-item.active { background: rgba(160,104,81,0.2); }
+    .conv-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .conv-name { font-size: 12px; font-weight: 500; }
+    .conv-phone { font-size: 10px; color: var(--gris); }
+    .conv-preview { font-size: 11px; color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .badge { font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge.in_progress { background: rgba(134,146,138,0.25); color: var(--gris); }
+    .badge.pending_confirmation, .badge.rescheduling { background: rgba(184,133,58,0.25); color: var(--naranja); }
+    .badge.scheduled, .badge.completed { background: rgba(76,122,92,0.25); color: var(--verde); }
+    .badge.escalated { background: rgba(176,58,46,0.3); color: #E08276; }
+    .empty { padding: 20px 16px; color: var(--gris); font-size: 12px; }
+
+    .detail { flex: 1; display: flex; flex-direction: column; background: var(--crema-suave); }
+    .detail-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--gris); }
+    .detail-head { padding: 16px 22px; border-bottom: 1px solid var(--borde); background: var(--blanco); display: flex; justify-content: space-between; align-items: center; }
+    .detail-head h2 { font-size: 14px; }
+    .detail-head .sub { font-size: 11px; color: var(--gris); margin-top: 2px; }
+    .thread { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; }
+    .msg { max-width: 70%; padding: 9px 12px; border-radius: 8px; font-size: 12.5px; white-space: pre-wrap; }
+    .msg.user { align-self: flex-start; background: var(--blanco); border: 1px solid var(--borde); }
+    .msg.assistant { align-self: flex-end; background: var(--negro); color: var(--crema); }
+    .msg.human { align-self: flex-end; background: var(--terracota); color: var(--blanco); }
+    .msg .role-tag { font-size: 9px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; display: block; }
+    .reply-box { padding: 14px 22px; border-top: 1px solid var(--borde); background: var(--blanco); display: flex; gap: 8px; }
+    .reply-box textarea { flex: 1; padding: 9px 11px; border: 1px solid var(--borde); border-radius: 4px; resize: none; font-size: 13px; min-height: 42px; }
+    .reply-box button { padding: 0 18px; background: var(--terracota); color: var(--blanco); border: none; border-radius: 4px; cursor: pointer; font-weight: 500; }
+    .reply-box button:hover { background: #8a5744; }
+    .reply-box button:disabled { opacity: 0.5; cursor: default; }
+  </style>
+</head>
+<body>
+  <div id="login">
+    <h1>Leads — Akanto Estudio</h1>
+    <input id="tokenInput" type="password" placeholder="Token de administrador" />
+    <div class="err" id="loginErr"></div>
+    <button id="loginBtn">Entrar</button>
+  </div>
+
+  <div id="app">
+    <div class="shell">
+      <div class="list">
+        <div class="list-head">
+          <h1>Conversaciones</h1>
+          <span id="countLabel"></span>
+        </div>
+        <div id="convList"></div>
+      </div>
+      <div class="detail" id="detail">
+        <div class="detail-empty">Selecciona una conversación</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STATUS_LABELS = {
+      in_progress: 'En curso',
+      pending_confirmation: 'Confirmando',
+      scheduled: 'Agendado',
+      rescheduling: 'Reagendando',
+      escalated: 'Escalado',
+      completed: 'Completado',
+    };
+
+    let token = localStorage.getItem('akanto_admin_token') || '';
+    let currentPhone = null;
+    let pollTimer = null;
+
+    function api(path, opts = {}) {
+      return fetch(path, {
+        ...opts,
+        headers: { ...(opts.headers || {}), 'x-admin-token': token },
+      }).then(async (r) => {
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `HTTP ${r.status}`);
+        return r.json();
+      });
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', tryLogin);
+    document.getElementById('tokenInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+
+    async function tryLogin() {
+      const val = document.getElementById('tokenInput').value.trim();
+      if (!val) return;
+      token = val;
+      try {
+        await api('/leads-agent/admin/api/conversations');
+        localStorage.setItem('akanto_admin_token', token);
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadList();
+        pollTimer = setInterval(loadList, 8000);
+      } catch (e) {
+        document.getElementById('loginErr').textContent = 'Token inválido';
+      }
+    }
+
+    function timeAgo(iso) {
+      if (!iso) return '';
+      const diffMs = Date.now() - new Date(iso).getTime();
+      const min = Math.round(diffMs / 60000);
+      if (min < 1) return 'ahora';
+      if (min < 60) return `${min} min`;
+      const h = Math.round(min / 60);
+      if (h < 24) return `${h} h`;
+      return `${Math.round(h / 24)} d`;
+    }
+
+    async function loadList() {
+      const items = await api('/leads-agent/admin/api/conversations');
+      document.getElementById('countLabel').textContent = `${items.length} ${items.length === 1 ? 'conversación' : 'conversaciones'}`;
+      const list = document.getElementById('convList');
+      if (items.length === 0) {
+        list.innerHTML = '<div class="empty">Sin conversaciones todavía.</div>';
+        return;
+      }
+      list.innerHTML = items.map((c) => `
+        <div class="conv-item ${c.phone === currentPhone ? 'active' : ''}" data-phone="${c.phone}">
+          <div class="conv-top">
+            <span class="conv-name">${escapeHtml(c.nombre || c.phone)}</span>
+            <span class="badge ${c.status}">${STATUS_LABELS[c.status] || c.status}</span>
+          </div>
+          <div class="conv-phone">${c.phone} · ${timeAgo(c.updatedAt)}</div>
+          <div class="conv-preview">${escapeHtml(c.lastMessage?.content || '')}</div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.conv-item').forEach((el) => {
+        el.addEventListener('click', () => openConversation(el.dataset.phone));
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function openConversation(phone) {
+      currentPhone = phone;
+      await loadList();
+      const conv = await api(`/leads-agent/admin/api/conversations/${phone}`);
+      renderDetail(conv);
+    }
+
+    function renderDetail(conv) {
+      const detail = document.getElementById('detail');
+      const nombre = conv.collected?.nombre || conv.phone;
+      const tipo = conv.collected?.tipo_proyecto ? ` · ${conv.collected.tipo_proyecto}` : '';
+      const ciudad = conv.collected?.ciudad ? ` · ${conv.collected.ciudad}` : '';
+      detail.innerHTML = `
+        <div class="detail-head">
+          <div>
+            <h2>${escapeHtml(nombre)}</h2>
+            <div class="sub">${conv.phone}${tipo}${ciudad}</div>
+          </div>
+          <span class="badge ${conv.status}">${STATUS_LABELS[conv.status] || conv.status}</span>
+        </div>
+        <div class="thread" id="thread">
+          ${(conv.messages || []).map((m) => `
+            <div class="msg ${m.role}">
+              <span class="role-tag">${m.role === 'user' ? nombre : m.role === 'human' ? 'Tú' : 'Bot'}</span>
+              ${escapeHtml(m.content)}
+            </div>
+          `).join('')}
+        </div>
+        <div class="reply-box">
+          <textarea id="replyText" placeholder="Escribe una respuesta manual..."></textarea>
+          <button id="sendBtn">Enviar</button>
+        </div>
+      `;
+      const thread = document.getElementById('thread');
+      thread.scrollTop = thread.scrollHeight;
+      document.getElementById('sendBtn').addEventListener('click', () => sendReply(conv.phone));
+      document.getElementById('replyText').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(conv.phone); }
+      });
+    }
+
+    async function sendReply(phone) {
+      const textarea = document.getElementById('replyText');
+      const text = textarea.value.trim();
+      if (!text) return;
+      const btn = document.getElementById('sendBtn');
+      btn.disabled = true;
+      try {
+        await api(`/leads-agent/admin/api/conversations/${phone}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
+        textarea.value = '';
+        const conv = await api(`/leads-agent/admin/api/conversations/${phone}`);
+        renderDetail(conv);
+        loadList();
+      } catch (e) {
+        alert('Error enviando: ' + e.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    if (token) {
+      document.getElementById('tokenInput').value = token;
+      tryLogin();
+    }
+  </script>
+</body>
+</html>

@@ -65,10 +65,25 @@ function getMostRecentByStatus(status) {
   return best;
 }
 
+// Lista todas las conversaciones, más recientes primero. Usado por el panel de administración.
+function listConversations() {
+  const files = fs.readdirSync(LEADS_DIR).filter((f) => f.endsWith('.json'));
+  const conversations = [];
+  for (const f of files) {
+    try {
+      conversations.push(JSON.parse(fs.readFileSync(path.join(LEADS_DIR, f), 'utf8')));
+    } catch (e) {
+      // ignora archivos corruptos
+    }
+  }
+  return conversations.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+}
+
 module.exports = {
   getConversation,
   saveConversation,
   appendMessage,
   sanitizePhone,
   getMostRecentByStatus,
+  listConversations,
 };
