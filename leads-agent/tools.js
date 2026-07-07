@@ -22,8 +22,10 @@ const toolDefinitions = [
       properties: {
         tipo_proyecto: {
           type: 'string',
-          enum: ['consultorio', 'espacio_comercial', 'mobiliario'],
-          description: 'Tipo de proyecto del lead. "mobiliario" es para leads que solo buscan desarrollo de muebles.',
+          description:
+            'Tipo de proyecto del lead, tal cual lo respondió. Usa "consultorio" o ' +
+            '"espacio_comercial" cuando aplique; si el lead dice algo distinto (mobiliario/muebles, ' +
+            'apartamento, vivienda, etc.), usa una versión corta de su respuesta tal cual.',
         },
         m2: {
           type: 'string',
@@ -139,6 +141,7 @@ async function handleSubmitQualifiedLead(input, context) {
 
   const state = store.getConversation(phone);
   state.collected = { ...state.collected, ...input, nombre };
+  store.saveConversation(phone, state);
 
   const enHorarioLaboral = (input.franjas_disponibilidad || []).filter(calendar.isWithinBusinessHours);
   if (enHorarioLaboral.length === 0) {
