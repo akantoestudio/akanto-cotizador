@@ -95,6 +95,18 @@ app.post('/api/cotizaciones', (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error al guardar cotización' }); }
 });
 
+app.put('/api/cotizaciones/:key', (req, res) => {
+  try {
+    const state = req.body;
+    if (!state || typeof state !== 'object') return res.status(400).json({ error: 'Datos inválidos' });
+    const file = path.join(COT_DIR, req.params.key + '.json');
+    if (!fs.existsSync(file)) return res.status(404).json({ error: 'No encontrada' });
+    state.savedAt = new Date().toISOString();
+    fs.writeFileSync(file, JSON.stringify(state, null, 2));
+    res.json({ ok: true, key: req.params.key });
+  } catch (e) { res.status(500).json({ error: 'Error al actualizar cotización' }); }
+});
+
 app.delete('/api/cotizaciones/:key', (req, res) => {
   try {
     const file = path.join(COT_DIR, req.params.key + '.json');

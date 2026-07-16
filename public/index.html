@@ -539,6 +539,7 @@ const CONDICIONES_DEFAULT = [
 
 let items = [];
 let condiciones = [...CONDICIONES_DEFAULT];
+let currentCotKey = null; // clave del archivo activo en servidor
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -983,6 +984,7 @@ function limpiar() {
   if (!confirm('¿Crear una cotización nueva? Se perderán los cambios no guardados.')) return;
   items = [];
   condiciones = [...CONDICIONES_DEFAULT];
+  currentCotKey = null;
   ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cot-num').value   = numAuto();
   document.getElementById('cot-fecha').value = hoy();
@@ -1043,18 +1045,25 @@ function showToast(msg, error = false) {
 async function guardarCotizacion() {
   const state = estadoActual();
   try {
-    const res  = await fetch('/api/cotizaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(state) });
+    let res;
+    if (currentCotKey) {
+      res = await fetch(`/api/cotizaciones/${encodeURIComponent(currentCotKey)}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(state) });
+    } else {
+      res = await fetch('/api/cotizaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(state) });
+    }
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
-    showToast('✓ Cotización guardada en el servidor');
+    if (!currentCotKey) currentCotKey = data.key;
+    showToast('✓ Cotización guardada');
   } catch (e) {
     showToast('✗ Error al guardar: ' + e.message, true);
   }
 }
 
-function cargarEstado(state) {
+function cargarEstado(state, key = null) {
   items = state.items || [];
   condiciones = state.condiciones || [...CONDICIONES_DEFAULT];
+  currentCotKey = key;
   if (state.cliente) {
     document.getElementById('cli-nombre').value = state.cliente.nombre || '';
     document.getElementById('cli-nit').value    = state.cliente.nit    || '';
@@ -1116,7 +1125,7 @@ async function verCotizacionesGuardadas() {
         const r = await fetch(`/api/cotizaciones/${encodeURIComponent(key)}`);
         const s = await r.json();
         document.body.removeChild(overlay);
-        cargarEstado(s);
+        cargarEstado(s, key);
       } catch { showToast('✗ Error al cargar la cotización', true); }
     };
 
