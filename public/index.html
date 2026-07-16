@@ -1129,6 +1129,67 @@ async function verCotizacionesGuardadas() {
       } catch { showToast('✗ Error al cargar la cotización', true); }
     };
 
+    const dup = document.createElement('button');
+    dup.textContent = '⧉';
+    dup.title = 'Duplicar cotización';
+    Object.assign(dup.style, { background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'3px', color:'var(--gris)', padding:'0 10px', cursor:'pointer', fontSize:'14px', flexShrink:0 });
+    dup.onmouseenter = () => { dup.style.background = 'rgba(255,255,255,0.14)'; dup.style.color = '#E2E2BD'; };
+    dup.onmouseleave = () => { dup.style.background = 'rgba(255,255,255,0.06)'; dup.style.color = 'var(--gris)'; };
+    dup.onclick = async () => {
+      dup.disabled = true;
+      try {
+        const r = await fetch(`/api/cotizaciones/${encodeURIComponent(key)}`);
+        const s = await r.json();
+        const numOrig = s.cotizacion?.num || '';
+        if (s.cotizacion) s.cotizacion.num = numOrig + '-COPIA';
+        delete s.savedAt;
+        const res = await fetch('/api/cotizaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(s) });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+
+        // Inserta la nueva fila en el diálogo sin cerrarlo
+        const newKey    = data.key;
+        const newNum    = s.cotizacion?.num || '';
+        const newCliente = s.cliente?.nombre || '(sin cliente)';
+        const newProy   = s.proyecto?.nombre || '';
+        const newLabel  = `${newNum} — ${newCliente}${newProy ? ' · ' + newProy : ''}`;
+        const newFecha  = new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+        const newRow = document.createElement('div');
+        Object.assign(newRow.style, { display:'flex', alignItems:'stretch', gap:'4px', marginBottom:'6px' });
+
+        const newBtn = document.createElement('button');
+        newBtn.innerHTML = `<span style="font-weight:600">${newLabel}</span><br><span style="font-size:10px;color:var(--gris)">${newFecha}</span>`;
+        Object.assign(newBtn.style, { flex:'1', textAlign:'left', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'3px', color:'#E2E2BD', padding:'8px 10px', cursor:'pointer', fontSize:'11px', lineHeight:'1.6' });
+        newBtn.onmouseenter = () => newBtn.style.background = 'rgba(160,104,81,0.25)';
+        newBtn.onmouseleave = () => newBtn.style.background = 'rgba(255,255,255,0.05)';
+        newBtn.onclick = async () => {
+          try {
+            const rr = await fetch(`/api/cotizaciones/${encodeURIComponent(newKey)}`);
+            const ss = await rr.json();
+            document.body.removeChild(overlay);
+            cargarEstado(ss, newKey);
+          } catch { showToast('✗ Error al cargar la cotización', true); }
+        };
+
+        const newDel = document.createElement('button');
+        newDel.textContent = '🗑'; newDel.title = 'Eliminar'; newDel.dataset.cot = newKey;
+        Object.assign(newDel.style, { background:'rgba(255,80,80,0.12)', border:'1px solid rgba(255,80,80,0.25)', borderRadius:'3px', color:'#ff8080', padding:'0 10px', cursor:'pointer', fontSize:'13px', flexShrink:0 });
+        newDel.onmouseenter = () => newDel.style.background = 'rgba(255,80,80,0.3)';
+        newDel.onmouseleave = () => newDel.style.background = 'rgba(255,80,80,0.12)';
+        newDel.onclick = async () => {
+          if (!confirm(`¿Eliminar "${newLabel}"?`)) return;
+          await fetch(`/api/cotizaciones/${encodeURIComponent(newKey)}`, { method:'DELETE' });
+          newRow.remove();
+        };
+
+        newRow.appendChild(newBtn); newRow.appendChild(newDel);
+        box.insertBefore(newRow, cerrar);
+        showToast('✓ Cotización duplicada');
+      } catch (e) { showToast('✗ Error al duplicar: ' + e.message, true); }
+      dup.disabled = false;
+    };
+
     const del = document.createElement('button');
     del.textContent = '🗑';
     del.title = 'Eliminar';
@@ -1146,6 +1207,7 @@ async function verCotizacionesGuardadas() {
     del.dataset.cot = key;
 
     row.appendChild(btn);
+    row.appendChild(dup);
     row.appendChild(del);
     box.appendChild(row);
   });
