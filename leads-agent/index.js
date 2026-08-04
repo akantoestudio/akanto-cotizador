@@ -1,5 +1,4 @@
 const express = require('express');
-const whatsapp = require('./whatsapp');
 const manychat = require('./manychat');
 const channels = require('./channels');
 const agent = require('./agent');
@@ -16,15 +15,11 @@ if (!process.env.ADMIN_TOKEN) {
   console.warn('[leads-agent] ADMIN_TOKEN no configurado — /leads-agent/admin queda sin protección.');
 }
 
-function rawBodySaver(req, res, buf) {
-  req.rawBody = buf;
-}
-
 async function routeIncomingMessage(channel, from, text, name) {
   const mariaJose = process.env.MARIA_JOSE_WHATSAPP_NUMBER;
-  if (channel === 'whatsapp' && mariaJose && store.sanitizePhone(from) === store.sanitizePhone(mariaJose)) {
+  if (channel !== 'instagram' && mariaJose && store.sanitizePhone(from) === store.sanitizePhone(mariaJose)) {
     const reply = await reschedule.handleMariaJoseMessage(text);
-    if (reply) await whatsapp.sendMessage(from, reply);
+    if (reply) await channels.notifyMariaJose(reply);
     return { reply };
   }
   const { reply } = await agent.handleIncomingLeadMessage(from, text, name, channel);
@@ -32,41 +27,9 @@ async function routeIncomingMessage(channel, from, text, name) {
   return { reply };
 }
 
-// Meta llama a este GET una vez, al configurar la URL del webhook en Meta Business Manager.
-router.get('/webhook/whatsapp', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-  if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN) {
-    return res.status(200).send(challenge);
-  }
-  return res.sendStatus(403);
-});
-
-// Mensajes entrantes de WhatsApp Business.
-router.post('/webhook/whatsapp', express.json({ verify: rawBodySaver }), async (req, res) => {
-  // Responde rápido — Meta reintenta la entrega si no recibe 200 en pocos segundos.
-  res.sendStatus(200);
-
-  const signature = req.headers['x-hub-signature-256'];
-  if (!whatsapp.verifySignature(req.rawBody, signature)) {
-    console.warn('[webhook] firma inválida — se ignora el mensaje');
-    return;
-  }
-
-  const incoming = whatsapp.parseIncomingMessage(req.body);
-  if (!incoming) return;
-
-  try {
-    await routeIncomingMessage('whatsapp', incoming.from, incoming.text, incoming.name);
-  } catch (e) {
-    console.error('[webhook] error procesando mensaje entrante', e);
-  }
-});
-
-// Mensajes entrantes de Instagram Direct, vía la acción "Solicitud externa" del flujo de
-// ManyChat (Instagram Default Reply) — reemplaza el webhook nativo de Meta para evitar
-// depender de la revisión de permisos de instagram_business_manage_messages.
+// Mensajes entrantes de WhatsApp e Instagram, vía la acción "Solicitud externa" de las
+// automatizaciones de ManyChat — evita depender de la revisión de permisos de mensajería de
+// Meta (tanto para Instagram como para WhatsApp).
 router.post('/webhook/manychat', express.json(), async (req, res) => {
   const token = req.headers['x-manychat-token'];
   if (!process.env.MANYCHAT_WEBHOOK_SECRET || token !== process.env.MANYCHAT_WEBHOOK_SECRET) {

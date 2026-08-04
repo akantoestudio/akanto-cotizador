@@ -1,6 +1,5 @@
 const calendar = require('./calendar');
 const sheets = require('./sheets');
-const whatsapp = require('./whatsapp');
 const channels = require('./channels');
 const store = require('./store');
 
@@ -173,8 +172,7 @@ async function handleSubmitQualifiedLead(input, context) {
     store.saveConversation(phone, state);
 
     if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
-      await whatsapp.sendMessage(
-        process.env.MARIA_JOSE_WHATSAPP_NUMBER,
+      await channels.notifyMariaJose(
         `¿Podrías atender una llamada con ${nombre} el ${horarioPropuesto} aunque tengas algo más agendado a esa hora? Es sobre ${tipoLabel} en ${input.ciudad}. Contesta sí o no.`
       );
     }
@@ -194,8 +192,7 @@ async function handleSubmitQualifiedLead(input, context) {
   });
 
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
-    await whatsapp.sendMessage(
-      process.env.MARIA_JOSE_WHATSAPP_NUMBER,
+    await channels.notifyMariaJose(
       `Quedó agendado: ${horario} con ${nombre} — ${tipoLabel}, ${input.ciudad}. ¿Te sirve o prefieres reagendar?`
     );
   }
@@ -247,8 +244,7 @@ async function handleEscalateToHuman(input, context) {
   store.saveConversation(phone, state);
 
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
-    await whatsapp.sendMessage(
-      process.env.MARIA_JOSE_WHATSAPP_NUMBER,
+    await channels.notifyMariaJose(
       `Un lead necesita atención humana (${input.motivo}). Contacto: ${channels.contactLabel(state)}${leadName ? ' — ' + leadName : ''}.`
     );
   }

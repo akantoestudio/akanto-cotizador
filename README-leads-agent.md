@@ -5,23 +5,24 @@ Motor del agente descrito en `Brief_Tecnico_Agente_Leads_Akanto.docx`, implement
 
 ## Cómo funciona (resumen)
 
-- `POST /webhook/whatsapp` recibe los mensajes de WhatsApp Business (Meta Cloud API).
-  `POST /webhook/instagram` recibe los mensajes de Instagram Direct (mismo Meta App).
-- Si el remitente es `MARIA_JOSE_WHATSAPP_NUMBER` (solo aplica al canal WhatsApp) →
-  `leads-agent/reschedule.js` maneja su respuesta (confirmar / reagendar) sin pasar por Claude.
+- `POST /webhook/manychat` recibe los mensajes de **WhatsApp e Instagram**, ambos vía ManyChat
+  (ver sección "WhatsApp e Instagram vía ManyChat" más abajo) — no se usa la Graph API de Meta
+  directamente para ninguno de los dos canales.
+- Si el remitente es `MARIA_JOSE_WHATSAPP_NUMBER` → `leads-agent/reschedule.js` maneja su
+  respuesta (confirmar / reagendar) sin pasar por Claude.
 - Si no → `leads-agent/agent.js` llama a Claude con el system prompt de `systemPrompt.js` y las
   tools de `tools.js` para calificar al lead y, cuando ya tiene los datos, agendar la llamada
   (Google Calendar), registrar la fila (Google Sheets) y notificar a María José (siempre por
   WhatsApp, sin importar de qué canal venga el lead).
-- El estado de cada conversación se guarda en `data/leads/<identificador>.json` (número de
-  WhatsApp o IGSID de Instagram — mismo patrón que `data/fichas` y `data/cotizaciones`,
-  persistente en el volumen de Railway). Cada archivo guarda un campo `channel`
-  (`whatsapp` | `instagram`) que determina por dónde se le responde al lead —
-  `leads-agent/channels.js` centraliza ese despacho.
+- El estado de cada conversación se guarda en `data/leads/<identificador>.json` (ID de
+  suscriptor de ManyChat — mismo patrón que `data/fichas` y `data/cotizaciones`, persistente en
+  el volumen de Railway). Cada archivo guarda un campo `channel` (`whatsapp` | `instagram`) que
+  determina por dónde se le responde al lead — `leads-agent/channels.js` centraliza ese
+  despacho, y `leads-agent/manychat.js` es el único cliente de envío/recepción real.
 
 ## Modo dry-run
 
-Si falta cualquier credencial (WhatsApp, Google, o `ANTHROPIC_API_KEY`), el módulo
+Si falta cualquier credencial (`MANYCHAT_API_KEY`, Google, o `ANTHROPIC_API_KEY`), el módulo
 correspondiente loguea en consola en vez de llamar a la API real — así se puede levantar el
 servidor y probar el motor de conversación sin tener todavía las cuentas configuradas.
 
@@ -59,54 +60,58 @@ lo confirmamos probando en vivo). Por eso se construyó un panel propio simple:
 ## Checklist — estado actual
 
 - [x] **Verificación de negocio de Akanto Estudio en Meta Business Manager** — completa.
-- [x] **Número de WhatsApp dedicado al agente** — se creó un número nuevo (no el que ya usaba
-      la oficina activamente), registrado vía Meta for Developers → WhatsApp → Configuración de
-      la API → Paso 2. Su Phone Number ID está en `WHATSAPP_PHONE_NUMBER_ID`.
+- [x] **Número de WhatsApp real de la oficina conectado directo a ManyChat** (+57 310 3960729)
+      — no pasa por nuestra propia app de Meta, ver sección de abajo.
 - [x] **Cuenta de Google Calendar/Sheets** — cuenta de servicio configurada, Calendar y Sheet
       compartidos con su email, IDs en `GOOGLE_CALENDAR_ID` / `GOOGLE_SHEET_ID`.
 - [x] **Hosting del servidor/webhook** — este mismo `akanto-app` en Railway, webhook apuntando a
-      `https://<dominio-railway>/webhook/whatsapp`.
+      `https://<dominio-railway>/webhook/manychat`.
 
-### Notas para si se agrega otro número de WhatsApp en el futuro
+## WhatsApp e Instagram vía ManyChat
 
-Cada número (o más precisamente cada WhatsApp Business Account / WABA) tiene que quedar
-**suscrito a esta app** para que los webhooks lleguen — no basta con registrarlo:
+Los dos canales están implementados en `leads-agent/manychat.js`. Se probó primero con la
+Graph API de Meta directamente para ambos (`instagram_business_manage_messages` y la
+integración nativa de WhatsApp Cloud API que existió en `leads-agent/whatsapp.js`), pero:
+- Instagram: Meta exige revisión formal (App Review) para esa mensajería incluso en modo
+  Desarrollo — tras varios intentos de revisión rechazados, se descartó.
+- WhatsApp: funcionaba bien de forma nativa, pero se migró también a ManyChat para tener todo
+  en una sola bandeja y poder reutilizar el mismo número real de la oficina sin necesitar un
+  segundo número dedicado solo para el bot (ManyChat permite pausar la automatización por
+  conversación y responder manualmente, resolviendo el problema original de "bot + humano en el
+  mismo número").
 
-```bash
-curl -X POST "https://graph.facebook.com/v20.0/<WABA_ID>/subscribed_apps" \
-  -H "Authorization: Bearer <WHATSAPP_ACCESS_TOKEN>"
-```
+Se optó por **ManyChat** como capa de transporte para ambos: ManyChat ya tiene su propia app de
+Meta aprobada, así que conectar las cuentas ahí es solo autorización normal, sin pasar por
+revisión.
 
-Verifica con un `GET` a la misma URL que devuelva el nombre de esta app ("Akanto Leads Agent")
-en la lista.
+**Cómo funciona**: ManyChat recibe el mensaje real (DM de Instagram o WhatsApp) y lo reenvía
+por webhook a `POST /webhook/manychat`, que corre la misma lógica (`agent.handleIncomingLeadMessage`)
+sin importar el canal. La respuesta se envía de vuelta al lead llamando a la API de envío de
+ManyChat (`leads-agent/manychat.js`), no a la Graph API de Meta.
 
-## Instagram Direct
-
-Segundo canal, implementado en `leads-agent/manychat.js`. Se probó primero con la Graph API de
-Meta directamente (`instagram_business_manage_messages`), pero Meta exige revisión formal
-(App Review) para esa mensajería incluso en modo Desarrollo — tras varios intentos de
-revisión rechazados, se optó por **ManyChat** como capa de transporte: ManyChat ya tiene su
-propia app de Meta aprobada, así que conectar la cuenta de Instagram ahí es solo autorización
-normal, sin pasar por revisión.
-
-**Cómo funciona**: ManyChat recibe el DM real de Instagram y lo reenvía por webhook a
-`POST /webhook/manychat`, que corre exactamente la misma lógica que WhatsApp
-(`agent.handleIncomingLeadMessage`). La respuesta se envía de vuelta al lead llamando a la API
-de envío de ManyChat (`leads-agent/manychat.js`), no a la Graph API de Meta.
-
-**Setup:**
-1. Cuenta de ManyChat conectada a @akanto.estudio (autorización simple, sin App Review).
-2. Automatización → **"Instagram Default Reply"** (Respuesta predeterminada — dispara con
-   cualquier DM entrante, no solo palabras clave) → acción **"Solicitud externa"**:
+**Setup (repetir por cada canal — Instagram y WhatsApp):**
+1. Cuenta/número conectado a ManyChat (autorización simple, sin App Review). Para WhatsApp, si
+   el número ya está registrado en una app de Meta propia, hay que **desregistrarlo** primero
+   (`POST /{phone_number_id}/deregister` con el token de esa app) para que ManyChat pueda
+   reclamarlo — es reversible, no borra el número ni su historial.
+2. Automatización → **"[Canal] Default Reply"** (Respuesta predeterminada — dispara con
+   cualquier mensaje entrante, no solo palabras clave; confirmar que el disparador esté
+   **habilitado**, no "Deshabilitado", y en modo **"every time"**, no "once per 24 hours") →
+   acción **"Solicitud externa"**:
    - URL: `https://<dominio>/webhook/manychat`
    - Método: POST
    - Header: `x-manychat-token` = mismo valor que `MANYCHAT_WEBHOOK_SECRET`
-   - Cuerpo:
+   - Cuerpo (pastillas de campo dinámico pegadas directo a las comillas, sin `<<` `>>` sueltos):
      ```json
-     { "subscriber_id": "<Id de contacto>", "text": "<Última entrada de texto>", "name": "<Nombre>" }
+     { "subscriber_id": "[Id de contacto]", "text": "[Última entrada de texto]", "name": "[Nombre]", "channel": "whatsapp" }
      ```
+     El campo `"channel"` va como texto **literal** (`"whatsapp"` o se omite/se pone `"instagram"`
+     para ese canal) — así el backend sabe por dónde responder.
 3. `MANYCHAT_API_KEY` se genera en ManyChat → Configuración → Extensiones → API — se usa para
-   que el backend pueda enviarle mensajes al lead de vuelta.
+   que el backend pueda enviarle mensajes al lead de vuelta. Un usuario del sistema puede
+   necesitar que se le asignen explícitamente los activos (Página/WhatsApp/Instagram) desde
+   **Usuarios del sistema → [usuario] → Asignar activos**, no solo desde la pestaña "Personas"
+   de la cuenta — son mecanismos distintos.
 4. Publicar el flujo ("Publicar en Vivo") en ManyChat.
 
 **Probar en dry-run** (sin `MANYCHAT_API_KEY` configurado, solo loguea en consola):

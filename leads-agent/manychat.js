@@ -43,7 +43,7 @@ function parseIncomingMessage(body) {
   const from = body?.subscriber_id;
   const text = body?.text;
   const name = body?.name || null;
-  const channel = body?.channel === 'whatsapp' ? 'whatsapp-manychat' : 'instagram';
+  const channel = body?.channel === 'whatsapp' ? 'whatsapp' : 'instagram';
   if (!from || !text) return null;
   return { from: String(from), text, name, channel };
 }
