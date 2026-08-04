@@ -77,7 +77,7 @@ router.post('/webhook/manychat', express.json(), async (req, res) => {
   if (!incoming) return res.status(400).json({ error: 'subscriber_id y text son requeridos' });
 
   try {
-    const result = await routeIncomingMessage('instagram', incoming.from, incoming.text, incoming.name);
+    const result = await routeIncomingMessage(incoming.channel, incoming.from, incoming.text, incoming.name);
     res.json({ reply: result.reply });
   } catch (e) {
     console.error('[webhook] error procesando mensaje entrante de manychat', e);

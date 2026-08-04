@@ -4,9 +4,9 @@ function isConfigured() {
   return Boolean(process.env.MANYCHAT_API_KEY);
 }
 
-async function sendMessage(subscriberId, text) {
+async function sendMessage(subscriberId, text, channel = 'instagram') {
   if (!isConfigured()) {
-    console.log(`[manychat:dry-run] → ${subscriberId}: ${text}`);
+    console.log(`[manychat:dry-run] → ${subscriberId} (${channel}): ${text}`);
     return { dryRun: true };
   }
   const res = await fetch(MANYCHAT_SEND_URL, {
@@ -19,10 +19,10 @@ async function sendMessage(subscriberId, text) {
       subscriber_id: subscriberId,
       data: {
         version: 'v2',
-        // Sin "type": "instagram" acá, ManyChat no sabe por qué canal enviar el mensaje y
-        // cae en una validación de Messenger que rechaza el envío con el error 3011
-        // ("necesita un tag"), incluso para respuestas inmediatas dentro de la ventana.
-        content: { type: 'instagram', messages: [{ type: 'text', text }] },
+        // Sin "type" acá, ManyChat no sabe por qué canal enviar el mensaje y cae en una
+        // validación de Messenger que rechaza el envío con el error 3011 ("necesita un tag"),
+        // incluso para respuestas inmediatas dentro de la ventana.
+        content: { type: channel, messages: [{ type: 'text', text }] },
       },
     }),
   });
@@ -31,18 +31,21 @@ async function sendMessage(subscriberId, text) {
     console.error('[manychat] error enviando mensaje', res.status, JSON.stringify(data));
     throw new Error(`ManyChat send failed: ${res.status}`);
   }
-  console.log(`[manychat] enviado a ${subscriberId}`, JSON.stringify(data));
+  console.log(`[manychat] enviado a ${subscriberId} (${channel})`, JSON.stringify(data));
   return data;
 }
 
-// Extrae { from, text, name } del body que manda la acción "Solicitud externa" del flujo de
-// ManyChat (Instagram Default Reply) — los nombres de campo los define el flujo, ver README.
+// Extrae { from, text, name, channel } del body que manda la acción "Solicitud externa" del
+// flujo de ManyChat correspondiente — los nombres de campo los define el flujo, ver README.
+// "channel" es un valor fijo (no dinámico) que se pone distinto en cada automatización de
+// ManyChat ("instagram" o "whatsapp"), para que sepamos por cuál canal responder.
 function parseIncomingMessage(body) {
   const from = body?.subscriber_id;
   const text = body?.text;
   const name = body?.name || null;
+  const channel = body?.channel === 'whatsapp' ? 'whatsapp-manychat' : 'instagram';
   if (!from || !text) return null;
-  return { from: String(from), text, name };
+  return { from: String(from), text, name, channel };
 }
 
 module.exports = { isConfigured, sendMessage, parseIncomingMessage };
