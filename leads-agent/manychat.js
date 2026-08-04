@@ -33,6 +33,7 @@ async function sendMessage(subscriberId, text) {
     console.error('[manychat] error enviando mensaje', res.status, data);
     throw new Error(`ManyChat send failed: ${res.status}`);
   }
+  console.log(`[manychat] enviado a ${subscriberId}`, JSON.stringify(data));
   return data;
 }
 
