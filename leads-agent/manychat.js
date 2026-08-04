@@ -21,11 +21,6 @@ async function sendMessage(subscriberId, text) {
         version: 'v2',
         content: { messages: [{ type: 'text', text }] },
       },
-      // Sin esto, ManyChat rechaza el envío si su registro de "última interacción" del
-      // suscriptor no alcanzó a actualizarse todavía (aunque el usuario acabe de escribir).
-      // HUMAN_AGENT es la etiqueta de Meta para respuestas de agente/bot a una consulta
-      // entrante, válida hasta 7 días después del último mensaje del usuario.
-      message_tag: 'HUMAN_AGENT',
     }),
   });
   const data = await res.json().catch(() => ({}));
