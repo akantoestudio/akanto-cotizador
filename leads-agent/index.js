@@ -1,6 +1,6 @@
 const express = require('express');
 const whatsapp = require('./whatsapp');
-const instagram = require('./instagram');
+const manychat = require('./manychat');
 const channels = require('./channels');
 const agent = require('./agent');
 const reschedule = require('./reschedule');
@@ -64,34 +64,24 @@ router.post('/webhook/whatsapp', express.json({ verify: rawBodySaver }), async (
   }
 });
 
-// Meta llama a este GET al configurar el webhook de Instagram (mismo mecanismo que WhatsApp).
-router.get('/webhook/instagram', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-  if (mode === 'subscribe' && token === process.env.INSTAGRAM_VERIFY_TOKEN) {
-    return res.status(200).send(challenge);
-  }
-  return res.sendStatus(403);
-});
-
-// Mensajes entrantes de Instagram Direct.
-router.post('/webhook/instagram', express.json({ verify: rawBodySaver }), async (req, res) => {
-  res.sendStatus(200);
-
-  const signature = req.headers['x-hub-signature-256'];
-  if (!whatsapp.verifySignature(req.rawBody, signature)) {
-    console.warn('[webhook] firma inválida (instagram) — se ignora el mensaje');
-    return;
+// Mensajes entrantes de Instagram Direct, vía la acción "Solicitud externa" del flujo de
+// ManyChat (Instagram Default Reply) — reemplaza el webhook nativo de Meta para evitar
+// depender de la revisión de permisos de instagram_business_manage_messages.
+router.post('/webhook/manychat', express.json(), async (req, res) => {
+  const token = req.headers['x-manychat-token'];
+  if (!process.env.MANYCHAT_WEBHOOK_SECRET || token !== process.env.MANYCHAT_WEBHOOK_SECRET) {
+    return res.status(401).json({ error: 'token inválido' });
   }
 
-  const incoming = instagram.parseIncomingMessage(req.body);
-  if (!incoming) return;
+  const incoming = manychat.parseIncomingMessage(req.body);
+  if (!incoming) return res.status(400).json({ error: 'subscriber_id y text son requeridos' });
 
   try {
-    await routeIncomingMessage('instagram', incoming.from, incoming.text, incoming.name);
+    const result = await routeIncomingMessage('instagram', incoming.from, incoming.text, incoming.name);
+    res.json({ reply: result.reply });
   } catch (e) {
-    console.error('[webhook] error procesando mensaje entrante de instagram', e);
+    console.error('[webhook] error procesando mensaje entrante de manychat', e);
+    res.status(500).json({ error: e.message });
   }
 });
 

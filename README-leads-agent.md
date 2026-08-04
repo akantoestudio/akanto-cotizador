@@ -82,46 +82,34 @@ en la lista.
 
 ## Instagram Direct
 
-Segundo canal, implementado en `leads-agent/instagram.js`. Reusa el mismo `META_APP_SECRET`
-para verificar la firma del webhook (misma app de Meta que WhatsApp).
+Segundo canal, implementado en `leads-agent/manychat.js`. Se probó primero con la Graph API de
+Meta directamente (`instagram_business_manage_messages`), pero Meta exige revisión formal
+(App Review) para esa mensajería incluso en modo Desarrollo — tras varios intentos de
+revisión rechazados, se optó por **ManyChat** como capa de transporte: ManyChat ya tiene su
+propia app de Meta aprobada, así que conectar la cuenta de Instagram ahí es solo autorización
+normal, sin pasar por revisión.
+
+**Cómo funciona**: ManyChat recibe el DM real de Instagram y lo reenvía por webhook a
+`POST /webhook/manychat`, que corre exactamente la misma lógica que WhatsApp
+(`agent.handleIncomingLeadMessage`). La respuesta se envía de vuelta al lead llamando a la API
+de envío de ManyChat (`leads-agent/manychat.js`), no a la Graph API de Meta.
 
 **Setup:**
-1. La cuenta de Instagram (@akanto.estudio) debe estar vinculada a una Página de Facebook
-   dentro del mismo Business Manager.
-2. En Meta for Developers → esta app → agregar el producto de **Instagram** (o Messenger, según
-   cómo lo presente la interfaz) → conectar la Página/cuenta de Instagram.
-3. Configurar el webhook de ese producto con Callback URL
-   `https://<dominio>/webhook/instagram` y el `INSTAGRAM_VERIFY_TOKEN` elegido.
-4. Suscribir la Página al campo `messages` (equivalente al paso de "Suscribir webhooks" que se
-   hizo para WhatsApp).
-5. Conseguir `INSTAGRAM_ACCESS_TOKEN` (token con permiso `instagram_manage_messages`) e
-   `INSTAGRAM_ACCOUNT_ID` (el ID que acepta la Graph API en `/​<ID>/messages` — probar en vivo
-   cuál ID es el correcto: el de la cuenta profesional de Instagram o el de la Página).
+1. Cuenta de ManyChat conectada a @akanto.estudio (autorización simple, sin App Review).
+2. Automatización → **"Instagram Default Reply"** (Respuesta predeterminada — dispara con
+   cualquier DM entrante, no solo palabras clave) → acción **"Solicitud externa"**:
+   - URL: `https://<dominio>/webhook/manychat`
+   - Método: POST
+   - Header: `x-manychat-token` = mismo valor que `MANYCHAT_WEBHOOK_SECRET`
+   - Cuerpo:
+     ```json
+     { "subscriber_id": "<Id de contacto>", "text": "<Última entrada de texto>", "name": "<Nombre>" }
+     ```
+3. `MANYCHAT_API_KEY` se genera en ManyChat → Configuración → Extensiones → API — se usa para
+   que el backend pueda enviarle mensajes al lead de vuelta.
+4. Publicar el flujo ("Publicar en Vivo") en ManyChat.
 
-### ⚠️ Pendiente: App Review de Meta
-
-Con todo lo anterior configurado (permisos agregados, Página suscrita al campo `messages`,
-webhook verificado), los mensajes reales de Instagram **todavía no llegan** — la API devuelve
-`"Application does not have the capability to make this API call"`. A diferencia de WhatsApp,
-la mensajería de Instagram (`instagram_business_manage_messages`) parece requerir que la app
-pase por **revisión de Meta (App Review)** antes de funcionar con cuentas reales, incluso en
-modo Desarrollo. Verificado:
-
-- Permisos `instagram_business_basic` e `instagram_business_manage_messages` agregados y en
-  estado "Listo para la prueba".
-- Página "Akanto Estudio" (ID `114120541484647`) suscrita correctamente a esta app para el
-  campo `messages` (confirmado por API).
-- Webhook `/webhook/instagram` verificado (GET exitoso), pero nunca recibe el POST real de un
-  DM entrante.
-- Se descartó que fuera la automatización nativa de Instagram ("AI Auto Replies") — se
-  desactivó y el problema persistió.
-
-**Siguiente paso**: enviar la app a revisión desde Meta for Developers → **Casos de uso → API
-de Instagram → Permisos y funciones**, solicitando `instagram_business_manage_messages` para
-uso en producción. El código ya está listo — en cuanto se apruebe, debería funcionar sin
-cambios adicionales.
-
-**Probar en dry-run** (sin credenciales de Instagram configuradas):
+**Probar en dry-run** (sin `MANYCHAT_API_KEY` configurado, solo loguea en consola):
 
 ```bash
 curl -X POST http://localhost:3000/leads-agent/simulate \
