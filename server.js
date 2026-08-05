@@ -7,10 +7,19 @@ const os      = require('os');
 const app      = express();
 const PORT     = process.env.PORT || 3000;
 const DATA       = path.join(__dirname, 'data', 'catalogo.json');
+const CATALOGO_SEED = path.join(__dirname, 'catalogo-seed', 'catalogo.default.json');
 const FICHAS_DIR = path.join(__dirname, 'data', 'fichas');
 const COT_DIR    = path.join(__dirname, 'data', 'cotizaciones');
 if (!fs.existsSync(FICHAS_DIR)) fs.mkdirSync(FICHAS_DIR, { recursive: true });
 if (!fs.existsSync(COT_DIR))    fs.mkdirSync(COT_DIR,    { recursive: true });
+// data/ vive en el volumen persistente de Railway — si el volumen se monta vacío o se
+// recrea, catalogo.json desaparece silenciosamente. catalogo-seed/ queda FUERA del volumen
+// (horneado en la imagen), así que siempre está disponible para restaurar un mínimo viable.
+if (!fs.existsSync(DATA) && fs.existsSync(CATALOGO_SEED)) {
+  fs.mkdirSync(path.dirname(DATA), { recursive: true });
+  fs.copyFileSync(CATALOGO_SEED, DATA);
+  console.warn('[catalogo] catalogo.json no existía — restaurado desde catalogo-seed/catalogo.default.json');
+}
 
 function getLocalIP() {
   for (const ifaces of Object.values(os.networkInterfaces())) {
