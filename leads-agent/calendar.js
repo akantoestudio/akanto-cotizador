@@ -7,6 +7,7 @@ const BUSINESS_DAYS = [1, 2, 3, 4, 5]; // lunes(1) a viernes(5) — domingo=0, s
 const BUSINESS_HOUR_START = 9; // 9:00am
 const BUSINESS_HOUR_END = 17; // usado para generar sugerencias de reagendamiento (última hora en punto: 4:00pm)
 const BUSINESS_LAST_CALL_MINUTES = 16 * 60 + 30; // 4:30pm — hora de inicio más tardía permitida
+const MINIMUM_NOTICE_HOURS = 4; // no se agenda con menos de esta anticipación
 
 function isConfigured() {
   return Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 && process.env.GOOGLE_CALENDAR_ID);
@@ -123,6 +124,12 @@ function isWithinBusinessHours(slot) {
   return parts.minutesSinceMidnight >= BUSINESS_HOUR_START * 60 && parts.minutesSinceMidnight <= BUSINESS_LAST_CALL_MINUTES;
 }
 
+// No se agenda con menos de MINIMUM_NOTICE_HOURS de anticipación desde el momento del mensaje.
+function hasMinimumNotice(slot, now = new Date()) {
+  const { start } = slotToRange(slot);
+  return start.getTime() - now.getTime() >= MINIMUM_NOTICE_HOURS * 60 * 60 * 1000;
+}
+
 function fechaStr(year, month, date) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
 }
@@ -176,5 +183,7 @@ module.exports = {
   findNextFreeSlots,
   slotToRange,
   isWithinBusinessHours,
+  hasMinimumNotice,
+  MINIMUM_NOTICE_HOURS,
   TIMEZONE,
 };

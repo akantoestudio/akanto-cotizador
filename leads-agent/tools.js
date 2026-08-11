@@ -150,12 +150,18 @@ async function handleSubmitQualifiedLead(input, context) {
     return { agendado: false, razon: 'fuera_de_horario_laboral' };
   }
 
-  const slot = await calendar.findMatchingSlot(enHorarioLaboral);
+  const conAnticipacion = enHorarioLaboral.filter((slot) => calendar.hasMinimumNotice(slot));
+  if (conAnticipacion.length === 0) {
+    store.saveConversation(phone, state);
+    return { agendado: false, razon: 'muy_poco_tiempo_de_anticipacion' };
+  }
+
+  const slot = await calendar.findMatchingSlot(conAnticipacion);
 
   if (!slot) {
     // Ninguna de las franjas propuestas está libre en el calendario de María José — en vez de
     // rechazar, le preguntamos directamente si puede atender la primera de todas formas.
-    const proposed = calendar.slotToRange(enHorarioLaboral[0]);
+    const proposed = calendar.slotToRange(conAnticipacion[0]);
     const horarioPropuesto = formatHorario(proposed.start);
 
     state.status = 'pending_confirmation';
