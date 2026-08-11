@@ -399,6 +399,18 @@
       <div class="sec-label" style="margin-top:8px">Términos y condiciones</div>
       <div id="cond-lista"></div>
       <button class="btn-add-blank" onclick="agregarCondicion()" style="margin-top:2px">+ Agregar condición</button>
+
+      <div class="sec-label" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
+        <span>Plan de pagos</span>
+        <div class="pagos-pct-bar"><span id="pagos-pct-total">0%</span></div>
+      </div>
+      <div class="pagos-presets">
+        <button class="pagos-preset-btn" onclick="aplicarPreset([30,30,15,15,10])">30/30/15/15/10</button>
+        <button class="pagos-preset-btn" onclick="aplicarPreset([60,15,15,10])">60/15/15/10</button>
+        <button class="pagos-preset-btn" onclick="aplicarPreset([50,50])">50/50</button>
+      </div>
+      <div id="pagos-lista"></div>
+      <button class="btn-add-blank" onclick="agregarPago()" style="margin-top:2px">+ Agregar pago</button>
     </div>
 
     <!-- SERVICIOS ACTIVOS -->
@@ -419,21 +431,6 @@
       <div class="total-row indent"><label>IVA s/Utilidad</label><span id="sb-iva">$0</span></div>
       <div class="total-row indent" id="sb-r-desc" style="display:none"><label>Descuento</label><span id="sb-desc" style="color:var(--terracota)">-$0</span></div>
       <div class="total-row grande"><label>Total</label><span id="sb-total">$0</span></div>
-    </div>
-
-    <!-- PLAN DE PAGOS -->
-    <div>
-      <div class="sec-label" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Plan de pagos</span>
-        <div class="pagos-pct-bar"><span id="pagos-pct-total">0%</span></div>
-      </div>
-      <div class="pagos-presets">
-        <button class="pagos-preset-btn" onclick="aplicarPreset([30,30,15,15,10])">30/30/15/15/10</button>
-        <button class="pagos-preset-btn" onclick="aplicarPreset([60,15,15,10])">60/15/15/10</button>
-        <button class="pagos-preset-btn" onclick="aplicarPreset([50,50])">50/50</button>
-      </div>
-      <div id="pagos-lista"></div>
-      <button class="btn-add-blank" onclick="agregarPago()" style="margin-top:2px">+ Agregar pago</button>
     </div>
 
   </div>
