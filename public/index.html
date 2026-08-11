@@ -122,6 +122,34 @@
     .total-row.grande label { color: var(--crema-cl); font-weight: 400; }
     .total-row.indent { padding-left: 8px; }
 
+    /* Plan de pagos – sidebar */
+    .pagos-presets { display: flex; gap: 5px; margin-bottom: 8px; }
+    .pagos-preset-btn { flex:1; padding: 5px 4px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--gris); border-radius: 3px; font-size: 9px; cursor: pointer; letter-spacing: 0.02em; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+    .pagos-preset-btn:hover { border-color: var(--terracota); color: var(--terracota-cl); }
+    .pago-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
+    .pago-row input[type="date"] { flex: 1.4; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: var(--crema); padding: 5px 6px; font-size: 11px; font-family: inherit; min-width: 0; }
+    .pago-row .pago-pct { width: 46px; flex-shrink: 0; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: var(--crema); padding: 5px 6px; font-size: 11px; font-family: inherit; text-align: right; }
+    .pago-row .pago-monto { flex: 1; font-size: 10px; color: var(--terracota-cl); text-align: right; white-space: nowrap; }
+    .pago-row .pago-del { background: transparent; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 14px; padding: 0 2px; flex-shrink: 0; }
+    .pago-row .pago-del:hover { color: #ff8080; }
+    .pagos-pct-bar { display: flex; justify-content: flex-end; font-size: 10px; margin-top: 2px; margin-bottom: 4px; }
+    .pagos-pct-bar span { color: var(--gris); }
+    .pagos-pct-bar span.ok { color: #7ec98a; }
+    .pagos-pct-bar span.over { color: #ff8080; }
+    /* Plan de pagos – documento */
+    .doc-pagos-wrap { padding: 0 44px 24px; page-break-inside: avoid; }
+    .doc-pagos-title { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--terracota); margin-bottom: 10px; }
+    .doc-pagos-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .doc-pagos-tabla thead tr { background: var(--negro); color: var(--crema); }
+    .doc-pagos-tabla thead th { padding: 7px 10px; text-align: left; font-weight: 600; letter-spacing: 0.05em; font-size: 10px; }
+    .doc-pagos-tabla thead th:last-child { text-align: right; }
+    .doc-pagos-tabla thead th:nth-child(3) { text-align: center; }
+    .doc-pagos-tabla tbody tr { border-bottom: 1px solid var(--borde); }
+    .doc-pagos-tabla tbody tr:last-child { border-bottom: 2px solid var(--terracota-cl); }
+    .doc-pagos-tabla tbody td { padding: 7px 10px; color: var(--negro-cl); }
+    .doc-pagos-tabla tbody td.center { text-align: center; color: var(--terracota); font-weight: 600; }
+    .doc-pagos-tabla tbody td.right { text-align: right; font-weight: 700; }
+
     /* ── PREVIEW ── */
     .preview-area { flex: 1; padding: 40px; display: flex; justify-content: center; overflow-y: auto; }
     .cotizacion { width: 100%; max-width: 800px; background: var(--blanco); box-shadow: 0 4px 40px rgba(0,0,0,0.14); }
@@ -393,6 +421,21 @@
       <div class="total-row grande"><label>Total</label><span id="sb-total">$0</span></div>
     </div>
 
+    <!-- PLAN DE PAGOS -->
+    <div>
+      <div class="sec-label" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Plan de pagos</span>
+        <div class="pagos-pct-bar"><span id="pagos-pct-total">0%</span></div>
+      </div>
+      <div class="pagos-presets">
+        <button class="pagos-preset-btn" onclick="aplicarPreset([30,30,15,15,10])">30/30/15/15/10</button>
+        <button class="pagos-preset-btn" onclick="aplicarPreset([60,15,15,10])">60/15/15/10</button>
+        <button class="pagos-preset-btn" onclick="aplicarPreset([50,50])">50/50</button>
+      </div>
+      <div id="pagos-lista"></div>
+      <button class="btn-add-blank" onclick="agregarPago()" style="margin-top:2px">+ Agregar pago</button>
+    </div>
+
   </div>
 
   <!-- BARRA DE NAVEGACIÓN RÁPIDA -->
@@ -480,6 +523,14 @@
       </div>
     </div>
 
+    <div class="doc-pagos-wrap" id="doc-pagos-wrap" style="display:none">
+      <div class="doc-pagos-title">Plan de pagos</div>
+      <table class="doc-pagos-tabla">
+        <thead><tr><th>Cuota</th><th>Fecha</th><th style="text-align:center">%</th><th style="text-align:right">Monto</th></tr></thead>
+        <tbody id="doc-pagos-body"></tbody>
+      </table>
+    </div>
+
     <div class="doc-notas">
       <div class="doc-notas-title">Términos y condiciones</div>
       <div id="d-notas"></div>
@@ -539,6 +590,7 @@ const CONDICIONES_DEFAULT = [
 
 let items = [];
 let condiciones = [...CONDICIONES_DEFAULT];
+let pagos = []; // plan de pagos: [{fecha, pct}]
 let currentCotKey = null; // clave del archivo activo en servidor
 
 /* ── INIT ── */
@@ -978,12 +1030,16 @@ function render() {
 
   /* sidebar items */
   renderSrvActivos();
+
+  /* plan de pagos */
+  renderPagos(total);
 }
 
 function limpiar() {
   if (!confirm('¿Crear una cotización nueva? Se perderán los cambios no guardados.')) return;
   items = [];
   condiciones = [...CONDICIONES_DEFAULT];
+  pagos = [];
   currentCotKey = null;
   ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cot-num').value   = numAuto();
@@ -992,12 +1048,66 @@ function limpiar() {
   render();
 }
 
+/* ── PLAN DE PAGOS ── */
+function agregarPago(pct) {
+  pagos.push({ fecha: '', pct: pct || 0 });
+  render();
+}
+
+function aplicarPreset(pcts) {
+  pagos = pcts.map(p => ({ fecha: '', pct: p }));
+  render();
+}
+
+function eliminarPago(i) {
+  pagos.splice(i, 1);
+  render();
+}
+
+function renderPagos(total) {
+  const lista = document.getElementById('pagos-lista');
+  if (!lista) return;
+  const mon = document.getElementById('cfg-moneda')?.value || 'COP';
+  const sumPct = pagos.reduce((s, p) => s + (parseFloat(p.pct) || 0), 0);
+  const pctEl = document.getElementById('pagos-pct-total');
+  if (pctEl) {
+    pctEl.textContent = sumPct + '%';
+    pctEl.className = sumPct === 100 ? 'ok' : sumPct > 100 ? 'over' : '';
+  }
+
+  lista.innerHTML = pagos.map((p, i) => `
+    <div class="pago-row">
+      <input type="date" value="${p.fecha || ''}" onchange="pagos[${i}].fecha=this.value;renderPagos(${total})" />
+      <input type="number" class="pago-pct" min="0" max="100" value="${p.pct || ''}" placeholder="%" onchange="pagos[${i}].pct=parseFloat(this.value)||0;renderPagos(${total})" />
+      <span class="pago-monto">${fmt(total * ((parseFloat(p.pct) || 0) / 100), mon)}</span>
+      <button class="pago-del" onclick="eliminarPago(${i})">×</button>
+    </div>`).join('');
+
+  // Documento
+  const wrap = document.getElementById('doc-pagos-wrap');
+  const tbody = document.getElementById('doc-pagos-body');
+  if (!wrap || !tbody) return;
+  if (!pagos.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  tbody.innerHTML = pagos.map((p, i) => {
+    const monto = total * ((parseFloat(p.pct) || 0) / 100);
+    const fechaStr = p.fecha ? new Date(p.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' }) : '—';
+    return `<tr>
+      <td>Cuota ${i + 1}</td>
+      <td>${fechaStr}</td>
+      <td class="center">${p.pct || 0}%</td>
+      <td class="right">${fmt(monto, mon)}</td>
+    </tr>`;
+  }).join('');
+}
+
 /* ── GUARDAR / CARGAR ── */
 function estadoActual() {
   return {
     v: 1,
     items,
     condiciones,
+    pagos,
     cliente: {
       nombre: document.getElementById('cli-nombre').value,
       nit:    document.getElementById('cli-nit').value,
@@ -1063,6 +1173,7 @@ async function guardarCotizacion() {
 function cargarEstado(state, key = null) {
   items = state.items || [];
   condiciones = state.condiciones || [...CONDICIONES_DEFAULT];
+  pagos = state.pagos || [];
   currentCotKey = key;
   if (state.cliente) {
     document.getElementById('cli-nombre').value = state.cliente.nombre || '';
