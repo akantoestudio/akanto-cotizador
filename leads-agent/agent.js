@@ -43,7 +43,10 @@ async function handleIncomingLeadMessage(phone, text, leadName, channel = 'whats
   for (let i = 0; i < MAX_TOOL_ITERATIONS && finalText === null; i++) {
     const response = await client.messages.create({
       model: MODEL,
-      max_tokens: 512,
+      // 512 se quedaba corto y truncaba la respuesta a mitad del razonamiento interno
+      // (extended thinking) en mensajes que requieren más cálculo, ej. fechas relativas
+      // ("el lunes en 15 días") — el modelo se quedaba sin espacio antes de responder.
+      max_tokens: 2048,
       system,
       tools: toolDefinitions,
       messages,
@@ -74,12 +77,12 @@ async function handleIncomingLeadMessage(phone, text, leadName, channel = 'whats
     messages.push({ role: 'user', content: toolResults });
   }
 
-  if (finalText === null) {
+  if (!finalText) {
+    // Cubre tanto null (se agotaron los intentos) como "" (Claude a veces devuelve un turno
+    // final sin texto, ej. justo después de invocar una tool sin nada más que agregar).
     finalText = 'Gracias por la información — dame un momento y seguimos.';
   }
-  if (finalText) {
-    store.appendMessage(phone, 'assistant', finalText);
-  }
+  store.appendMessage(phone, 'assistant', finalText);
 
   return { reply: finalText, state: store.getConversation(phone) };
 }

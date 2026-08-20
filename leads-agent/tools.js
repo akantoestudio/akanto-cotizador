@@ -55,6 +55,20 @@ const toolDefinitions = [
     },
   },
   {
+    name: 'submit_contact_phone',
+    description:
+      'Guarda el número de teléfono de contacto que dio el lead después de agendar la llamada ' +
+      '(solo aplica a Instagram, donde no tenemos su teléfono automáticamente como sí pasa en ' +
+      'WhatsApp). Llamar solo después de que submit_qualified_lead ya haya agendado la llamada.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        telefono: { type: 'string', description: 'Número de teléfono de contacto, tal cual lo dio el lead.' },
+      },
+      required: ['telefono'],
+    },
+  },
+  {
     name: 'escalate_to_human',
     description:
       'Escala la conversación a un humano cuando hay tono de urgencia o molestia, o el lead ' +
@@ -225,21 +239,39 @@ async function handlePendingConfirmationReply(phone, confirmed) {
       nombre: pending.nombre,
       contacto: pending.contacto,
     });
-    await channels.sendToLead(
-      state,
-      `¡Buenas noticias, ${pending.nombre}! María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!`
-    );
+    const pideTelefono = state.channel === 'instagram'
+      ? ' Una última cosa — ¿me compartes un número de teléfono de contacto, por si hace falta comunicarnos por otro medio?'
+      : '';
+    const mensajeConfirmacion = `¡Buenas noticias, ${pending.nombre}! María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!${pideTelefono}`;
+    await channels.sendToLead(state, mensajeConfirmacion);
+    // Sin esto, Claude no ve en el historial que ya se envió este mensaje (incluida la
+    // pregunta del teléfono) — lo trataría como si nunca se hubiera preguntado nada.
+    store.appendMessage(phone, 'assistant', mensajeConfirmacion, state.channel);
     return { confirmed: true, horario, nombre: pending.nombre };
   }
 
   state.status = 'in_progress';
   delete state.pendingConfirmation;
   store.saveConversation(phone, state);
-  await channels.sendToLead(
-    state,
-    `Ese horario finalmente no le funcionó a María José. ¿Me das 2-3 franjas alternativas (día y hora) para intentar de nuevo?`
-  );
+  const mensajeReagendar = `Ese horario finalmente no le funcionó a María José. ¿Me das 2-3 franjas alternativas (día y hora) para intentar de nuevo?`;
+  await channels.sendToLead(state, mensajeReagendar);
+  store.appendMessage(phone, 'assistant', mensajeReagendar, state.channel);
   return { confirmed: false, nombre: pending.nombre };
+}
+
+async function handleSubmitContactPhone(input, context) {
+  const { phone, leadName } = context;
+  const state = store.getConversation(phone);
+  state.collected = { ...state.collected, telefono_contacto: input.telefono };
+  store.saveConversation(phone, state);
+
+  if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
+    await channels.notifyMariaJose(
+      `Número de contacto de ${leadName || channels.contactLabel(state)}: ${input.telefono}`
+    );
+  }
+
+  return { guardado: true };
 }
 
 async function handleEscalateToHuman(input, context) {
@@ -260,6 +292,7 @@ async function handleEscalateToHuman(input, context) {
 
 const toolHandlers = {
   submit_qualified_lead: handleSubmitQualifiedLead,
+  submit_contact_phone: handleSubmitContactPhone,
   escalate_to_human: handleEscalateToHuman,
 };
 
