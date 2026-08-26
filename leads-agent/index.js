@@ -5,6 +5,7 @@ const agent = require('./agent');
 const reschedule = require('./reschedule');
 const store = require('./store');
 const adminRouter = require('./admin');
+const reminders = require('./reminders');
 
 const router = express.Router();
 
@@ -14,6 +15,8 @@ if (!process.env.LEADS_AGENT_SIMULATE_TOKEN) {
 if (!process.env.ADMIN_TOKEN) {
   console.warn('[leads-agent] ADMIN_TOKEN no configurado — /leads-agent/admin queda sin protección.');
 }
+
+reminders.start();
 
 async function routeIncomingMessage(channel, from, text, name) {
   const mariaJose = process.env.MARIA_JOSE_WHATSAPP_NUMBER;

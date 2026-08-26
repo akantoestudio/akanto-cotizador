@@ -242,7 +242,7 @@ async function handlePendingConfirmationReply(phone, confirmed) {
     const pideTelefono = state.channel === 'instagram'
       ? ' Una última cosa — ¿me compartes un número de teléfono de contacto, por si hace falta comunicarnos por otro medio?'
       : '';
-    const mensajeConfirmacion = `¡Buenas noticias, ${pending.nombre}! María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!${pideTelefono}`;
+    const mensajeConfirmacion = `¡Buenas noticias, ${pending.nombre}! La arquitecta María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!${pideTelefono}`;
     await channels.sendToLead(state, mensajeConfirmacion);
     // Sin esto, Claude no ve en el historial que ya se envió este mensaje (incluida la
     // pregunta del teléfono) — lo trataría como si nunca se hubiera preguntado nada.
@@ -253,7 +253,7 @@ async function handlePendingConfirmationReply(phone, confirmed) {
   state.status = 'in_progress';
   delete state.pendingConfirmation;
   store.saveConversation(phone, state);
-  const mensajeReagendar = `Ese horario finalmente no le funcionó a María José. ¿Me das 2-3 franjas alternativas (día y hora) para intentar de nuevo?`;
+  const mensajeReagendar = `Ese horario finalmente no le funcionó a la arquitecta María José. ¿Me das 2-3 franjas alternativas (día y hora) para intentar de nuevo?`;
   await channels.sendToLead(state, mensajeReagendar);
   store.appendMessage(phone, 'assistant', mensajeReagendar, state.channel);
   return { confirmed: false, nombre: pending.nombre };

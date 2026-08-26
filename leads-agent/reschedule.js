@@ -54,7 +54,7 @@ async function handleMariaJoseMessage(text) {
         delete pending.pendingRescheduleOptions;
         store.saveConversation(pending.phone, pending);
 
-        await channels.sendToLead(pending, `¡Buenas noticias! Movimos tu llamada con María José a ${horario}. Cualquier cosa me escribes.`);
+        await channels.sendToLead(pending, `¡Buenas noticias! Movimos tu llamada con la arquitecta María José a ${horario}. Cualquier cosa me escribes.`);
         return `Confirmado, quedó movido a ${horario}.`;
       }
     }
