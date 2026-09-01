@@ -324,7 +324,7 @@
   </div>
 
   <!-- Botones de acción -->
-  <div class="doc-actions">
+  <div class="doc-actions" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
     <button class="doc-action-btn" onclick="limpiar()">
       <span class="icon">✦</span><span>Nueva</span>
     </button>
@@ -333,6 +333,9 @@
     </button>
     <button class="doc-action-btn" onclick="guardarCotizacion()">
       <span class="icon">↓</span><span>Guardar</span>
+    </button>
+    <button class="doc-action-btn" onclick="compartirCotizacion()" title="Copiar link corto">
+      <span class="icon">⎘</span><span>Link</span>
     </button>
     <button class="doc-action-btn primary" onclick="window.print()">
       <span class="icon">⎙</span><span>PDF</span>
@@ -607,6 +610,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   buildCatalogo();
   renderCondiciones();
   render();
+
+  // Auto-cargar cotización si viene ?load=<key> en la URL
+  const loadKey = new URLSearchParams(location.search).get('load');
+  if (loadKey) {
+    try {
+      const r = await fetch(`/api/cotizaciones/${encodeURIComponent(loadKey)}`);
+      if (r.ok) { const s = await r.json(); cargarEstado(s, loadKey); }
+    } catch {}
+    history.replaceState(null, '', location.pathname);
+  }
 });
 
 /* ── UTILS ── */
@@ -1147,6 +1160,22 @@ function showToast(msg, error = false) {
   Object.assign(t.style, { position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)', background: error ? '#7a1e1e' : '#2a5c2a', color:'white', padding:'8px 18px', borderRadius:'4px', fontSize:'12px', zIndex:9999, transition:'opacity 0.4s' });
   document.body.appendChild(t);
   setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2200);
+}
+
+async function compartirCotizacion() {
+  try {
+    // Guardar primero si no tiene clave
+    if (!currentCotKey) await guardarCotizacion();
+    if (!currentCotKey) return;
+    const longUrl = `${location.origin}/api/cotizaciones/${encodeURIComponent(currentCotKey)}`;
+    const viewUrl = `${location.origin}/?load=${encodeURIComponent(currentCotKey)}`;
+    const r = await fetch('/api/short', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: viewUrl }) });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    const shortUrl = `${location.origin}/r/${d.id}`;
+    await navigator.clipboard.writeText(shortUrl).catch(() => {});
+    showToast('✓ Link copiado: ' + shortUrl);
+  } catch (e) { showToast('✗ Error: ' + e.message, true); }
 }
 
 async function guardarCotizacion() {

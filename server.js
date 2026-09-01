@@ -10,8 +10,10 @@ const DATA       = path.join(__dirname, 'data', 'catalogo.json');
 const CATALOGO_SEED = path.join(__dirname, 'catalogo-seed', 'catalogo.default.json');
 const FICHAS_DIR = path.join(__dirname, 'data', 'fichas');
 const COT_DIR    = path.join(__dirname, 'data', 'cotizaciones');
+const SHORT_DIR  = path.join(__dirname, 'data', 'short');
 if (!fs.existsSync(FICHAS_DIR)) fs.mkdirSync(FICHAS_DIR, { recursive: true });
 if (!fs.existsSync(COT_DIR))    fs.mkdirSync(COT_DIR,    { recursive: true });
+if (!fs.existsSync(SHORT_DIR))  fs.mkdirSync(SHORT_DIR,  { recursive: true });
 // data/ vive en el volumen persistente de Railway — si el volumen se monta vacío o se
 // recrea, catalogo.json desaparece silenciosamente. catalogo-seed/ queda FUERA del volumen
 // (horneado en la imagen), así que siempre está disponible para restaurar un mínimo viable.
@@ -164,6 +166,34 @@ app.delete('/api/fichas/:id', (req, res) => {
     if (fs.existsSync(file)) fs.unlinkSync(file);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: 'Error al eliminar ficha' }); }
+});
+
+/* ── ACORTADOR DE LINKS ── */
+function randomId(len = 7) {
+  const chars = 'abcdefghijkmnpqrstuvwxyz23456789';
+  let id = '';
+  for (let i = 0; i < len; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+}
+
+app.post('/api/short', (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url || typeof url !== 'string') return res.status(400).json({ error: 'URL requerida' });
+    let id;
+    do { id = randomId(); } while (fs.existsSync(path.join(SHORT_DIR, id + '.json')));
+    fs.writeFileSync(path.join(SHORT_DIR, id + '.json'), JSON.stringify({ url, createdAt: new Date().toISOString() }));
+    res.json({ ok: true, id });
+  } catch (e) { res.status(500).json({ error: 'Error al crear enlace' }); }
+});
+
+app.get('/r/:id', (req, res) => {
+  try {
+    const file = path.join(SHORT_DIR, req.params.id + '.json');
+    if (!fs.existsSync(file)) return res.status(404).send('Enlace no encontrado');
+    const { url } = JSON.parse(fs.readFileSync(file, 'utf8'));
+    res.redirect(301, url);
+  } catch (e) { res.status(500).send('Error al redirigir'); }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
