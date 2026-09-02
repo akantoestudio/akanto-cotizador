@@ -57,9 +57,9 @@ const toolDefinitions = [
   {
     name: 'submit_contact_phone',
     description:
-      'Guarda el número de teléfono de contacto que dio el lead después de agendar la llamada ' +
-      '(solo aplica a Instagram, donde no tenemos su teléfono automáticamente como sí pasa en ' +
-      'WhatsApp). Llamar solo después de que submit_qualified_lead ya haya agendado la llamada.',
+      'Guarda el número de teléfono de contacto que dio el lead después de agendar la llamada, ' +
+      'cuando no teníamos su dato de contacto real guardado de antes. Llamar solo después de ' +
+      'que submit_qualified_lead ya haya agendado la llamada.',
     input_schema: {
       type: 'object',
       properties: {
@@ -239,7 +239,7 @@ async function handlePendingConfirmationReply(phone, confirmed) {
       nombre: pending.nombre,
       contacto: pending.contacto,
     });
-    const pideTelefono = state.channel === 'instagram'
+    const pideTelefono = !state.contactoReal
       ? ' Una última cosa — ¿me compartes un número de teléfono de contacto, por si hace falta comunicarnos por otro medio?'
       : '';
     const mensajeConfirmacion = `¡Buenas noticias, ${pending.nombre}! La arquitecta María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!${pideTelefono}`;
@@ -263,6 +263,7 @@ async function handleSubmitContactPhone(input, context) {
   const { phone, leadName } = context;
   const state = store.getConversation(phone);
   state.collected = { ...state.collected, telefono_contacto: input.telefono };
+  state.contactoReal = input.telefono;
   store.saveConversation(phone, state);
 
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {

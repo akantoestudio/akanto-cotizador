@@ -36,7 +36,9 @@ async function handleIncomingLeadMessage(phone, text, leadName, channel = 'whats
   }
 
   const client = getClient();
-  const system = buildSystemPrompt({ leadName, channel });
+  // Si no tenemos guardado el teléfono/@usuario real del lead (más allá del ID interno de
+  // ManyChat), Claude debe pedirlo apenas se agende — sin importar el canal.
+  const system = buildSystemPrompt({ leadName, channel, faltaContacto: !current.contactoReal });
   const messages = toAnthropicMessages(store.getConversation(phone).messages);
   let finalText = null;
 
