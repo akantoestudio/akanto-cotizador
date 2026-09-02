@@ -21,9 +21,13 @@ function notifyMariaJose(text) {
   return manychat.sendMessage(process.env.MARIA_JOSE_WHATSAPP_NUMBER, text, 'whatsapp');
 }
 
+// Usa el dato de contacto real (teléfono de WhatsApp o @usuario de Instagram) cuando lo
+// tenemos guardado — conversationState.phone es el ID interno de suscriptor de ManyChat, no
+// sirve para que un humano contacte al lead por fuera del bot.
 function contactLabel(conversationState) {
   const label = CONTACT_LABELS[conversationState.channel] || CONTACT_LABELS.whatsapp;
-  return `${label}: ${conversationState.phone}`;
+  const dato = conversationState.contactoReal || conversationState.phone;
+  return `${label}: ${dato}`;
 }
 
 module.exports = { sendToLead, notifyMariaJose, contactLabel };

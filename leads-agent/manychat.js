@@ -35,17 +35,21 @@ async function sendMessage(subscriberId, text, channel = 'instagram') {
   return data;
 }
 
-// Extrae { from, text, name, channel } del body que manda la acción "Solicitud externa" del
-// flujo de ManyChat correspondiente — los nombres de campo los define el flujo, ver README.
-// "channel" es un valor fijo (no dinámico) que se pone distinto en cada automatización de
-// ManyChat ("instagram" o "whatsapp"), para que sepamos por cuál canal responder.
+// Extrae { from, text, name, channel, contactoReal } del body que manda la acción "Solicitud
+// externa" del flujo de ManyChat correspondiente — los nombres de campo los define el flujo,
+// ver README. "channel" es un valor fijo (no dinámico) que se pone distinto en cada
+// automatización de ManyChat ("instagram" o "whatsapp"), para que sepamos por cuál canal
+// responder. "contactoReal" es el teléfono real (WhatsApp) o @usuario (Instagram) — distinto
+// del ID interno de suscriptor que usamos como "from", y es lo que un humano necesita para
+// contactar al lead por fuera del bot.
 function parseIncomingMessage(body) {
   const from = body?.subscriber_id;
   const text = body?.text;
   const name = body?.name || null;
   const channel = body?.channel === 'whatsapp' ? 'whatsapp' : 'instagram';
+  const contactoReal = body?.contacto_real || null;
   if (!from || !text) return null;
-  return { from: String(from), text, name, channel };
+  return { from: String(from), text, name, channel, contactoReal };
 }
 
 module.exports = { isConfigured, sendMessage, parseIncomingMessage };
