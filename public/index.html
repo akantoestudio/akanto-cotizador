@@ -132,6 +132,10 @@
     .pago-row .pago-monto { flex: 1; font-size: 10px; color: var(--terracota-cl); text-align: right; white-space: nowrap; }
     .pago-row .pago-del { background: transparent; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 14px; padding: 0 2px; flex-shrink: 0; }
     .pago-row .pago-del:hover { color: #ff8080; }
+    .sg-order-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 5px 7px; font-size: 11px; color: var(--crema); }
+    .sg-order-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sg-order-btn { background: transparent; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 12px; padding: 0 2px; line-height: 1; flex-shrink: 0; }
+    .sg-order-btn:hover { color: var(--terracota-cl); }
     .pagos-pct-bar { display: flex; justify-content: flex-end; font-size: 10px; margin-top: 2px; margin-bottom: 4px; }
     .pagos-pct-bar span { color: var(--gris); }
     .pagos-pct-bar span.ok { color: #7ec98a; }
@@ -400,7 +404,10 @@
       </div>
       <div class="field"><label>Validez (días)</label><input id="cfg-validez" type="number" value="30" min="1" oninput="render()" /></div>
 
-      <div class="sec-label" style="margin-top:8px">Términos y condiciones</div>
+      <div class="sec-label" style="margin-top:8px">Orden de secciones</div>
+      <div id="sg-order-lista" style="margin-bottom:2px"></div>
+
+      <div class="sec-label" style="margin-top:10px">Términos y condiciones</div>
       <div id="cond-lista"></div>
       <button class="btn-add-blank" onclick="agregarCondicion()" style="margin-top:2px">+ Agregar condición</button>
 
@@ -592,6 +599,7 @@ const CONDICIONES_DEFAULT = [
 let items = [];
 let condiciones = [...CONDICIONES_DEFAULT];
 let pagos = []; // plan de pagos: [{fecha, pct}]
+let sgOrderManual = []; // orden personalizado de secciones
 let currentCotKey = null; // clave del archivo activo en servidor
 
 /* ── INIT ── */
@@ -786,6 +794,48 @@ function toggleCompsUI(btn) {
 }
 
 /* ── CONDICIONES ── */
+/* ── ORDEN DE SECCIONES ── */
+function getSgActivos() {
+  const seen = new Set();
+  const order = [...Object.keys(GRUPOS_SUBTOTAL)];
+  items.forEach(it => {
+    const sg = getSuperGrupo(getCatDeItem(it));
+    if (!order.includes(sg)) order.push(sg);
+  });
+  return order.filter(sg => {
+    if (seen.has(sg)) return false;
+    seen.add(sg);
+    return items.some(it => getSuperGrupo(getCatDeItem(it)) === sg);
+  });
+}
+
+function renderSgOrder() {
+  const lista = document.getElementById('sg-order-lista');
+  if (!lista) return;
+  const activos = getSgActivos();
+  // Sincronizar sgOrderManual con secciones activas
+  activos.forEach(sg => { if (!sgOrderManual.includes(sg)) sgOrderManual.push(sg); });
+  sgOrderManual = sgOrderManual.filter(sg => activos.includes(sg));
+
+  if (!activos.length) {
+    lista.innerHTML = '<div style="font-size:10px;color:var(--gris);padding:4px 0">Sin secciones todavía</div>';
+    return;
+  }
+  lista.innerHTML = sgOrderManual.map((sg, i) => `
+    <div class="sg-order-row">
+      <span title="${esc(sg)}">${esc(sg)}</span>
+      <button class="sg-order-btn" onclick="moverSg(${i},-1)" ${i===0?'disabled style="opacity:0.2"':''}>↑</button>
+      <button class="sg-order-btn" onclick="moverSg(${i},1)" ${i===sgOrderManual.length-1?'disabled style="opacity:0.2"':''}>↓</button>
+    </div>`).join('');
+}
+
+function moverSg(idx, dir) {
+  const j = idx + dir;
+  if (j < 0 || j >= sgOrderManual.length) return;
+  [sgOrderManual[idx], sgOrderManual[j]] = [sgOrderManual[j], sgOrderManual[idx]];
+  render();
+}
+
 function renderCondiciones() {
   const c = document.getElementById('cond-lista');
   c.innerHTML = '';
@@ -954,9 +1004,12 @@ function render() {
       if (!sgMap[sg]) sgMap[sg] = [];
       sgMap[sg].push({ ...it, _cat: cat });
     });
-    const sgOrder = [...Object.keys(GRUPOS_SUBTOTAL)];
-    Object.keys(sgMap).forEach(sg => { if (!sgOrder.includes(sg)) sgOrder.push(sg); });
-    const activeSGs = sgOrder.filter(sg => sgMap[sg]);
+    // Usar orden manual si existe, sino el orden del catálogo
+    const sgBase = [...Object.keys(GRUPOS_SUBTOTAL)];
+    Object.keys(sgMap).forEach(sg => { if (!sgBase.includes(sg)) sgBase.push(sg); });
+    sgBase.forEach(sg => { if (!sgOrderManual.includes(sg)) sgOrderManual.push(sg); });
+    sgOrderManual = sgOrderManual.filter(sg => sgBase.includes(sg));
+    const activeSGs = sgOrderManual.filter(sg => sgMap[sg]);
     let html = '';
     activeSGs.forEach((sg, sgIdx) => {
       // Espaciador entre secciones
@@ -1044,6 +1097,8 @@ function render() {
 
   /* plan de pagos */
   renderPagos(total);
+  /* orden de secciones */
+  renderSgOrder();
 }
 
 function limpiar() {
@@ -1051,6 +1106,7 @@ function limpiar() {
   items = [];
   condiciones = [...CONDICIONES_DEFAULT];
   pagos = [];
+  sgOrderManual = [];
   currentCotKey = null;
   ['cli-nombre','cli-nit','cli-email','cli-tel','cli-ciudad','proy-nombre','proy-desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('cot-num').value   = numAuto();
@@ -1119,6 +1175,7 @@ function estadoActual() {
     items,
     condiciones,
     pagos,
+    sgOrderManual,
     cliente: {
       nombre: document.getElementById('cli-nombre').value,
       nit:    document.getElementById('cli-nit').value,
@@ -1229,6 +1286,7 @@ function cargarEstado(state, key = null) {
   items = state.items || [];
   condiciones = state.condiciones || [...CONDICIONES_DEFAULT];
   pagos = state.pagos || [];
+  sgOrderManual = state.sgOrderManual || [];
   currentCotKey = key;
   if (state.cliente) {
     document.getElementById('cli-nombre').value = state.cliente.nombre || '';
