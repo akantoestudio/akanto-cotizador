@@ -1274,7 +1274,7 @@ async function verCotizacionesGuardadas() {
     <button id="btn-importar-json" style="width:100%;margin-bottom:12px;padding:8px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.2);border-radius:3px;color:var(--gris);font-size:10px;cursor:pointer;font-family:inherit;letter-spacing:0.03em">⬆ Importar respaldo (.json)</button>
     ${!lista.length ? '<div style="color:var(--gris);font-size:11px;text-align:center;padding:10px 0">No hay cotizaciones guardadas en servidor</div>' : ''}`;
 
-  document.getElementById('btn-importar-json').onclick = () => {
+  box.querySelector('#btn-importar-json').onclick = () => {
     document.body.removeChild(overlay);
     document.getElementById('import-json-input').click();
   };
