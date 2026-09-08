@@ -1191,6 +1191,20 @@ function renderPagos(total) {
     </div>`;
   }).join('');
 
+  // Fila de totales
+  if (pagos.length) {
+    const sumMonto = pagos.reduce((s, p) => s + pagoMonto(p, total), 0);
+    const sumPctFinal = pagos.reduce((s, p) => s + (parseFloat(p.pct) || 0), 0);
+    const diff = Math.round(total - sumMonto);
+    const diffColor = diff === 0 ? '#7ec98a' : '#ff8080';
+    lista.innerHTML += `<div style="display:flex;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);font-size:10px;color:var(--gris);">
+      <span style="flex:1.4;text-align:right;color:var(--gris)">Total</span>
+      <span style="width:46px;flex-shrink:0;text-align:right;color:${sumPctFinal===100?'#7ec98a':'var(--gris)'};">${sumPctFinal}%</span>
+      <span style="flex:1.4;text-align:right;color:var(--terracota-cl);font-weight:600;">${fmt(sumMonto, mon)}</span>
+      <span style="width:14px;flex-shrink:0;text-align:right;color:${diffColor};font-size:9px;" title="${diff===0?'Cuadra con el total':'Diferencia: '+fmt(Math.abs(diff),mon)}">${diff===0?'✓':diff>0?'↑':'↓'}</span>
+    </div>`;
+  }
+
   // Documento
   const wrap = document.getElementById('doc-pagos-wrap');
   const tbody = document.getElementById('doc-pagos-body');
