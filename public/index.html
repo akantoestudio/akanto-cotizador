@@ -1132,8 +1132,33 @@ function eliminarPago(i) {
   render();
 }
 
+function getTotalActual() {
+  const sub   = items.reduce((a, it) => a + it.cant * it.precio, 0);
+  const pAdmin  = parseFloat(document.getElementById('cfg-admin')?.value) || 0;
+  const pImprev = parseFloat(document.getElementById('cfg-imprev')?.value) || 0;
+  const pUtil   = parseFloat(document.getElementById('cfg-util')?.value) || 0;
+  const pDesc   = parseFloat(document.getElementById('cfg-desc')?.value) || 0;
+  const admin = sub * pAdmin / 100;
+  const imprev = sub * pImprev / 100;
+  const util  = sub * pUtil / 100;
+  const iva   = util * 0.19;
+  const desc  = (sub + admin + imprev + util + iva) * pDesc / 100;
+  return sub + admin + imprev + util + iva - desc;
+}
+
+function setPagoMonto(i, rawVal) {
+  const total = getTotalActual();
+  const v = parseFloat(rawVal);
+  if (!v) {
+    pagos[i].monto_ov = null;
+  } else {
+    pagos[i].monto_ov = v;
+    pagos[i].pct = total > 0 ? Math.round(v / total * 1000) / 10 : pagos[i].pct;
+  }
+  render();
+}
+
 function pagoMonto(p, total) {
-  // Si tiene monto manual usa ese, sino calcula desde el %
   return p.monto_ov != null ? p.monto_ov : Math.round(total * ((parseFloat(p.pct) || 0) / 100));
 }
 
@@ -1142,7 +1167,6 @@ function renderPagos(total) {
   if (!lista) return;
   const mon = document.getElementById('cfg-moneda')?.value || 'COP';
 
-  // Barra de % (solo suma los % declarados)
   const sumPct = pagos.reduce((s, p) => s + (parseFloat(p.pct) || 0), 0);
   const pctEl = document.getElementById('pagos-pct-total');
   if (pctEl) {
@@ -1155,17 +1179,14 @@ function renderPagos(total) {
     const isManual = p.monto_ov != null;
     const montoVal = isManual ? p.monto_ov : montoAuto;
     return `<div class="pago-row">
-      <input type="date" value="${p.fecha || ''}" onchange="pagos[${i}].fecha=this.value;renderPagos(${total})" />
-      <input type="number" class="pago-pct" min="0" max="100" value="${p.pct || ''}" placeholder="%"
-        onchange="pagos[${i}].pct=parseFloat(this.value)||0; if(!pagos[${i}].monto_ov) renderPagos(${total}); else renderPagos(${total});" />
+      <input type="date" value="${p.fecha || ''}" onchange="pagos[${i}].fecha=this.value;render()" />
+      <input type="number" class="pago-pct" min="0" max="100" value="${p.pct !== undefined ? p.pct : ''}" placeholder="%"
+        title="Porcentaje"
+        onchange="pagos[${i}].pct=parseFloat(this.value)||0; pagos[${i}].monto_ov=null; render();" />
       <input type="number" class="pago-monto${isManual ? ' manual' : ''}" min="0" step="1000"
         value="${montoVal || ''}" placeholder="${fmt(montoAuto, mon)}"
-        title="${isManual ? 'Monto manual — borra para volver al calculado' : 'Auto desde %'}"
-        onchange="
-          const v=parseFloat(this.value);
-          if(!v){ pagos[${i}].monto_ov=null; }
-          else { pagos[${i}].monto_ov=v; pagos[${i}].pct=total>0?Math.round(v/total*1000)/10:pagos[${i}].pct; }
-          renderPagos(${total});" />
+        title="${isManual ? 'Monto manual — borra para volver al %' : 'Calculado desde %'}"
+        onchange="setPagoMonto(${i}, this.value)" />
       <button class="pago-del" onclick="eliminarPago(${i})">×</button>
     </div>`;
   }).join('');
