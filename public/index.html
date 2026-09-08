@@ -129,7 +129,8 @@
     .pago-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
     .pago-row input[type="date"] { flex: 1.4; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: var(--crema); padding: 5px 6px; font-size: 11px; font-family: inherit; min-width: 0; }
     .pago-row .pago-pct { width: 46px; flex-shrink: 0; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: var(--crema); padding: 5px 6px; font-size: 11px; font-family: inherit; text-align: right; }
-    .pago-row .pago-monto { flex: 1; font-size: 10px; color: var(--terracota-cl); text-align: right; white-space: nowrap; }
+    .pago-row .pago-monto { flex: 1.4; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: var(--terracota-cl); padding: 5px 6px; font-size: 11px; font-family: inherit; text-align: right; min-width: 0; }
+    .pago-row .pago-monto.manual { border-color: var(--terracota-cl); color: var(--crema); }
     .pago-row .pago-del { background: transparent; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 14px; padding: 0 2px; flex-shrink: 0; }
     .pago-row .pago-del:hover { color: #ff8080; }
     .sg-order-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 5px 7px; font-size: 11px; color: var(--crema); }
@@ -1131,10 +1132,17 @@ function eliminarPago(i) {
   render();
 }
 
+function pagoMonto(p, total) {
+  // Si tiene monto manual usa ese, sino calcula desde el %
+  return p.monto_ov != null ? p.monto_ov : Math.round(total * ((parseFloat(p.pct) || 0) / 100));
+}
+
 function renderPagos(total) {
   const lista = document.getElementById('pagos-lista');
   if (!lista) return;
   const mon = document.getElementById('cfg-moneda')?.value || 'COP';
+
+  // Barra de % (solo suma los % declarados)
   const sumPct = pagos.reduce((s, p) => s + (parseFloat(p.pct) || 0), 0);
   const pctEl = document.getElementById('pagos-pct-total');
   if (pctEl) {
@@ -1142,13 +1150,25 @@ function renderPagos(total) {
     pctEl.className = sumPct === 100 ? 'ok' : sumPct > 100 ? 'over' : '';
   }
 
-  lista.innerHTML = pagos.map((p, i) => `
-    <div class="pago-row">
+  lista.innerHTML = pagos.map((p, i) => {
+    const montoAuto = Math.round(total * ((parseFloat(p.pct) || 0) / 100));
+    const isManual = p.monto_ov != null;
+    const montoVal = isManual ? p.monto_ov : montoAuto;
+    return `<div class="pago-row">
       <input type="date" value="${p.fecha || ''}" onchange="pagos[${i}].fecha=this.value;renderPagos(${total})" />
-      <input type="number" class="pago-pct" min="0" max="100" value="${p.pct || ''}" placeholder="%" onchange="pagos[${i}].pct=parseFloat(this.value)||0;renderPagos(${total})" />
-      <span class="pago-monto">${fmt(total * ((parseFloat(p.pct) || 0) / 100), mon)}</span>
+      <input type="number" class="pago-pct" min="0" max="100" value="${p.pct || ''}" placeholder="%"
+        onchange="pagos[${i}].pct=parseFloat(this.value)||0; if(!pagos[${i}].monto_ov) renderPagos(${total}); else renderPagos(${total});" />
+      <input type="number" class="pago-monto${isManual ? ' manual' : ''}" min="0" step="1000"
+        value="${montoVal || ''}" placeholder="${fmt(montoAuto, mon)}"
+        title="${isManual ? 'Monto manual — borra para volver al calculado' : 'Auto desde %'}"
+        onchange="
+          const v=parseFloat(this.value);
+          if(!v){ pagos[${i}].monto_ov=null; }
+          else { pagos[${i}].monto_ov=v; pagos[${i}].pct=total>0?Math.round(v/total*1000)/10:pagos[${i}].pct; }
+          renderPagos(${total});" />
       <button class="pago-del" onclick="eliminarPago(${i})">×</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Documento
   const wrap = document.getElementById('doc-pagos-wrap');
@@ -1157,7 +1177,7 @@ function renderPagos(total) {
   if (!pagos.length) { wrap.style.display = 'none'; return; }
   wrap.style.display = '';
   tbody.innerHTML = pagos.map((p, i) => {
-    const monto = total * ((parseFloat(p.pct) || 0) / 100);
+    const monto = pagoMonto(p, total);
     const fechaStr = p.fecha ? new Date(p.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' }) : '—';
     return `<tr>
       <td>Cuota ${i + 1}</td>
