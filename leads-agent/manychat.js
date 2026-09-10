@@ -42,12 +42,19 @@ async function sendMessage(subscriberId, text, channel = 'instagram') {
 // responder. "contactoReal" es el teléfono real (WhatsApp) o @usuario (Instagram) — distinto
 // del ID interno de suscriptor que usamos como "from", y es lo que un humano necesita para
 // contactar al lead por fuera del bot.
+// Un valor tipo "{{phone}}" es un merge tag de ManyChat que no se alcanzó a reemplazar (campo
+// vacío o tag inválido para ese canal) — no sirve como dato de contacto real.
+function limpiarContacto(valor) {
+  if (!valor || /^\s*\{\{.*\}\}\s*$/.test(valor)) return null;
+  return String(valor).trim() || null;
+}
+
 function parseIncomingMessage(body) {
   const from = body?.subscriber_id;
   const text = body?.text;
   const name = body?.name || null;
   const channel = body?.channel === 'whatsapp' ? 'whatsapp' : 'instagram';
-  const contactoReal = body?.contacto_real || null;
+  const contactoReal = limpiarContacto(body?.contacto_real);
   if (!from || !text) return null;
   return { from: String(from), text, name, channel, contactoReal };
 }
