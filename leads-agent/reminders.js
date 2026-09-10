@@ -3,7 +3,7 @@ const channels = require('./channels');
 const calendar = require('./calendar');
 
 const CHECK_INTERVAL_MS = 60 * 1000;
-const REMINDER_MINUTES_BEFORE = 10;
+const REMINDER_MINUTES_BEFORE = 5;
 
 function formatHorario(date) {
   return new Intl.DateTimeFormat('es-CO', {
