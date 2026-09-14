@@ -16,9 +16,19 @@ async function sendToLead(conversationState, text) {
 }
 
 // Notifica a María José por WhatsApp — siempre por su número fijo, sin importar de qué
-// conversación viene el aviso.
-function notifyMariaJose(text) {
-  return manychat.sendMessage(process.env.MARIA_JOSE_WHATSAPP_NUMBER, text, 'whatsapp');
+// conversación viene el aviso. También le llega una copia a NOTIFY_BACKUP_NUMBER si está
+// configurado (respaldo humano: ManyChat a veces reporta el envío como exitoso sin que el
+// mensaje realmente le llegue a María José, y así no se pierde un aviso importante).
+async function notifyMariaJose(text) {
+  const destinatarios = [process.env.MARIA_JOSE_WHATSAPP_NUMBER, process.env.NOTIFY_BACKUP_NUMBER].filter(Boolean);
+  const resultados = await Promise.allSettled(destinatarios.map((id) => manychat.sendMessage(id, text, 'whatsapp')));
+  const fallidos = resultados.filter((r) => r.status === 'rejected');
+  fallidos.forEach((r) => console.error('[channels] error notificando a un destinatario de respaldo', r.reason));
+  // Solo falla la función si NINGÚN envío tuvo éxito — un respaldo fallido no debe tumbar el
+  // flujo si el envío principal (María José) sí funcionó, y viceversa.
+  if (fallidos.length === resultados.length && resultados.length > 0) {
+    throw fallidos[0].reason;
+  }
 }
 
 // Usa el dato de contacto real (teléfono de WhatsApp o @usuario de Instagram) cuando lo
