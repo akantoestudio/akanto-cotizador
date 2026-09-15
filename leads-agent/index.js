@@ -18,9 +18,16 @@ if (!process.env.ADMIN_TOKEN) {
 
 reminders.start();
 
+// Números autorizados para responder al flujo determinístico de confirmar/reagendar (María
+// José y, como respaldo, el dueño del estudio) — cualquiera de los dos puede confirmar u
+// ofrecer una franja en nombre de ella si el otro no alcanza a contestar.
+function esRemitenteAutorizado(from) {
+  const autorizados = [process.env.MARIA_JOSE_WHATSAPP_NUMBER, process.env.NOTIFY_BACKUP_NUMBER].filter(Boolean);
+  return autorizados.some((id) => store.sanitizePhone(from) === store.sanitizePhone(id));
+}
+
 async function routeIncomingMessage(channel, from, text, name) {
-  const mariaJose = process.env.MARIA_JOSE_WHATSAPP_NUMBER;
-  if (channel !== 'instagram' && mariaJose && store.sanitizePhone(from) === store.sanitizePhone(mariaJose)) {
+  if (channel !== 'instagram' && esRemitenteAutorizado(from)) {
     const reply = await reschedule.handleMariaJoseMessage(text);
     if (reply) await channels.notifyMariaJose(reply);
     return { reply };
