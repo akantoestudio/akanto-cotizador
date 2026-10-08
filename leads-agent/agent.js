@@ -36,9 +36,12 @@ async function handleIncomingLeadMessage(phone, text, leadName, channel = 'whats
   }
 
   const client = getClient();
-  // Si no tenemos guardado el teléfono/@usuario real del lead (más allá del ID interno de
-  // ManyChat), Claude debe pedirlo apenas se agende — sin importar el canal.
-  const system = buildSystemPrompt({ leadName, channel, faltaContacto: !current.contactoReal });
+  // Si no tenemos un NÚMERO DE TELÉFONO real del lead, Claude debe pedirlo apenas se agende —
+  // sin importar el canal. OJO: no basta con mirar contactoReal — en Instagram ese campo se
+  // llena automáticamente con el @usuario desde el primer mensaje (viene de ManyChat), y un
+  // @usuario no sirve para que María José pueda llamar. Por eso se chequea específicamente el
+  // teléfono recolectado vía submit_contact_phone.
+  const system = buildSystemPrompt({ leadName, channel, faltaContacto: !current.collected?.telefono_contacto });
   const messages = toAnthropicMessages(store.getConversation(phone).messages);
   let finalText = null;
 

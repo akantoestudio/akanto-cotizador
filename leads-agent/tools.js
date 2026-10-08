@@ -239,7 +239,9 @@ async function handlePendingConfirmationReply(phone, confirmed) {
       nombre: pending.nombre,
       contacto: pending.contacto,
     });
-    const pideTelefono = !state.contactoReal
+    // Mismo criterio que agent.js: un @usuario de Instagram guardado en contactoReal no cuenta
+    // como teléfono — solo collected.telefono_contacto, que viene de submit_contact_phone.
+    const pideTelefono = !state.collected?.telefono_contacto
       ? ' Una última cosa — ¿me compartes un número de teléfono de contacto, por si hace falta comunicarnos por otro medio?'
       : '';
     const mensajeConfirmacion = `¡Buenas noticias, ${pending.nombre}! La arquitecta María José confirmó y quedó agendada tu llamada para ${horario}. ¡Nos vemos pronto!${pideTelefono}`;
