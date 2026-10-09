@@ -49,6 +49,12 @@ router.post('/webhook/manychat', express.json(), async (req, res) => {
   const incoming = manychat.parseIncomingMessage(req.body);
   if (!incoming) return res.status(400).json({ error: 'subscriber_id y text son requeridos' });
 
+  if (manychat.esSoloReaccion(incoming.text)) {
+    // Es una reacción (👏, ❤️, 👍...), no un mensaje real — la ignoramos por completo.
+    console.log(`[webhook] ignorando reacción de ${incoming.from} (${incoming.channel}): "${incoming.text}"`);
+    return res.json({ reply: null });
+  }
+
   if (incoming.contactoReal) {
     // Guardado apenas llega, antes de procesar el mensaje — así ya está disponible si esta
     // misma conversación termina en agendamiento en este turno.

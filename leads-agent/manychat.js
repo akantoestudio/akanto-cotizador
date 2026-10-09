@@ -59,4 +59,13 @@ function parseIncomingMessage(body) {
   return { from: String(from), text, name, channel, contactoReal };
 }
 
-module.exports = { isConfigured, sendMessage, parseIncomingMessage };
+// Instagram (y WhatsApp) mandan las reacciones a un mensaje — 👏, ❤️, 👍 — por el mismo webhook
+// que usa para mensajes de texto reales, con el emoji como si fuera el "text". Si todo el
+// mensaje no tiene ni una sola letra ni número, es casi seguro una reacción y no un mensaje —
+// lo ignoramos para no reabrir la calificación (ej. preguntar de nuevo "¿consultorio o espacio
+// comercial?") con un simple emoji suelto a algo que ya dijimos.
+function esSoloReaccion(text) {
+  return !/[\p{L}\p{N}]/u.test(String(text || ''));
+}
+
+module.exports = { isConfigured, sendMessage, parseIncomingMessage, esSoloReaccion };
