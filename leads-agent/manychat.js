@@ -68,4 +68,11 @@ function esSoloReaccion(text) {
   return !/[\p{L}\p{N}]/u.test(String(text || ''));
 }
 
-module.exports = { isConfigured, sendMessage, parseIncomingMessage, esSoloReaccion };
+// Cuando el lead manda una imagen o archivo, ManyChat lo reenvía como un link puro a su
+// storage (ej. "https://manybot-files.s3.../original_xxx.jpeg"), sin texto alrededor. Si el
+// mensaje completo es solo esa URL, es un archivo adjunto, no algo que alguien tipeó.
+function esArchivoMultimedia(text) {
+  return /^\s*https?:\/\/\S+\s*$/.test(String(text || ''));
+}
+
+module.exports = { isConfigured, sendMessage, parseIncomingMessage, esSoloReaccion, esArchivoMultimedia };
