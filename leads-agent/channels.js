@@ -1,4 +1,5 @@
 const manychat = require('./manychat');
+const store = require('./store');
 
 const CONTACT_LABELS = {
   whatsapp: 'WhatsApp',
@@ -21,6 +22,15 @@ async function sendToLead(conversationState, text) {
 // mensaje realmente le llegue a María José, y así no se pierde un aviso importante).
 async function notifyMariaJose(text) {
   const destinatarios = [process.env.MARIA_JOSE_WHATSAPP_NUMBER, process.env.NOTIFY_BACKUP_NUMBER].filter(Boolean);
+  // Fuera de la ventana de 24h de WhatsApp (ver store.js), este envío probablemente no va a
+  // llegar — ManyChat de todas formas suele reportarlo como exitoso, así que sin este aviso no
+  // hay forma de notarlo. Lo dejamos en los logs de Railway para diagnosticar rápido la próxima
+  // vez que algo "se mande" pero no llegue.
+  for (const id of destinatarios) {
+    if (!store.dentroDeVentanaMensajeria(id)) {
+      console.warn(`[channels] AVISO: han pasado más de 24h desde el último mensaje real de ${id} — este envío probablemente NO se entregue (ventana de mensajería de WhatsApp). Pídele que le escriba algo al bot para reabrirla.`);
+    }
+  }
   const resultados = await Promise.allSettled(destinatarios.map((id) => manychat.sendMessage(id, text, 'whatsapp')));
   const fallidos = resultados.filter((r) => r.status === 'rejected');
   fallidos.forEach((r) => console.error('[channels] error notificando a un destinatario de respaldo', r.reason));

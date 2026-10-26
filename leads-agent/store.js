@@ -82,6 +82,32 @@ function listConversations() {
   return conversations.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
 }
 
+// --- Ventana de mensajería de 24h de WhatsApp Business ---
+// Pasadas 24h desde el último mensaje real que nos mandó un contacto, Meta bloquea cualquier
+// mensaje de texto libre — solo se puede reabrir la conversación con un "message template"
+// pre-aprobado (que ManyChat no soporta vía sendContent, ver manychat.js). Esto registra cuándo
+// nos escribió María José / el respaldo, para poder avisar ANTES de un envío automático
+// (recordatorios, notificaciones) que probablemente no vaya a llegar.
+const VENTANA_MENSAJERIA_HORAS = 24;
+
+// Llamar cada vez que un número autorizado (María José, respaldo) nos escribe de verdad —
+// una reacción (👏, etc.) no cuenta, se filtra antes de llegar acá.
+function registrarMensajeEntrante(phone) {
+  const state = getConversation(phone);
+  state.lastInboundAt = new Date().toISOString();
+  saveConversation(phone, state);
+}
+
+function horasDesdeUltimoMensaje(phone) {
+  const state = getConversation(phone);
+  if (!state.lastInboundAt) return Infinity; // nunca registrado — tratamos como ventana cerrada
+  return (Date.now() - new Date(state.lastInboundAt).getTime()) / (1000 * 60 * 60);
+}
+
+function dentroDeVentanaMensajeria(phone) {
+  return horasDesdeUltimoMensaje(phone) < VENTANA_MENSAJERIA_HORAS;
+}
+
 module.exports = {
   getConversation,
   saveConversation,
@@ -89,4 +115,6 @@ module.exports = {
   sanitizePhone,
   getMostRecentByStatus,
   listConversations,
+  registrarMensajeEntrante,
+  dentroDeVentanaMensajeria,
 };

@@ -29,6 +29,9 @@ function esRemitenteAutorizado(from) {
 
 async function routeIncomingMessage(channel, from, text, name) {
   if (channel !== 'instagram' && esRemitenteAutorizado(from)) {
+    // Registra que nos escribió de verdad — ver store.js, es lo que nos deja saber después si
+    // un envío automático (recordatorio, notificación) sigue dentro de la ventana de 24h.
+    store.registrarMensajeEntrante(from);
     const reply = await reschedule.handleMariaJoseMessage(text);
     if (reply) await channels.notifyMariaJose(reply);
     return { reply };
