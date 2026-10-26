@@ -74,13 +74,7 @@ async function procesarIncoming(incoming) {
 // Meta (tanto para Instagram como para WhatsApp).
 router.post('/webhook/manychat', express.json(), async (req, res) => {
   const token = req.headers['x-manychat-token'];
-  // MANYCHAT_WEBHOOK_SECRET_PREVIO acepta temporalmente el secreto anterior además del actual,
-  // mientras se actualiza el header en cada automatización de ManyChat (WhatsApp e Instagram) —
-  // evita perder mensajes reales en el ratito en que Railway y ManyChat no coinciden. Borrar
-  // esta variable (y esta rama) en Railway una vez confirmado que ambas automatizaciones ya
-  // usan el secreto nuevo.
-  const secretosValidos = [process.env.MANYCHAT_WEBHOOK_SECRET, process.env.MANYCHAT_WEBHOOK_SECRET_PREVIO].filter(Boolean);
-  if (secretosValidos.length === 0 || !secretosValidos.includes(token)) {
+  if (!process.env.MANYCHAT_WEBHOOK_SECRET || token !== process.env.MANYCHAT_WEBHOOK_SECRET) {
     return res.status(401).json({ error: 'token inválido' });
   }
 
