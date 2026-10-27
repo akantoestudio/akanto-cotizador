@@ -29,9 +29,14 @@ async function checkUpcomingCalls() {
 
     const nombre = state.collected?.nombre || 'un lead';
     const contacto = channels.contactLabel(state);
+    const horario = formatHorario(new Date(state.scheduledEvent.start));
     try {
       await channels.notifyMariaJose(
-        `Recordatorio: tienes una llamada en ${REMINDER_MINUTES_BEFORE} minutos con ${nombre} (${contacto}) — ${formatHorario(new Date(state.scheduledEvent.start))}.`
+        `Recordatorio: tienes una llamada en ${REMINDER_MINUTES_BEFORE} minutos con ${nombre} (${contacto}) — ${horario}.`,
+        process.env.MANYCHAT_FLOW_RECORDATORIO_LLAMADA && {
+          flowNs: process.env.MANYCHAT_FLOW_RECORDATORIO_LLAMADA,
+          campos: { recordatorio_nombre: nombre, recordatorio_contacto: contacto, recordatorio_horario: horario },
+        }
       );
       state.scheduledEvent.reminderSent = true;
       store.saveConversation(state.phone, state);

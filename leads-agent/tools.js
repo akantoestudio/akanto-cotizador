@@ -193,7 +193,11 @@ async function handleSubmitQualifiedLead(input, context) {
 
     if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
       await channels.notifyMariaJose(
-        `¿Podrías atender una llamada con ${nombre} el ${horarioPropuesto} aunque tengas algo más agendado a esa hora? Es sobre ${tipoLabel} en ${input.ciudad}. Contesta sí o no.`
+        `¿Podrías atender una llamada con ${nombre} el ${horarioPropuesto} aunque tengas algo más agendado a esa hora? Es sobre ${tipoLabel} en ${input.ciudad}. Contesta sí o no.`,
+        process.env.MANYCHAT_FLOW_CONFIRMACION_DISPONIBILIDAD && {
+          flowNs: process.env.MANYCHAT_FLOW_CONFIRMACION_DISPONIBILIDAD,
+          campos: { recordatorio_nombre: nombre, recordatorio_horario: horarioPropuesto, confirmacion_tipo: tipoLabel, confirmacion_ciudad: input.ciudad },
+        }
       );
     }
 
