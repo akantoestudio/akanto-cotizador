@@ -86,20 +86,4 @@ router.post('/leads-agent/admin/api/conversations/:phone/reply', requireAdminTok
   }
 });
 
-// Endpoint TEMPORAL de diagnóstico — prueba el envío de una plantilla de WhatsApp vía Flow
-// directo (setCustomFields + sendFlow), sin pasar por una llamada agendada real. Se quita una
-// vez confirmado que el respaldo de plantillas funciona en producción.
-router.post('/leads-agent/admin/api/diag/test-flow', requireAdminToken, express.json(), async (req, res) => {
-  const manychat = require('./manychat');
-  const { phone, flowNs, campos } = req.body || {};
-  if (!phone || !flowNs) return res.status(400).json({ error: 'phone y flowNs son requeridos' });
-  try {
-    const setResult = await manychat.setCustomFields(phone, campos || {});
-    const flowResult = await manychat.sendFlow(phone, flowNs);
-    res.json({ ok: true, setResult, flowResult });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 module.exports = router;
