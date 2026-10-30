@@ -100,6 +100,24 @@ function formatM2(m2) {
   return /^\d+([.,]\d+)?$/.test(value) ? `${value} m²` : value;
 }
 
+function etiquetaCanal(state) {
+  return state.channel === 'instagram' ? 'Instagram' : 'WhatsApp';
+}
+
+// Descripción del evento de Calendar: tipo/m²/ciudad en la primera línea y debajo cómo contactar
+// al lead. El teléfono real se le pide DESPUÉS de agendar, así que al crear el evento casi
+// siempre está pendiente — queda marcado así y se completa solo cuando el lead lo da (ver
+// handleSubmitContactPhone), para que María José no tenga que buscarlo en la conversación.
+function descripcionEvento({ tipoLabel, m2, ciudad, contacto, telefono, canal }) {
+  const lineas = [`${tipoLabel}, ${formatM2(m2)}, ${ciudad}.`];
+  if (telefono) {
+    lineas.push(`Teléfono: ${telefono} (${canal})`);
+  } else {
+    lineas.push(`Contacto: ${contacto}`, 'Teléfono: pendiente — se le pidió al lead, se agrega aquí cuando lo dé.');
+  }
+  return lineas.join('\n');
+}
+
 function formatFecha(date) {
   return new Intl.DateTimeFormat('es-CO', {
     day: '2-digit',
@@ -112,11 +130,21 @@ function formatFecha(date) {
 // Crea el evento + fila de Sheets y marca la conversación como agendada. Usado tanto al
 // agendar directo (franja libre) como al confirmar una franja que chocaba (ver más abajo).
 async function finalizeBooking({ phone, start, end, tipoLabel, m2, ciudad, nombre, contacto }) {
+  // El teléfono ya puede estar guardado si el lead lo dio mientras esperábamos que María José
+  // confirmara una franja que chocaba (flujo pending_confirmation).
+  const previo = store.getConversation(phone);
   const createdEvent = await calendar.createEvent({
     start,
     end,
     summary: `Llamada con ${nombre} — ${tipoLabel}`,
-    description: `${tipoLabel}, ${formatM2(m2)}, ${ciudad}. Contacto: ${contacto}`,
+    description: descripcionEvento({
+      tipoLabel,
+      m2,
+      ciudad,
+      contacto,
+      telefono: previo.collected?.telefono_contacto,
+      canal: etiquetaCanal(previo),
+    }),
   });
 
   const horario = formatHorario(start);
@@ -216,8 +244,12 @@ async function handleSubmitQualifiedLead(input, context) {
   });
 
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
+    // El teléfono se le pide al lead justo después de agendar, así que casi siempre todavía no
+    // está — se lo avisamos aparte (con el número) apenas lo dé, ver handleSubmitContactPhone.
+    const telefono = store.getConversation(phone).collected?.telefono_contacto;
+    const lineaTelefono = telefono ? ` Teléfono: ${telefono}.` : ' Teléfono: pendiente, te lo mando apenas el lead lo dé.';
     await channels.notifyMariaJose(
-      `Quedó agendado: ${horario} con ${nombre} — ${tipoLabel}, ${input.ciudad}. ¿Te sirve o prefieres reagendar?`
+      `Quedó agendado: ${horario} con ${nombre} — ${tipoLabel}, ${input.ciudad}.${lineaTelefono} ¿Te sirve o prefieres reagendar?`
     );
   }
 
@@ -253,7 +285,7 @@ async function handlePendingConfirmationReply(phone, confirmed) {
     // Sin esto, Claude no ve en el historial que ya se envió este mensaje (incluida la
     // pregunta del teléfono) — lo trataría como si nunca se hubiera preguntado nada.
     store.appendMessage(phone, 'assistant', mensajeConfirmacion, state.channel);
-    return { confirmed: true, horario, nombre: pending.nombre };
+    return { confirmed: true, horario, nombre: pending.nombre, telefono: state.collected?.telefono_contacto };
   }
 
   state.status = 'in_progress';
@@ -272,10 +304,41 @@ async function handleSubmitContactPhone(input, context) {
   state.contactoReal = input.telefono;
   store.saveConversation(phone, state);
 
+  const datos = state.collected;
+  const evento = state.scheduledEvent;
+  const nombre = datos.nombre || leadName || channels.contactLabel(state);
+
+  // Si la llamada ya está agendada, el evento de Calendar se creó antes de tener el teléfono —
+  // lo actualizamos para que María José lo vea ahí mismo, sin ir a buscarlo a la conversación.
+  // Un fallo de Calendar no debe impedir el aviso de abajo (ni al revés).
+  let calendarActualizado = false;
+  if (evento?.eventId && datos.tipo_proyecto && datos.m2 && datos.ciudad) {
+    try {
+      await calendar.updateEventDescription(
+        evento.eventId,
+        descripcionEvento({
+          tipoLabel: TIPO_LABELS[datos.tipo_proyecto] || datos.tipo_proyecto,
+          m2: datos.m2,
+          ciudad: datos.ciudad,
+          contacto: channels.contactLabel(state),
+          telefono: input.telefono,
+          canal: etiquetaCanal(state),
+        })
+      );
+      calendarActualizado = true;
+    } catch (e) {
+      console.error('[tools] no se pudo agregar el teléfono al evento de Calendar', e);
+    }
+  }
+
   if (process.env.MARIA_JOSE_WHATSAPP_NUMBER) {
-    await channels.notifyMariaJose(
-      `Número de contacto de ${leadName || channels.contactLabel(state)}: ${input.telefono}`
-    );
+    // Mensaje autosuficiente: nombre + teléfono + cuándo es la llamada, para que no haga falta
+    // abrir la conversación para saber de quién es el número.
+    const cuando = evento?.horario ? ` — llamada ${evento.horario}` : '';
+    const base = `Teléfono de ${nombre}: ${input.telefono}${cuando}`;
+    // El horario ("…4:00 p. m.") ya termina en punto — evita el doble punto.
+    const enCalendario = calendarActualizado ? ' Ya quedó también en el evento del calendario.' : '';
+    await channels.notifyMariaJose(`${base}${base.endsWith('.') ? '' : '.'}${enCalendario}`);
   }
 
   return { guardado: true };

@@ -104,6 +104,23 @@ async function moveEvent(eventId, start, end) {
   return res.data;
 }
 
+// Reescribe solo la descripción de un evento ya creado — se usa cuando el lead da su teléfono
+// de contacto DESPUÉS de agendar, para que el número quede en el evento sin tener que ir a
+// buscarlo a la conversación.
+async function updateEventDescription(eventId, description) {
+  if (!isConfigured() || !eventId) {
+    console.log('[calendar:dry-run] actualizar descripción de evento', { eventId, description });
+    return { dryRun: true };
+  }
+  const calendar = getCalendarClient();
+  const res = await calendar.events.patch({
+    calendarId: process.env.GOOGLE_CALENDAR_ID,
+    eventId,
+    requestBody: { description },
+  });
+  return res.data;
+}
+
 // Convierte un instante a sus componentes de fecha/día-de-semana/hora en hora de Bogotá.
 function bogotaParts(date) {
   const b = new Date(date.getTime() - 5 * 60 * 60 * 1000);
@@ -180,6 +197,7 @@ module.exports = {
   findMatchingSlot,
   createEvent,
   moveEvent,
+  updateEventDescription,
   findNextFreeSlots,
   slotToRange,
   isWithinBusinessHours,

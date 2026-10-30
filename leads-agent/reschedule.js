@@ -69,7 +69,10 @@ async function handleMariaJoseMessage(text) {
     const yes = !no && (/^s[ií]\b/.test(normalized) || matchesAny(normalized, PENDING_YES_WORDS));
     if (yes) {
       const result = await tools.handlePendingConfirmationReply(pendingConfirmation.phone, true);
-      return result ? `Perfecto, quedó confirmada la llamada con ${result.nombre} para ${result.horario}.` : 'Listo.';
+      if (!result) return 'Listo.';
+      // El horario ("…9:00 a. m.") ya termina en punto — evita el doble punto.
+      const base = `Perfecto, quedó confirmada la llamada con ${result.nombre} para ${result.horario}`;
+      return `${base}${base.endsWith('.') ? '' : '.'}${result.telefono ? ` Teléfono: ${result.telefono}.` : ''}`;
     }
     if (no) {
       await tools.handlePendingConfirmationReply(pendingConfirmation.phone, false);
